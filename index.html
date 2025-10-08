@@ -949,7 +949,7 @@
         async function loadInbox() {
             const { data, error } = await supabase
                 .from('shares')
-                .select('*')
+                .select('*, from_user:users!shares_from_user_id_fkey(username, first_name)')
                 .eq('to_user_id', telegramUser.id)
                 .order('sent_at', { ascending: false });
             
@@ -976,18 +976,24 @@
                 return;
             }
 
-            // Group by sender
+            // Group by sender (from_user_id)
             const grouped = {};
             inboxMessages.forEach(msg => {
-                const sender = msg.to_username || 'Unknown';
-                if (!grouped[sender]) {
-                    grouped[sender] = [];
+                const senderId = msg.from_user_id;
+                const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
+                
+                if (!grouped[senderId]) {
+                    grouped[senderId] = {
+                        username: senderUsername,
+                        messages: []
+                    };
                 }
-                grouped[sender].push(msg);
+                grouped[senderId].messages.push(msg);
             });
 
-            Object.keys(grouped).forEach(sender => {
-                const messages = grouped[sender];
+            Object.keys(grouped).forEach(senderId => {
+                const group = grouped[senderId];
+                const messages = group.messages;
                 const unreadCount = messages.filter(m => !m.is_read).length;
                 const lastMsg = messages[0];
                 
@@ -999,7 +1005,7 @@
                 
                 const senderDiv = document.createElement('div');
                 senderDiv.className = 'memo-sender';
-                senderDiv.textContent = `From: @${sender} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
+                senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
                 
                 const preview = document.createElement('div');
                 preview.className = 'memo-preview';
@@ -1015,16 +1021,15 @@
                 item.appendChild(preview);
                 item.appendChild(time);
                 
-                item.onclick = () => showInboxSender(sender);
+                item.onclick = () => showInboxSender(senderId, group.username);
                 list.appendChild(item);
             });
 
             count.textContent = t('inboxCount').replace('{count}', Object.keys(grouped).length);
         }
 
-        function showInboxSender(sender) {
-            // Show list of messages from this sender
-            const senderMessages = inboxMessages.filter(m => m.to_username === sender);
+        function showInboxSender(senderId, senderUsername) {
+            const senderMessages = inboxMessages.filter(m => m.from_user_id == senderId);
             
             const list = document.getElementById('inboxList');
             list.innerHTML = '';
@@ -1059,18 +1064,17 @@
                 item.appendChild(preview);
                 item.appendChild(time);
                 
-                item.onclick = () => showInboxDetail(msg.id);
+                item.onclick = () => showInboxDetail(msg.id, senderUsername);
                 list.appendChild(item);
             });
         }
 
-        async function showInboxDetail(id) {
+        async function showInboxDetail(id, senderUsername) {
             const msg = inboxMessages.find(m => m.id === id);
             if (!msg) return;
 
             currentInboxId = id;
             
-            // Mark as read
             if (!msg.is_read) {
                 const { error } = await supabase
                     .from('shares')
@@ -1090,7 +1094,8 @@
             document.getElementById('inboxDetailView').classList.add('active');
             document.getElementById('backBtn').style.display = 'block';
 
-            document.getElementById('inboxDetailSender').textContent = `From: @${msg.to_username}`;
+            const displayUsername = senderUsername || msg.from_user?.username || msg.to_username || 'Unknown';
+            document.getElementById('inboxDetailSender').textContent = `From: @${displayUsername}`;
             document.getElementById('inboxDetailTime').textContent = new Date(msg.sent_at).toLocaleString();
             document.getElementById('inboxDetailContent').textContent = msg.memo_text;
         }
