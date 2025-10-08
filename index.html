@@ -1107,13 +1107,10 @@
         }
 
         async function uploadFiles(memoId) {
-            for (const file of selectedFiles) {
-                console.log('Uploading file:', {
-                    name: file.name,
-                    type: file.type,
-                    size: file.size
-                });
+            let uploadedCount = 0;
+            let failedFiles = [];
 
+            for (const file of selectedFiles) {
                 const fileName = `${Date.now()}_${file.name}`;
                 const filePath = `${telegramUser.id}/${fileName}`;
 
@@ -1126,11 +1123,12 @@
 
                 if (uploadError) {
                     console.error('Upload error:', uploadError);
-                    showAlert(`Failed to upload ${file.name}: ${uploadError.message}`);
+                    failedFiles.push({
+                        name: file.name,
+                        error: uploadError.message || JSON.stringify(uploadError)
+                    });
                     continue;
                 }
-
-                console.log('Upload success:', data);
 
                 const { error: dbError } = await supabase
                     .from('files')
@@ -1138,14 +1136,30 @@
                         memo_id: memoId,
                         file_name: file.name,
                         file_size: file.size,
-                        file_type: file.type,
+                        file_type: file.type || 'application/octet-stream',
                         storage_path: filePath
                     });
 
                 if (dbError) {
                     console.error('DB insert error:', dbError);
-                    showAlert(`Failed to save file metadata: ${dbError.message}`);
+                    failedFiles.push({
+                        name: file.name,
+                        error: 'DB Error: ' + (dbError.message || JSON.stringify(dbError))
+                    });
+                } else {
+                    uploadedCount++;
                 }
+            }
+
+            // Show result to user
+            if (failedFiles.length > 0) {
+                let errorMsg = `Uploaded: ${uploadedCount}/${selectedFiles.length}\n\nFailed files:\n`;
+                failedFiles.forEach(f => {
+                    errorMsg += `\n${f.name}:\n${f.error}\n`;
+                });
+                showAlert(errorMsg);
+            } else if (uploadedCount > 0) {
+                showAlert(`Successfully uploaded ${uploadedCount} file(s)!`);
             }
         }
 
