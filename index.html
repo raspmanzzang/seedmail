@@ -1320,33 +1320,44 @@
 
             const toEmail = recipients.join(',');
 
-            // Get file attachments and create download links
+            // Get file attachments and create HTML download links
             const { data: files } = await supabase
                 .from('files')
                 .select('*')
                 .eq('memo_id', currentMemoId);
 
-            let filesInfo = '';
+            let filesHtml = '';
             if (files && files.length > 0) {
-                filesInfo = '\n\n📎 Attached Files:\n';
+                filesHtml = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #00ff41;">';
+                filesHtml += '<div style="color: #33ff66; font-size: 14px; margin-bottom: 10px;">📎 Attached Files:</div>';
                 files.forEach(file => {
                     const { data: urlData } = supabase.storage
                         .from('memo-files')
                         .getPublicUrl(file.storage_path);
                     
                     if (urlData && urlData.publicUrl) {
-                        filesInfo += `- ${file.file_name} (${formatFileSize(file.file_size)})\n  Download: ${urlData.publicUrl}\n\n`;
+                        filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
+                        filesHtml += `<div style="color: #00ff41;">📄 ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
+                        filesHtml += `<a href="${urlData.publicUrl}" style="color: #33ff66; text-decoration: underline; font-size: 12px;" target="_blank">🔗 Click to Download</a>`;
+                        filesHtml += `</div>`;
                     }
                 });
+                filesHtml += '</div>';
             }
 
             emailjs.init(emailjsConfig.publicKey);
-            emailjs.send(emailjsConfig.serviceId, emailjsConfig.templateId, {
+            
+            const emailData = {
                 to_email: toEmail,
                 memo_name: memoName,
-                memo_content: memo.text + filesInfo,
+                memo_content: memo.text,
+                memo_files: filesHtml,
                 memo_time: new Date(memo.time).toLocaleString()
-            }).then(() => {
+            };
+            
+            console.log('Sending email with data:', emailData);
+            
+            emailjs.send(emailjsConfig.serviceId, emailjsConfig.templateId, emailData).then(() => {
                 document.getElementById('emailPopup').classList.remove('active');
                 showAlert(t('sendSuccess'));
             }).catch((error) => {
