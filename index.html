@@ -1021,6 +1021,7 @@
 
             // Upload new files if any
             if (selectedFiles.length > 0) {
+                showAlert(`Uploading ${selectedFiles.length} file(s)...`);
                 await uploadFiles(currentMemoId);
             }
 
@@ -1077,6 +1078,12 @@
         // ========== FILE FUNCTIONS ==========
         function toggleFileInput() {
             const wrapper = document.getElementById('fileInputWrapper');
+            
+            // If not in edit mode, enter edit mode first
+            if (document.getElementById('editBtn').style.display !== 'none') {
+                editMemo();
+            }
+            
             if (wrapper.classList.contains('active')) {
                 wrapper.classList.remove('active');
             } else {
@@ -1111,55 +1118,69 @@
             let failedFiles = [];
 
             for (const file of selectedFiles) {
-                const fileName = `${Date.now()}_${file.name}`;
-                const filePath = `${telegramUser.id}/${fileName}`;
+                try {
+                    const fileName = `${Date.now()}_${file.name}`;
+                    const filePath = `${telegramUser.id}/${fileName}`;
 
-                const { data, error: uploadError } = await supabase.storage
-                    .from('memo-files')
-                    .upload(filePath, file, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
+                    // Try upload
+                    const { data, error: uploadError } = await supabase.storage
+                        .from('memo-files')
+                        .upload(filePath, file, {
+                            cacheControl: '3600',
+                            upsert: false
+                        });
 
-                if (uploadError) {
-                    console.error('Upload error:', uploadError);
+                    if (uploadError) {
+                        console.error('Upload error:', uploadError);
+                        failedFiles.push({
+                            name: file.name,
+                            error: 'Storage upload failed: ' + (uploadError.message || JSON.stringify(uploadError))
+                        });
+                        continue;
+                    }
+
+                    console.log('Upload success:', data);
+
+                    // Insert to database
+                    const { error: dbError } = await supabase
+                        .from('files')
+                        .insert({
+                            memo_id: memoId,
+                            file_name: file.name,
+                            file_size: file.size,
+                            file_type: file.type || 'application/octet-stream',
+                            storage_path: filePath
+                        });
+
+                    if (dbError) {
+                        console.error('DB insert error:', dbError);
+                        failedFiles.push({
+                            name: file.name,
+                            error: 'Database insert failed: ' + (dbError.message || JSON.stringify(dbError))
+                        });
+                    } else {
+                        uploadedCount++;
+                    }
+                } catch (err) {
+                    console.error('Unexpected error:', err);
                     failedFiles.push({
                         name: file.name,
-                        error: uploadError.message || JSON.stringify(uploadError)
+                        error: 'Unexpected error: ' + err.toString()
                     });
-                    continue;
-                }
-
-                const { error: dbError } = await supabase
-                    .from('files')
-                    .insert({
-                        memo_id: memoId,
-                        file_name: file.name,
-                        file_size: file.size,
-                        file_type: file.type || 'application/octet-stream',
-                        storage_path: filePath
-                    });
-
-                if (dbError) {
-                    console.error('DB insert error:', dbError);
-                    failedFiles.push({
-                        name: file.name,
-                        error: 'DB Error: ' + (dbError.message || JSON.stringify(dbError))
-                    });
-                } else {
-                    uploadedCount++;
                 }
             }
 
-            // Show result to user
+            // Always show result to user
             if (failedFiles.length > 0) {
-                let errorMsg = `Uploaded: ${uploadedCount}/${selectedFiles.length}\n\nFailed files:\n`;
+                let errorMsg = `✅ Uploaded: ${uploadedCount}/${selectedFiles.length}\n\n❌ Failed files:\n`;
                 failedFiles.forEach(f => {
-                    errorMsg += `\n${f.name}:\n${f.error}\n`;
+                    errorMsg += `\n📄 ${f.name}:\n${f.error}\n`;
                 });
                 showAlert(errorMsg);
             } else if (uploadedCount > 0) {
-                showAlert(`Successfully uploaded ${uploadedCount} file(s)!`);
+                showAlert(`✅ Successfully uploaded ${uploadedCount} file(s)!`);
+            } else {
+                showAlert('⚠️ No files were uploaded. Unknown error.');
             }
         }
 
@@ -1243,65 +1264,84 @@
                     return;
                 }
 
-                // Send files if any - try URL first, fallback to direct upload
+                // Send files if any - PDF uses direct upload, others use URL
                 if (files && files.length > 0) {
                     for (const file of files) {
-                        // Get public URL
-                        const { data: urlData } = supabase.storage
-                            .from('memo-files')
-                            .getPublicUrl(file.storage_path);
+                        const isPDF = file.file_type === 'application/pdf' || file.file_name.toLowerCase().endsWith('.pdf');
+                        
+                        // PDF: always use direct upload (more reliable)
+                        if (isPDF) {
+                            console.log('Sending PDF via direct upload:', file.file_name);
+                            
+                            const { data: fileData, error: downloadError } = await supabase.storage
+                                .from('memo-files')
+                                .download(file.storage_path);
 
-                        if (urlData && urlData.publicUrl) {
-                            console.log('Sending file via Telegram:', {
-                                fileName: file.file_name,
-                                fileType: file.file_type,
-                                fileSize: file.file_size,
-                                url: urlData.publicUrl
-                            });
+                            if (!downloadError && fileData) {
+                                const formData = new FormData();
+                                formData.append('chat_id', recipientId);
+                                formData.append('document', fileData, file.file_name);
+                                formData.append('caption', `📎 ${file.file_name} (${formatFileSize(file.file_size)})`);
 
-                            // Try sending with URL first
-                            const urlResponse = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendDocument`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    chat_id: recipientId,
-                                    document: urlData.publicUrl,
-                                    caption: `📎 ${file.file_name} (${formatFileSize(file.file_size)})`
-                                })
-                            });
+                                const response = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendDocument`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
 
-                            const urlResult = await urlResponse.json();
-                            console.log('Telegram URL send result:', urlResult);
+                                const result = await response.json();
+                                if (!result.ok) {
+                                    console.error('PDF send failed:', result);
+                                    showAlert(`Failed to send PDF: ${file.file_name}`);
+                                }
+                            } else {
+                                console.error('Failed to download PDF from Supabase:', downloadError);
+                                showAlert(`Failed to download PDF: ${file.file_name}`);
+                            }
+                        } 
+                        // Other files: try URL method first
+                        else {
+                            const { data: urlData } = supabase.storage
+                                .from('memo-files')
+                                .getPublicUrl(file.storage_path);
 
-                            // If URL method fails, try direct upload
-                            if (!urlResult.ok) {
-                                console.log('URL method failed, trying direct upload...');
-                                
-                                // Download file from Supabase
-                                const { data: fileData, error: downloadError } = await supabase.storage
-                                    .from('memo-files')
-                                    .download(file.storage_path);
+                            if (urlData && urlData.publicUrl) {
+                                const urlResponse = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendDocument`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        chat_id: recipientId,
+                                        document: urlData.publicUrl,
+                                        caption: `📎 ${file.file_name} (${formatFileSize(file.file_size)})`
+                                    })
+                                });
 
-                                if (!downloadError && fileData) {
-                                    // Create FormData and upload directly
-                                    const formData = new FormData();
-                                    formData.append('chat_id', recipientId);
-                                    formData.append('document', fileData, file.file_name);
-                                    formData.append('caption', `📎 ${file.file_name} (${formatFileSize(file.file_size)})`);
+                                const urlResult = await urlResponse.json();
 
-                                    const directResponse = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendDocument`, {
-                                        method: 'POST',
-                                        body: formData
-                                    });
+                                // If URL method fails, fallback to direct upload
+                                if (!urlResult.ok) {
+                                    console.log('URL method failed, trying direct upload for:', file.file_name);
+                                    
+                                    const { data: fileData, error: downloadError } = await supabase.storage
+                                        .from('memo-files')
+                                        .download(file.storage_path);
 
-                                    const directResult = await directResponse.json();
-                                    console.log('Telegram direct upload result:', directResult);
+                                    if (!downloadError && fileData) {
+                                        const formData = new FormData();
+                                        formData.append('chat_id', recipientId);
+                                        formData.append('document', fileData, file.file_name);
+                                        formData.append('caption', `📎 ${file.file_name} (${formatFileSize(file.file_size)})`);
 
-                                    if (!directResult.ok) {
-                                        console.error('Both methods failed for:', file.file_name, directResult);
+                                        const directResponse = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendDocument`, {
+                                            method: 'POST',
+                                            body: formData
+                                        });
+
+                                        const directResult = await directResponse.json();
+                                        if (!directResult.ok) {
+                                            console.error('Direct upload also failed:', directResult);
+                                            showAlert(`Failed to send file: ${file.file_name}`);
+                                        }
                                     }
-                                } else {
-                                    console.error('Failed to download file from Supabase:', downloadError);
                                 }
                             }
                         }
