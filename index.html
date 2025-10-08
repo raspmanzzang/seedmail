@@ -427,9 +427,9 @@
         // ========== CONFIGURATION ==========
         // 여기에 Supabase와 Bot 정보를 입력하세요!
         const CONFIG = {
-            supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co', // 예: 'https://xxxxx.supabase.co'
-            supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndGVwdmtpcXBjYnd3ZXJuc2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5MTE3NDcsImV4cCI6MjA3NTQ4Nzc0N30.mDwMikzbs1etS4QMDuprpEVgLLZYlbjXKibQ6EZslXI', // 예: 'eyJhbGc...'
-            botToken: '8416248849:AAHHiLRr1MzdkOnMwe3gDBkgVHkEi6bQMto' // 예: '123456:ABC-DEF...'
+            supabaseUrl: '', // 예: 'https://xxxxx.supabase.co'
+            supabaseAnonKey: '', // 예: 'eyJhbGc...'
+            botToken: '' // 예: '123456:ABC-DEF...'
         };
 
         // ========== TRANSLATIONS ==========
@@ -517,8 +517,7 @@
 
             // Initialize Supabase
             try {
-                const { createClient } = supabase;
-                supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
+                supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
                 
                 // Create or update user
                 await createOrUpdateUser();
