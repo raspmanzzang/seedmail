@@ -663,7 +663,7 @@
         const CONFIG = {
             supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co', 
             supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndGVwdmtpcXBjYnd3ZXJuc2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5MTE3NDcsImV4cCI6MjA3NTQ4Nzc0N30.mDwMikzbs1etS4QMDuprpEVgLLZYlbjXKibQ6EZslXI', 
-            botToken: '8416248849:AAHHiLRr1MzdkOnMwe3gDBkgVHkEi6bQMto' // 
+            botToken: '8416248849:AAHHiLRr1MzdkOnMwe3gDBkgVHkEi6bQMto' 
         };
 
         // ========== TRANSLATIONS ==========
@@ -1216,22 +1216,24 @@
                     return;
                 }
 
-                // Send files if any
+                // Send files if any - using public URL method
                 if (files && files.length > 0) {
                     for (const file of files) {
-                        const { data: fileData } = await supabase.storage
+                        // Get public URL
+                        const { data: urlData } = supabase.storage
                             .from('memo-files')
-                            .download(file.storage_path);
+                            .getPublicUrl(file.storage_path);
 
-                        if (fileData) {
-                            const formData = new FormData();
-                            formData.append('chat_id', recipientId);
-                            formData.append('document', fileData, file.file_name);
-                            formData.append('caption', `📎 ${file.file_name}`);
-
+                        if (urlData && urlData.publicUrl) {
+                            // Send document using URL
                             await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendDocument`, {
                                 method: 'POST',
-                                body: formData
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    chat_id: recipientId,
+                                    document: urlData.publicUrl,
+                                    caption: `📎 ${file.file_name} (${formatFileSize(file.file_size)})`
+                                })
                             });
                         }
                     }
@@ -1318,7 +1320,7 @@
 
             const toEmail = recipients.join(',');
 
-            // Get file attachments
+            // Get file attachments and create download links
             const { data: files } = await supabase
                 .from('files')
                 .select('*')
@@ -1326,7 +1328,16 @@
 
             let filesInfo = '';
             if (files && files.length > 0) {
-                filesInfo = '\n\nAttached Files:\n' + files.map(f => `- ${f.file_name} (${formatFileSize(f.file_size)})`).join('\n');
+                filesInfo = '\n\n📎 Attached Files:\n';
+                files.forEach(file => {
+                    const { data: urlData } = supabase.storage
+                        .from('memo-files')
+                        .getPublicUrl(file.storage_path);
+                    
+                    if (urlData && urlData.publicUrl) {
+                        filesInfo += `- ${file.file_name} (${formatFileSize(file.file_size)})\n  Download: ${urlData.publicUrl}\n\n`;
+                    }
+                });
             }
 
             emailjs.init(emailjsConfig.publicKey);
