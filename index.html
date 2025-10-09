@@ -1051,31 +1051,32 @@
         // ========== TIME HELPER FUNCTIONS ==========
         // 로컬 시간으로 변환하는 헬퍼 함수
         function toLocalTime(utcTimeString) {
-            const date = new Date(utcTimeString);
-            return date;
-        }
+    const date = new Date(utcTimeString);
+    // 사용자가 설정한 오프셋만큼 조정
+    const offsetHours = parseFloat(utcOffset);
+    const offsetMinutes = (offsetHours - Math.floor(offsetHours)) * 60;
+    date.setHours(date.getHours() + Math.floor(offsetHours));
+    date.setMinutes(date.getMinutes() + offsetMinutes);
+    return date;
+}
 
-        // 시간 포맷팅 함수
-        function formatDateTime(utcTimeString) {
-            const date = toLocalTime(utcTimeString);
-            return date.toLocaleString('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-        }
+// 시간 포맷팅 함수
+function formatDateTime(utcTimeString) {
+    const date = toLocalTime(utcTimeString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${month}/${day}/${year}, ${hours}:${minutes}`;
+}
 
-        function formatTime(utcTimeString) {
-            const date = toLocalTime(utcTimeString);
-            return date.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-        }
+function formatTime(utcTimeString) {
+    const date = toLocalTime(utcTimeString);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
 
         // ========== TRANSLATIONS ==========
         const t = (key) => translations[key] || key;
