@@ -2305,153 +2305,159 @@
         };
 
         // ========== PASSWORD FUNCTIONS ==========
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
-        async function checkPassword() {
-            return new Promise((resolve) => {
-                const popup = document.getElementById('passwordPopup');
-                const title = document.getElementById('passwordPopupTitle');
-                const label = document.getElementById('passwordLabel');
-                const input = document.getElementById('passwordInput');
-                const confirmLabel = document.getElementById('confirmPasswordLabel');
-                const confirmInput = document.getElementById('confirmPasswordInput');
-                const errorLabel = document.getElementById('passwordError');
-                const saveBtn = document.getElementById('savePasswordBtn');
+async function checkPassword() {
+    return new Promise((resolve) => {
+        const popup = document.getElementById('passwordPopup');
+        const title = document.getElementById('passwordPopupTitle');
+        const label = document.getElementById('passwordLabel');
+        const input = document.getElementById('passwordInput');
+        const confirmLabel = document.getElementById('confirmPasswordLabel');
+        const confirmInput = document.getElementById('confirmPasswordInput');
+        const errorLabel = document.getElementById('passwordError');
+        const saveBtn = document.getElementById('savePasswordBtn');
 
-                title.textContent = 'Enter Password';
-                label.textContent = 'Password:';
-                input.value = '';
-                confirmLabel.style.display = 'none';
-                confirmInput.style.display = 'none';
-                confirmInput.value = '';
-                errorLabel.textContent = '';
-                saveBtn.textContent = 'Unlock';
+        title.textContent = 'Enter Password';
+        label.textContent = 'Password:';
+        input.value = '';
+        confirmLabel.style.display = 'none';
+        confirmInput.style.display = 'none';
+        confirmInput.value = '';
+        errorLabel.textContent = '';
+        saveBtn.textContent = 'Unlock';
 
-                popup.classList.add('active');
+        popup.classList.add('active');
 
-                const unlockHandler = async () => {
-                    const password = input.value.trim();
-                    if (!password) {
-                        errorLabel.textContent = 'Please enter password!';
-                        return;
-                    }
-
-                    const hash = await hashPassword(password);
-                    if (hash === passwordHash) {
-                        popup.classList.remove('active');
-                        saveBtn.onclick = null;
-                        input.onkeydown = null;
-                        resolve(true);
-                    } else {
-                        errorLabel.textContent = 'Incorrect password!';
-                        input.value = '';
-                    }
-                };
-
-                saveBtn.onclick = unlockHandler;
-                input.onkeydown = (e) => {
-                    if (e.key === 'Enter') unlockHandler();
-                };
-
-                document.getElementById('cancelPasswordBtn').onclick = () => {
-                    // Cannot cancel password check on startup
-                };
-            });
-        }
-
-        function showPasswordPopup() {
-            const popup = document.getElementById('passwordPopup');
-            const title = document.getElementById('passwordPopupTitle');
-            const label = document.getElementById('passwordLabel');
-            const input = document.getElementById('passwordInput');
-            const confirmLabel = document.getElementById('confirmPasswordLabel');
-            const confirmInput = document.getElementById('confirmPasswordInput');
-            const errorLabel = document.getElementById('passwordError');
-            const saveBtn = document.getElementById('savePasswordBtn');
-
-            input.value = '';
-            confirmInput.value = '';
-            errorLabel.textContent = '';
-
-            if (passwordHash) {
-                // Remove password
-                title.textContent = 'Remove Password';
-                label.textContent = 'Current Password:';
-                confirmLabel.style.display = 'none';
-                confirmInput.style.display = 'none';
-                saveBtn.textContent = 'Remove';
-            } else {
-                // Set password
-                title.textContent = 'Set Password';
-                label.textContent = 'New Password:';
-                confirmLabel.style.display = 'block';
-                confirmInput.style.display = 'block';
-                saveBtn.textContent = 'Save';
-            }
-
-            popup.classList.add('active');
-        }
-
-        document.getElementById('savePasswordBtn').onclick = async () => {
-            const input = document.getElementById('passwordInput');
-            const confirmInput = document.getElementById('confirmPasswordInput');
-            const errorLabel = document.getElementById('passwordError');
-
+        const unlockHandler = async () => {
             const password = input.value.trim();
-
-            if (passwordHash) {
-                // Remove password
-                if (!password) {
-                    errorLabel.textContent = 'Please enter current password!';
-                    return;
-                }
-
-                const hash = await hashPassword(password);
-                if (hash !== passwordHash) {
-                    errorLabel.textContent = 'Incorrect password!';
-                    return;
-                }
-
-                passwordHash = null;
-                localStorage.removeItem('seednote_password');
-                document.getElementById('passwordPopup').classList.remove('active');
-                showAlert('Password removed!');
-            } else {
-                // Set password
-                const confirmPassword = confirmInput.value.trim();
-
-                if (!password) {
-                    errorLabel.textContent = 'Please enter password!';
-                    return;
-                }
-
-                if (password.length < 4) {
-                    errorLabel.textContent = 'Password must be at least 4 characters!';
-                    return;
-                }
-
-                if (password !== confirmPassword) {
-                    errorLabel.textContent = 'Passwords do not match!';
-                    return;
-                }
-
-                passwordHash = await hashPassword(password);
-                localStorage.setItem('seednote_password', passwordHash);
-                document.getElementById('passwordPopup').classList.remove('active');
-                showAlert('Password set!');
+            if (!password) {
+                errorLabel.textContent = 'Please enter the password!';
+                return;
             }
+
+            const hash = await hashPassword(password);
+            console.log('Input hash:', hash); // 디버깅용
+            console.log('Stored hash:', passwordHash); // 디버깅용
+
+            if (hash === passwordHash) {
+                popup.classList.remove('active');
+                saveBtn.onclick = null;
+                input.onkeydown = null;
+                resolve(true);
+            } else {
+                errorLabel.textContent = 'Incorrect password! Please try again.';
+                input.value = '';
+            }
+        };
+
+        saveBtn.onclick = unlockHandler;
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter') unlockHandler();
         };
 
         document.getElementById('cancelPasswordBtn').onclick = () => {
-            document.getElementById('passwordPopup').classList.remove('active');
+            errorLabel.textContent = 'Password is required to access the app!';
         };
+    });
+}
 
+function showPasswordPopup() {
+    const popup = document.getElementById('passwordPopup');
+    const title = document.getElementById('passwordPopupTitle');
+    const label = document.getElementById('passwordLabel');
+    const input = document.getElementById('passwordInput');
+    const confirmLabel = document.getElementById('confirmPasswordLabel');
+    const confirmInput = document.getElementById('confirmPasswordInput');
+    const errorLabel = document.getElementById('passwordError');
+    const saveBtn = document.getElementById('savePasswordBtn');
+
+    input.value = '';
+    confirmInput.value = '';
+    errorLabel.textContent = '';
+
+    if (passwordHash) {
+        // Remove password
+        title.textContent = 'Remove Password';
+        label.textContent = 'Current Password:';
+        confirmLabel.style.display = 'none';
+        confirmInput.style.display = 'none';
+        saveBtn.textContent = 'Remove';
+    } else {
+        // Set password
+        title.textContent = 'Set Password';
+        label.textContent = 'New Password:';
+        confirmLabel.style.display = 'block';
+        confirmInput.style.display = 'block';
+        saveBtn.textContent = 'Save';
+    }
+
+    popup.classList.add('active');
+
+    // Remove any existing event listeners to prevent duplication
+    saveBtn.onclick = null;
+
+    saveBtn.onclick = async () => {
+        const password = input.value.trim();
+        errorLabel.textContent = '';
+
+        if (passwordHash) {
+            // Remove password
+            if (!password) {
+                errorLabel.textContent = 'Please enter the current password!';
+                return;
+            }
+
+            const hash = await hashPassword(password);
+            console.log('Input hash:', hash); // 디버깅용
+            console.log('Stored hash:', passwordHash); // 디버깅용
+
+            if (hash !== passwordHash) {
+                errorLabel.textContent = 'Incorrect password! Please try again.';
+                input.value = '';
+                return;
+            }
+
+            passwordHash = null;
+            localStorage.removeItem('seednote_password');
+            popup.classList.remove('active');
+            showAlert('Password removed successfully!');
+        } else {
+            // Set password
+            const confirmPassword = confirmInput.value.trim();
+
+            if (!password) {
+                errorLabel.textContent = 'Please enter a password!';
+                return;
+            }
+
+            if (password.length < 4) {
+                errorLabel.textContent = 'Password must be at least 4 characters!';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorLabel.textContent = 'Passwords do not match!';
+                return;
+            }
+
+            passwordHash = await hashPassword(password);
+            localStorage.setItem('seednote_password', passwordHash);
+            popup.classList.remove('active');
+            showAlert('Password set successfully!');
+        }
+    };
+}
+
+document.getElementById('cancelPasswordBtn').onclick = () => {
+    document.getElementById('passwordPopup').classList.remove('active');
+};
         // ========== BACKUP FUNCTIONS ==========
         async function backupData() {
             try {
