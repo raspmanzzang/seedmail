@@ -548,8 +548,110 @@
             background: #33ff66;
         }
 
-        input[type="file"] {
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .chat-message {
+            display: flex;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.sent {
+            justify-content: flex-end;
+        }
+
+        .chat-message.received {
+            justify-content: flex-start;
+        }
+
+        .chat-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            position: relative;
+        }
+
+        .chat-bubble.sent {
+            background: #00ff41;
+            color: #000000;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.received {
+            background: #1a1a1a;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-bubble.unread {
+            border: 2px solid #ff4444;
+        }
+
+        .chat-time {
+            font-size: 9px;
+            color: #666666;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .chat-bubble.sent .chat-time {
+            color: #003300;
+        }
+
+        .chat-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .reply-mode-indicator {
+            background: #001a00;
+            border: 2px solid #00ff41;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reply-mode-indicator.active {
+            display: flex;
+        }
+
+        .reply-mode-text {
+            color: #33ff66;
+            font-size: 12px;
+        }
+
+        .cancel-reply-btn {
+            background: #0d0d0d;
+            color: #ff4444;
+            border: 2px solid #ff4444;
+            padding: 5px 10px;
+            cursor: pointer;
             font-size: 11px;
+        }
+
+        .cancel-reply-btn:hover {
+            border-width: 3px;
         }
     </style>
 </head>
@@ -582,6 +684,10 @@
 
         <!-- My Memos View -->
         <div class="main-view" id="myMemosView">
+            <div class="reply-mode-indicator" id="replyModeIndicator">
+                <div class="reply-mode-text" id="replyModeText">Replying to @username</div>
+                <button class="cancel-reply-btn" id="cancelReplyBtn">✕ Cancel</button>
+            </div>
             <div class="input-area">
                 <textarea id="memoInput" placeholder="Enter your memo."></textarea>
                 <div class="button-group">
@@ -618,19 +724,6 @@
                 <button id="sendBtn">Send</button>
                 <button id="saveBtn" style="display: none;">Save</button>
                 <button class="red" id="deleteBtn">Delete</button>
-            </div>
-        </div>
-
-        <!-- Inbox Detail View -->
-        <div class="detail-view" id="inboxDetailView">
-            <div class="detail-sender" id="inboxDetailSender"></div>
-            <div class="detail-time" id="inboxDetailTime"></div>
-            <div class="detail-content-wrapper">
-                <div class="detail-content" id="inboxDetailContent"></div>
-            </div>
-            <div class="button-group">
-                <button id="replyBtn">Reply</button>
-                <button class="red" id="deleteInboxBtn">Delete</button>
             </div>
         </div>
 
@@ -832,6 +925,10 @@
         let inboxMessages = [];
         let currentMemoId = null;
         let currentInboxId = null;
+        let currentChatUsername = null;
+        let currentChatUserId = null;
+        let replyMode = false;
+        let replyToUsername = null;
         let supabase = null;
         let telegramUser = null;
         let tg = window.Telegram?.WebApp;
@@ -1029,7 +1126,8 @@
         }
 
         function showInboxSender(senderId, senderUsername) {
-            const senderMessages = inboxMessages.filter(m => m.from_user_id == senderId);
+            currentChatUsername = senderUsername;
+            currentChatUserId = senderId;
             
             const list = document.getElementById('inboxList');
             list.innerHTML = '';
@@ -1039,65 +1137,104 @@
             backBtn.style.width = '100%';
             backBtn.style.marginBottom = '10px';
             backBtn.onclick = () => {
+                currentChatUsername = null;
+                currentChatUserId = null;
                 renderInbox();
                 document.getElementById('backBtn').style.display = 'none';
             };
             list.appendChild(backBtn);
             
-            senderMessages.forEach(msg => {
-                const item = document.createElement('div');
-                item.className = 'memo-item';
-                if (!msg.is_read) {
-                    item.classList.add('unread');
+            // Load conversation (both sent and received)
+            loadConversation(senderId, senderUsername);
+        }
+
+        async function loadConversation(userId, username) {
+            const list = document.getElementById('inboxList');
+            
+            // Get received messages
+            const received = inboxMessages.filter(m => m.from_user_id == userId);
+            
+            // Get sent messages to this user
+            const { data: sent, error } = await supabase
+                .from('shares')
+                .select('*')
+                .eq('from_user_id', telegramUser.id)
+                .eq('to_user_id', userId)
+                .order('sent_at', { ascending: true });
+            
+            if (error) {
+                console.error('Load sent messages error:', error);
+            }
+            
+            // Combine and sort by time
+            const allMessages = [...received, ...(sent || [])].sort((a, b) => 
+                new Date(a.sent_at) - new Date(b.sent_at)
+            );
+            
+            // Render chat bubbles
+            const chatContainer = document.createElement('div');
+            chatContainer.className = 'chat-container';
+            
+            allMessages.forEach(msg => {
+                const isSent = msg.from_user_id === telegramUser.id;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+                if (!isSent && !msg.is_read) {
+                    bubble.classList.add('unread');
                 }
                 
-                const preview = document.createElement('div');
-                const previewText = msg.memo_text.split('\n')[0];
-                preview.textContent = `${previewText.substring(0, 60)}${previewText.length > 60 ? '...' : ''}`;
+                const text = document.createElement('div');
+                text.className = 'chat-text';
+                text.textContent = msg.memo_text;
                 
                 const time = document.createElement('div');
-                time.style.fontSize = '10px';
-                time.style.color = '#888888';
-                time.style.marginTop = '5px';
-                time.textContent = new Date(msg.sent_at).toLocaleString();
+                time.className = 'chat-time';
+                time.textContent = new Date(msg.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
-                item.appendChild(preview);
-                item.appendChild(time);
+                bubble.appendChild(text);
+                bubble.appendChild(time);
+                messageDiv.appendChild(bubble);
                 
-                item.onclick = () => showInboxDetail(msg.id, senderUsername);
-                list.appendChild(item);
+                // Mark as read on click
+                if (!isSent && !msg.is_read) {
+                    bubble.onclick = async () => {
+                        const { error } = await supabase
+                            .from('shares')
+                            .update({ is_read: true, read_at: new Date().toISOString() })
+                            .eq('id', msg.id);
+                        
+                        if (!error) {
+                            msg.is_read = true;
+                            bubble.classList.remove('unread');
+                            updateUnreadBadge();
+                            await loadInbox();
+                        }
+                    };
+                }
+                
+                chatContainer.appendChild(messageDiv);
             });
+            
+            list.appendChild(chatContainer);
+            
+            // Scroll to bottom
+            list.scrollTop = list.scrollHeight;
+            
+            // Add reply button at the bottom
+            const replyBtn = document.createElement('button');
+            replyBtn.textContent = '↩️ Reply to @' + username;
+            replyBtn.style.width = '100%';
+            replyBtn.style.marginTop = '10px';
+            replyBtn.onclick = () => startReplyMode(username);
+            list.appendChild(replyBtn);
         }
 
         async function showInboxDetail(id, senderUsername) {
-            const msg = inboxMessages.find(m => m.id === id);
-            if (!msg) return;
-
-            currentInboxId = id;
-            
-            if (!msg.is_read) {
-                const { error } = await supabase
-                    .from('shares')
-                    .update({ 
-                        is_read: true, 
-                        read_at: new Date().toISOString() 
-                    })
-                    .eq('id', id);
-                
-                if (!error) {
-                    msg.is_read = true;
-                    updateUnreadBadge();
-                }
-            }
-
-            document.getElementById('inboxView').classList.remove('active');
-            document.getElementById('inboxDetailView').classList.add('active');
-            document.getElementById('backBtn').style.display = 'block';
-
-            const displayUsername = senderUsername || msg.from_user?.username || msg.to_username || 'Unknown';
-            document.getElementById('inboxDetailSender').textContent = `From: @${displayUsername}`;
-            document.getElementById('inboxDetailTime').textContent = new Date(msg.sent_at).toLocaleString();
-            document.getElementById('inboxDetailContent').textContent = msg.memo_text;
+            // This function is no longer needed - handled by loadConversation
         }
 
         function updateUnreadBadge() {
@@ -1268,10 +1405,6 @@
             if (document.getElementById('detailView').classList.contains('active')) {
                 document.getElementById('myMemosView').classList.add('active');
                 document.getElementById('detailView').classList.remove('active');
-            } else if (document.getElementById('inboxDetailView').classList.contains('active')) {
-                document.getElementById('inboxView').classList.add('active');
-                document.getElementById('inboxDetailView').classList.remove('active');
-                renderInbox();
             }
             
             document.getElementById('backBtn').style.display = 'none';
@@ -1367,33 +1500,121 @@
         }
 
         async function deleteInboxMessage() {
-            showConfirm('Delete this message?', async () => {
-                const { error } = await supabase
-                    .from('shares')
-                    .delete()
-                    .eq('id', currentInboxId);
-                
-                if (error) {
-                    showAlert('Error: ' + error.message);
-                    return;
-                }
-                
-                await loadInbox();
-                goBack();
-            });
+            // No longer needed - messages deleted from conversation view
         }
 
-        function replyToMessage() {
-            const msg = inboxMessages.find(m => m.id === currentInboxId);
-            if (!msg) return;
+        function startReplyMode(username) {
+            replyMode = true;
+            replyToUsername = username;
             
-            document.getElementById('recipientUsername').value = msg.to_username;
-            document.getElementById('inboxDetailView').classList.remove('active');
+            document.getElementById('inboxView').classList.remove('active');
             document.getElementById('myMemosView').classList.add('active');
             document.getElementById('backBtn').style.display = 'none';
             switchTab('myMemos');
             
-            showTelegramPopup();
+            const indicator = document.getElementById('replyModeIndicator');
+            indicator.classList.add('active');
+            document.getElementById('replyModeText').textContent = `↩️ Replying to @${username}`;
+            document.getElementById('memoInput').focus();
+            document.getElementById('memoInput').placeholder = `Reply to @${username}...`;
+        }
+
+        function cancelReplyMode() {
+            replyMode = false;
+            replyToUsername = null;
+            document.getElementById('replyModeIndicator').classList.remove('active');
+            document.getElementById('memoInput').placeholder = t('placeholder');
+        }
+
+        async function addMemo() {
+            const input = document.getElementById('memoInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                showAlert(t('alertEmpty'));
+                return;
+            }
+
+            // If in reply mode, send directly
+            if (replyMode && replyToUsername) {
+                await sendReply(text);
+                return;
+            }
+
+            // Otherwise, create normal memo
+            const { data, error } = await supabase
+                .from('memos')
+                .insert({
+                    user_id: telegramUser.id,
+                    text: text,
+                    time: new Date().toISOString()
+                })
+                .select();
+
+            if (error) {
+                showAlert('Error: ' + error.message);
+                return;
+            }
+
+            input.value = '';
+            await loadMemos();
+        }
+
+        async function sendReply(text) {
+            const { data: users, error: userError } = await supabase
+                .from('users')
+                .select('telegram_id')
+                .eq('username', replyToUsername)
+                .limit(1);
+
+            if (userError || !users || users.length === 0) {
+                showAlert('User not found!');
+                return;
+            }
+
+            const recipientId = users[0].telegram_id;
+
+            try {
+                let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
+                
+                const response = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: recipientId,
+                        text: messageText
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.ok) {
+                    await supabase
+                        .from('shares')
+                        .insert({
+                            from_user_id: telegramUser.id,
+                            to_user_id: recipientId,
+                            to_username: replyToUsername,
+                            memo_text: text,
+                            memo_time: new Date().toISOString()
+                        });
+
+                    document.getElementById('memoInput').value = '';
+                    showAlert('Reply sent!');
+                    cancelReplyMode();
+                    
+                    // Refresh conversation if still viewing
+                    if (currentChatUsername === replyToUsername) {
+                        await loadInbox();
+                        await loadConversation(currentChatUserId, currentChatUsername);
+                    }
+                } else {
+                    showAlert('Failed to send reply!');
+                }
+            } catch (error) {
+                showAlert('Failed to send reply!');
+                console.error('Reply error:', error);
+            }
         }
 
         // ========== FILE FUNCTIONS ==========
@@ -1852,7 +2073,6 @@
             document.getElementById('saveBtn').textContent = t('saveBtn');
             document.getElementById('deleteBtn').textContent = t('deleteBtn');
             document.getElementById('sendBtn').textContent = t('sendBtn');
-            document.getElementById('replyBtn').textContent = t('replyBtn');
             document.getElementById('addFilesBtn').textContent = t('addFilesBtn');
             document.getElementById('backBtn').textContent = t('backBtn');
             document.getElementById('langBtn').textContent = t('langBtn');
@@ -1916,8 +2136,7 @@
         document.getElementById('deleteBtn').onclick = deleteCurrentMemo;
         document.getElementById('sendBtn').onclick = showSendMethodPopup;
         document.getElementById('addFilesBtn').onclick = toggleFileInput;
-        document.getElementById('replyBtn').onclick = replyToMessage;
-        document.getElementById('deleteInboxBtn').onclick = deleteInboxMessage;
+        document.getElementById('cancelReplyBtn').onclick = cancelReplyMode;
 
         document.getElementById('sendTelegramBtn').onclick = sendViaTelegram;
         document.getElementById('cancelTelegramBtn').onclick = () => {
