@@ -1156,110 +1156,99 @@
         }
 
         function renderInbox() {
-            const list = document.getElementById('inboxList');
-            const count = document.getElementById('inboxCount');
-            list.innerHTML = '';
+    const list = document.getElementById('inboxList');
+    const count = document.getElementById('inboxCount');
+    list.innerHTML = '';
 
-            if (inboxMessages.length === 0) {
-                const empty = document.createElement('div');
-                empty.className = 'memo-item empty';
-                empty.textContent = t('emptyInbox');
-                list.appendChild(empty);
-                count.textContent = '';
-                return;
-            }
+    if (inboxMessages.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'memo-item empty';
+        empty.textContent = t('emptyInbox');
+        list.appendChild(empty);
+        count.textContent = '';
+        return;
+    }
 
-            // Group by sender (from_user_id)
-            const grouped = {};
-            inboxMessages.forEach(msg => {
-                const senderId = msg.from_user_id;
-                const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
-                
-                if (!grouped[senderId]) {
-                    grouped[senderId] = {
-                        username: senderUsername,
-                        messages: []
-                    };
-                }
-                grouped[senderId].messages.push(msg);
-            });
-
-            // Separate pinned and unpinned
-            const senderIds = Object.keys(grouped);
-            const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
-            const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
-
-            // Render pinned first
-            [...pinnedIds, ...unpinnedIds].forEach(senderId => {
-                const group = grouped[senderId];
-                const messages = group.messages;
-                const unreadCount = messages.filter(m => !m.is_read).length;
-                const lastMsg = messages[0];
-                const isPinned = pinnedChats.includes(parseInt(senderId));
-                
-                const item = document.createElement('div');
-                item.className = 'memo-item';
-                if (unreadCount > 0) {
-                    item.classList.add('unread');
-                }
-                if (isPinned) {
-                    item.classList.add('pinned');
-                }
-                
-                const senderDiv = document.createElement('div');
-                senderDiv.className = 'memo-sender';
-                senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
-                
-                const preview = document.createElement('div');
-                preview.className = 'memo-preview';
-                const previewText = lastMsg.memo_text.split('\n')[0];
-                preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
-                
-                const time = document.createElement('div');
-                time.style.fontSize = '10px';
-                time.style.color = '#888888';
-                time.textContent = new Date(lastMsg.sent_at).toLocaleString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-                
-                item.appendChild(senderDiv);
-                item.appendChild(preview);
-                item.appendChild(time);
-                
-                item.onclick = () => showInboxSender(senderId, group.username);
-                
-                // Right-click (PC)
-                item.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    showContextMenu(e.clientX, e.clientY, senderId, isPinned);
-                };
-                
-                // Long press (Mobile)
-                item.ontouchstart = (e) => {
-                    longPressTimer = setTimeout(() => {
-                        const touch = e.touches[0];
-                        showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
-                    }, 500);
-                };
-                
-                item.ontouchend = () => {
-                    clearTimeout(longPressTimer);
-                };
-                
-                item.ontouchmove = () => {
-                    clearTimeout(longPressTimer);
-                };
-                
-                list.appendChild(item);
-            });
-
-            count.textContent = t('inboxCount').replace('{count}', senderIds.length);
+    const grouped = {};
+    inboxMessages.forEach(msg => {
+        const senderId = msg.from_user_id;
+        const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
+        
+        if (!grouped[senderId]) {
+            grouped[senderId] = {
+                username: senderUsername,
+                messages: []
+            };
         }
+        grouped[senderId].messages.push(msg);
+    });
+
+    const senderIds = Object.keys(grouped);
+    const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
+    const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
+
+    [...pinnedIds, ...unpinnedIds].forEach(senderId => {
+        const group = grouped[senderId];
+        const messages = group.messages;
+        const unreadCount = messages.filter(m => !m.is_read).length;
+        const lastMsg = messages[0];
+        const isPinned = pinnedChats.includes(parseInt(senderId));
+        
+        const item = document.createElement('div');
+        item.className = 'memo-item';
+        if (unreadCount > 0) item.classList.add('unread');
+        if (isPinned) item.classList.add('pinned');
+        
+        const senderDiv = document.createElement('div');
+        senderDiv.className = 'memo-sender';
+        senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
+        
+        const preview = document.createElement('div');
+        preview.className = 'memo-preview';
+        const previewText = lastMsg.memo_text.split('\n')[0];
+        preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
+        
+        const time = document.createElement('div');
+        time.style.fontSize = '10px';
+        time.style.color = '#888888';
+        const displayTimeZone = lastMsg.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        time.textContent = new Date(lastMsg.sent_at).toLocaleString('en-US', {
+            timeZone: displayTimeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        console.log('Raw sent_at:', lastMsg.sent_at, 'Timezone:', lastMsg.timezone, 'Device TZ:', Intl.DateTimeFormat().resolvedOptions().timeZone, 'Converted:', time.textContent);
+        
+        item.appendChild(senderDiv);
+        item.appendChild(preview);
+        item.appendChild(time);
+        
+        item.onclick = () => showInboxSender(senderId, group.username);
+        
+        item.oncontextmenu = (e) => {
+            e.preventDefault();
+            showContextMenu(e.clientX, e.clientY, senderId, isPinned);
+        };
+        
+        item.ontouchstart = (e) => {
+            longPressTimer = setTimeout(() => {
+                const touch = e.touches[0];
+                showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
+            }, 500);
+        };
+        
+        item.ontouchend = () => clearTimeout(longPressTimer);
+        item.ontouchmove = () => clearTimeout(longPressTimer);
+        
+        list.appendChild(item);
+    });
+
+    count.textContent = t('inboxCount').replace('{count}', senderIds.length);
+}
 
         function showContextMenu(x, y, senderId, isPinned) {
             const menu = document.getElementById('contextMenu');
@@ -1343,93 +1332,89 @@
         }
 
         async function loadConversation(userId, username) {
-            const list = document.getElementById('inboxList');
-            
-            // Get received messages
-            const received = inboxMessages.filter(m => m.from_user_id == userId);
-            
-            // Get sent messages to this user
-            const { data: sent, error } = await supabase
-                .from('shares')
-                .select('*')
-                .eq('from_user_id', telegramUser.id)
-                .eq('to_user_id', userId)
-                .order('sent_at', { ascending: true });
-            
-            if (error) {
-                console.error('Load sent messages error:', error);
-            }
-            
-            // Combine and sort by time
-            const allMessages = [...received, ...(sent || [])].sort((a, b) => 
-                new Date(a.sent_at) - new Date(b.sent_at)
-            );
-            
-            // Render chat bubbles
-            const chatContainer = document.createElement('div');
-            chatContainer.className = 'chat-container';
-            
-            allMessages.forEach(msg => {
-                const isSent = msg.from_user_id === telegramUser.id;
-                
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
-                
-                const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
-                if (!isSent && !msg.is_read) {
-                    bubble.classList.add('unread');
-                }
-                
-                const text = document.createElement('div');
-                text.className = 'chat-text';
-                text.textContent = msg.memo_text;
-                
-                const time = document.createElement('div');
-                time.className = 'chat-time';
-                time.textContent = new Date(msg.sent_at).toLocaleTimeString('ko-KR', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-                
-                bubble.appendChild(text);
-                bubble.appendChild(time);
-                messageDiv.appendChild(bubble);
-                
-                // Mark as read on click
-                if (!isSent && !msg.is_read) {
-                    bubble.onclick = async () => {
-                        const { error } = await supabase
-                            .from('shares')
-                            .update({ is_read: true, read_at: new Date().toISOString() })
-                            .eq('id', msg.id);
-                        
-                        if (!error) {
-                            msg.is_read = true;
-                            bubble.classList.remove('unread');
-                            updateUnreadBadge();
-                            await loadInbox();
-                        }
-                    };
-                }
-                
-                chatContainer.appendChild(messageDiv);
-            });
-            
-            list.appendChild(chatContainer);
-            
-            // Scroll to bottom
-            list.scrollTop = list.scrollHeight;
-            
-            // Add reply button at the bottom
-            const replyBtn = document.createElement('button');
-            replyBtn.textContent = '↩️ Reply to @' + username;
-            replyBtn.style.width = '100%';
-            replyBtn.style.marginTop = '10px';
-            replyBtn.onclick = () => startReplyMode(username);
-            list.appendChild(replyBtn);
+    const list = document.getElementById('inboxList');
+    
+    const received = inboxMessages.filter(m => m.from_user_id == userId);
+    
+    const { data: sent, error } = await supabase
+        .from('shares')
+        .select('*')
+        .eq('from_user_id', telegramUser.id)
+        .eq('to_user_id', userId)
+        .order('sent_at', { ascending: true });
+    
+    if (error) {
+        console.error('Load sent messages error:', error);
+    }
+    
+    const allMessages = [...received, ...(sent || [])].sort((a, b) => 
+        new Date(a.sent_at) - new Date(b.sent_at)
+    );
+    
+    const chatContainer = document.createElement('div');
+    chatContainer.className = 'chat-container';
+    
+    allMessages.forEach(msg => {
+        const isSent = msg.from_user_id === telegramUser.id;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+        
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+        if (!isSent && !msg.is_read) {
+            bubble.classList.add('unread');
         }
+        
+        const text = document.createElement('div');
+        text.className = 'chat-text';
+        text.textContent = msg.memo_text;
+        
+        const time = document.createElement('div');
+        time.className = 'chat-time';
+        const displayTimeZone = msg.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        time.textContent = new Date(msg.sent_at).toLocaleTimeString('en-US', {
+            timeZone: displayTimeZone,
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        console.log('Raw sent_at:', msg.sent_at, 'Timezone:', msg.timezone, 'Device TZ:', Intl.DateTimeFormat().resolvedOptions().timeZone, 'Converted:', time.textContent);
+        
+        bubble.appendChild(text);
+        bubble.appendChild(time);
+        messageDiv.appendChild(bubble);
+        
+        if (!isSent && !msg.is_read) {
+            bubble.onclick = async () => {
+                const { error } = await supabase
+                    .from('shares')
+                    .update({ is_read: true, read_at: new Date().toISOString() })
+                    .eq('id', msg.id);
+                
+                if (!error) {
+                    msg.is_read = true;
+                    bubble.classList.remove('unread');
+                    updateUnreadBadge();
+                    await loadInbox();
+                }
+            };
+        }
+        
+        chatContainer.appendChild(messageDiv);
+    });
+    
+    list.appendChild(chatContainer);
+    
+    list.scrollTop = list.scrollHeight;
+    
+    const replyBtn = document.createElement('button');
+    replyBtn.textContent = '↩️ Reply to @' + username;
+    replyBtn.style.width = '100%';
+    replyBtn.style.marginTop = '10px';
+    replyBtn.onclick = () => startReplyMode(username);
+    list.appendChild(replyBtn);
+}
 
         function updateUnreadBadge() {
             const unreadCount = inboxMessages.filter(m => !m.is_read).length;
@@ -1503,8 +1488,8 @@
     }
 
     const recipientId = users[0].telegram_id;
-    const localTime = new Date().toISOString(); // 로컬 시간
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // 기기 시간대
+    const localTime = new Date().toISOString();
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     try {
         let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
@@ -1516,25 +1501,18 @@
                 chat_id: recipientId,
                 text: messageText,
                 local_time: localTime,
-                timezone: timezone
+                timezone: timezone,
+                from_user_id: telegramUser.id,
+                to_user_id: recipientId,
+                to_username: replyToUsername,
+                memo_text: text,
+                memo_time: localTime
             })
         });
 
         const result = await response.json();
         
         if (result.ok) {
-            await supabase
-                .from('shares')
-                .insert({
-                    from_user_id: telegramUser.id,
-                    to_user_id: recipientId,
-                    to_username: replyToUsername,
-                    memo_text: text,
-                    memo_time: localTime,
-                    sent_at: localTime,
-                    timezone: timezone // 시간대 정보 저장
-                });
-
             document.getElementById('memoInput').value = '';
             showAlert('Reply sent!');
             cancelReplyMode();
@@ -1551,7 +1529,6 @@
         console.error('Reply error:', error);
     }
 }
-
         async function clearAllMemos() {
             if (memos.length === 0) return;
             
@@ -1949,8 +1926,8 @@
     }
 
     const recipientId = users[0].telegram_id;
-    const localTime = new Date().toISOString(); // 로컬 시간 (예: 2025-10-09T19:22:00+09:00)
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // 기기 시간대
+    const localTime = new Date().toISOString();
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     const { data: files } = await supabase
         .from('files')
@@ -1967,7 +1944,12 @@
                 chat_id: recipientId,
                 text: messageText,
                 local_time: localTime,
-                timezone: timezone
+                timezone: timezone,
+                from_user_id: telegramUser.id,
+                to_user_id: recipientId,
+                to_username: username,
+                memo_text: memo.text,
+                memo_time: memo.time
             })
         });
 
@@ -1993,24 +1975,17 @@
                             text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${urlData.publicUrl}`,
                             disable_web_page_preview: false,
                             local_time: localTime,
-                            timezone: timezone
+                            timezone: timezone,
+                            from_user_id: telegramUser.id,
+                            to_user_id: recipientId,
+                            to_username: username,
+                            memo_text: file.file_name,
+                            memo_time: memo.time
                         })
                     });
                 }
             }
         }
-
-        await supabase
-            .from('shares')
-            .insert({
-                from_user_id: telegramUser.id,
-                to_user_id: recipientId,
-                to_username: username,
-                memo_text: memo.text,
-                memo_time: memo.time,
-                sent_at: localTime,
-                timezone: timezone // 시간대 정보 저장
-            });
 
         document.getElementById('telegramPopup').classList.remove('active');
         showAlert('Sent successfully!');
