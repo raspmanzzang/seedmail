@@ -38,18 +38,18 @@
         }
 
         .back-btn {
-    position: absolute;
-    left: 10px;
-    top: 20px;  /* subtitle을 가리지 않도록 고정 위치 */
-    background: #0d0d0d;
-    color: #00ff41;
-    border: 2px solid #00ff41;
-    padding: 4px 8px;
-    cursor: pointer;
-    display: none;
-    font-size: 11px;
-    line-height: 1;
-}
+            position: absolute;
+            left: 10px;
+            top: 20px;
+            background: #0d0d0d;
+            color: #00ff41;
+            border: 2px solid #00ff41;
+            padding: 4px 8px;
+            cursor: pointer;
+            display: none;
+            font-size: 11px;
+            line-height: 1;
+        }
 
         .back-btn:hover {
             border-width: 3px;
@@ -909,6 +909,7 @@
         <div class="popup" id="timezonePopup">
             <div class="popup-content">
                 <h3>Set Time Zone</h3>
+                <button id="autoDetectBtn" style="width: 100%; margin-bottom: 10px;">🌍 Auto Detect</button>
                 <label style="font-size: 12px; margin-bottom: 5px; display: block;">UTC Offset (e.g., +9 for KST, -5 for EST):</label>
                 <input type="text" id="utcOffsetInput" placeholder="Enter UTC offset (e.g., +9, -5)">
                 <div class="error-label" id="timezoneError"></div>
@@ -974,7 +975,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Telegram WebApp SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
@@ -1045,7 +1046,36 @@
         let contacts = [];
         let editingContactIndex = null;
         let passwordHash = localStorage.getItem('seednote_password') || null;
-        let utcOffset = localStorage.getItem('seednote_utc_offset') || '0'; // 기본값 UTC
+        let utcOffset = localStorage.getItem('seednote_utc_offset') || '0';
+
+        // ========== TIME HELPER FUNCTIONS ==========
+        // 로컬 시간으로 변환하는 헬퍼 함수
+        function toLocalTime(utcTimeString) {
+            const date = new Date(utcTimeString);
+            return date;
+        }
+
+        // 시간 포맷팅 함수
+        function formatDateTime(utcTimeString) {
+            const date = toLocalTime(utcTimeString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
+
+        function formatTime(utcTimeString) {
+            const date = toLocalTime(utcTimeString);
+            return date.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
 
         // ========== TRANSLATIONS ==========
         const t = (key) => translations[key] || key;
@@ -1058,13 +1088,20 @@
             if (savedEmailJS) emailjsConfig = JSON.parse(savedEmailJS);
             if (savedContacts) contacts = JSON.parse(savedContacts);
             if (savedPinned) pinnedChats = JSON.parse(savedPinned);
-            utcOffset = localStorage.getItem('seednote_utc_offset') || '0';
-
+            
+            // 자동으로 로컬 시간대 감지 (시간 오프셋 계산)
+            const autoOffset = -new Date().getTimezoneOffset() / 60;
+            utcOffset = localStorage.getItem('seednote_utc_offset') || autoOffset.toString();
+            
+            // 처음 실행이거나 저장된 값이 없으면 자동 감지된 값을 저장
+            if (!localStorage.getItem('seednote_utc_offset')) {
+                localStorage.setItem('seednote_utc_offset', utcOffset);
+            }
             
             // 시간대 입력 UI 초기화
             const utcOffsetInput = document.getElementById('utcOffsetInput');
             if (utcOffsetInput) {
-            utcOffsetInput.value = utcOffset;
+                utcOffsetInput.value = utcOffset;
             }
 
             // Check password protection
@@ -1151,28 +1188,28 @@
         document.getElementById('inboxTab').onclick = () => switchTab('inbox');
 
         function switchTab(tab) {
-    currentView = tab;
-    
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.main-view').forEach(v => v.classList.remove('active'));
-    
-    // Detail view가 열려있다면 닫기
-    document.getElementById('detailView').classList.remove('active');
-    
-    // Back 버튼 숨기기
-    document.getElementById('backBtn').style.display = 'none';
-    
-    // currentMemoId 초기화
-    currentMemoId = null;
-    
-    if (tab === 'myMemos') {
-        document.getElementById('myMemosTab').classList.add('active');
-        document.getElementById('myMemosView').classList.add('active');
-    } else {
-        document.getElementById('inboxTab').classList.add('active');
-        document.getElementById('inboxView').classList.add('active');
-    }
-}
+            currentView = tab;
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.main-view').forEach(v => v.classList.remove('active'));
+            
+            // Detail view가 열려있다면 닫기
+            document.getElementById('detailView').classList.remove('active');
+            
+            // Back 버튼 숨기기
+            document.getElementById('backBtn').style.display = 'none';
+            
+            // currentMemoId 초기화
+            currentMemoId = null;
+            
+            if (tab === 'myMemos') {
+                document.getElementById('myMemosTab').classList.add('active');
+                document.getElementById('myMemosView').classList.add('active');
+            } else {
+                document.getElementById('inboxTab').classList.add('active');
+                document.getElementById('inboxView').classList.add('active');
+            }
+        }
 
         // ========== INBOX FUNCTIONS ==========
         async function loadInbox() {
@@ -1192,100 +1229,89 @@
         }
 
         function renderInbox() {
-    const list = document.getElementById('inboxList');
-    const count = document.getElementById('inboxCount');
-    list.innerHTML = '';
+            const list = document.getElementById('inboxList');
+            const count = document.getElementById('inboxCount');
+            list.innerHTML = '';
 
-    if (inboxMessages.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'memo-item empty';
-        empty.textContent = t('emptyInbox');
-        list.appendChild(empty);
-        count.textContent = '';
-        return;
-    }
+            if (inboxMessages.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'memo-item empty';
+                empty.textContent = t('emptyInbox');
+                list.appendChild(empty);
+                count.textContent = '';
+                return;
+            }
 
-    const grouped = {};
-    inboxMessages.forEach(msg => {
-        const senderId = msg.from_user_id;
-        const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
-        
-        if (!grouped[senderId]) {
-            grouped[senderId] = {
-                username: senderUsername,
-                messages: []
-            };
+            const grouped = {};
+            inboxMessages.forEach(msg => {
+                const senderId = msg.from_user_id;
+                const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
+                
+                if (!grouped[senderId]) {
+                    grouped[senderId] = {
+                        username: senderUsername,
+                        messages: []
+                    };
+                }
+                grouped[senderId].messages.push(msg);
+            });
+
+            const senderIds = Object.keys(grouped);
+            const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
+            const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
+
+            [...pinnedIds, ...unpinnedIds].forEach(senderId => {
+                const group = grouped[senderId];
+                const messages = group.messages;
+                const unreadCount = messages.filter(m => !m.is_read).length;
+                const lastMsg = messages[0];
+                const isPinned = pinnedChats.includes(parseInt(senderId));
+                
+                const item = document.createElement('div');
+                item.className = 'memo-item';
+                if (unreadCount > 0) item.classList.add('unread');
+                if (isPinned) item.classList.add('pinned');
+                
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'memo-sender';
+                senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
+                
+                const preview = document.createElement('div');
+                preview.className = 'memo-preview';
+                const previewText = lastMsg.memo_text.split('\n')[0];
+                preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
+                
+                const time = document.createElement('div');
+                time.style.fontSize = '10px';
+                time.style.color = '#888888';
+                time.textContent = formatDateTime(lastMsg.sent_at);
+                
+                item.appendChild(senderDiv);
+                item.appendChild(preview);
+                item.appendChild(time);
+                
+                item.onclick = () => showInboxSender(senderId, group.username);
+                
+                item.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    showContextMenu(e.clientX, e.clientY, senderId, isPinned);
+                };
+                
+                item.ontouchstart = (e) => {
+                    longPressTimer = setTimeout(() => {
+                        const touch = e.touches[0];
+                        showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
+                    }, 500);
+                };
+                
+                item.ontouchend = () => clearTimeout(longPressTimer);
+                item.ontouchmove = () => clearTimeout(longPressTimer);
+                
+                list.appendChild(item);
+            });
+
+            count.textContent = t('inboxCount').replace('{count}', senderIds.length);
         }
-        grouped[senderId].messages.push(msg);
-    });
-
-    const senderIds = Object.keys(grouped);
-    const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
-    const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
-
-    [...pinnedIds, ...unpinnedIds].forEach(senderId => {
-        const group = grouped[senderId];
-        const messages = group.messages;
-        const unreadCount = messages.filter(m => !m.is_read).length;
-        const lastMsg = messages[0];
-        const isPinned = pinnedChats.includes(parseInt(senderId));
-        
-        const item = document.createElement('div');
-        item.className = 'memo-item';
-        if (unreadCount > 0) item.classList.add('unread');
-        if (isPinned) item.classList.add('pinned');
-        
-        const senderDiv = document.createElement('div');
-        senderDiv.className = 'memo-sender';
-        senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
-        
-        const preview = document.createElement('div');
-        preview.className = 'memo-preview';
-        const previewText = lastMsg.memo_text.split('\n')[0];
-        preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
-        
-        const time = document.createElement('div');
-        time.style.fontSize = '10px';
-        time.style.color = '#888888';
-        // UTC 오프셋 적용
-        const date = new Date(lastMsg.sent_at);
-        date.setHours(date.getHours() + parseFloat(utcOffset));
-        time.textContent = date.toLocaleString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-        console.log(`[renderInbox] Sender: ${senderId}, Raw sent_at: ${lastMsg.sent_at}, UTC Offset: ${utcOffset}, Converted: ${time.textContent}`);
-        
-        item.appendChild(senderDiv);
-        item.appendChild(preview);
-        item.appendChild(time);
-        
-        item.onclick = () => showInboxSender(senderId, group.username);
-        
-        item.oncontextmenu = (e) => {
-            e.preventDefault();
-            showContextMenu(e.clientX, e.clientY, senderId, isPinned);
-        };
-        
-        item.ontouchstart = (e) => {
-            longPressTimer = setTimeout(() => {
-                const touch = e.touches[0];
-                showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
-            }, 500);
-        };
-        
-        item.ontouchend = () => clearTimeout(longPressTimer);
-        item.ontouchmove = () => clearTimeout(longPressTimer);
-        
-        list.appendChild(item);
-    });
-
-    count.textContent = t('inboxCount').replace('{count}', senderIds.length);
-}
 
         function showContextMenu(x, y, senderId, isPinned) {
             const menu = document.getElementById('contextMenu');
@@ -1369,90 +1395,82 @@
         }
 
         async function loadConversation(userId, username) {
-    const list = document.getElementById('inboxList');
-    
-    const received = inboxMessages.filter(m => m.from_user_id == userId);
-    
-    const { data: sent, error } = await supabase
-        .from('shares')
-        .select('*')
-        .eq('from_user_id', telegramUser.id)
-        .eq('to_user_id', userId)
-        .order('sent_at', { ascending: true });
-    
-    if (error) {
-        console.error('Load sent messages error:', error);
-    }
-    
-    const allMessages = [...received, ...(sent || [])].sort((a, b) => 
-        new Date(a.sent_at) - new Date(b.sent_at)
-    );
-    
-    const chatContainer = document.createElement('div');
-    chatContainer.className = 'chat-container';
-    
-    allMessages.forEach(msg => {
-        const isSent = msg.from_user_id === telegramUser.id;
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
-        
-        const bubble = document.createElement('div');
-        bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
-        if (!isSent && !msg.is_read) {
-            bubble.classList.add('unread');
-        }
-        
-        const text = document.createElement('div');
-        text.className = 'chat-text';
-        text.textContent = msg.memo_text;
-        
-        const time = document.createElement('div');
-        time.className = 'chat-time';
-        // UTC 오프셋 적용
-        const date = new Date(msg.sent_at);
-        date.setHours(date.getHours() + parseFloat(utcOffset));
-        time.textContent = date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-        console.log(`[loadConversation] Sender: ${userId}, Raw sent_at: ${msg.sent_at}, UTC Offset: ${utcOffset}, Converted: ${time.textContent}`);
-        
-        bubble.appendChild(text);
-        bubble.appendChild(time);
-        messageDiv.appendChild(bubble);
-        
-        if (!isSent && !msg.is_read) {
-            bubble.onclick = async () => {
-                const { error } = await supabase
-                    .from('shares')
-                    .update({ is_read: true, read_at: new Date().toISOString() })
-                    .eq('id', msg.id);
+            const list = document.getElementById('inboxList');
+            
+            const received = inboxMessages.filter(m => m.from_user_id == userId);
+            
+            const { data: sent, error } = await supabase
+                .from('shares')
+                .select('*')
+                .eq('from_user_id', telegramUser.id)
+                .eq('to_user_id', userId)
+                .order('sent_at', { ascending: true });
+            
+            if (error) {
+                console.error('Load sent messages error:', error);
+            }
+            
+            const allMessages = [...received, ...(sent || [])].sort((a, b) => 
+                new Date(a.sent_at) - new Date(b.sent_at)
+            );
+            
+            const chatContainer = document.createElement('div');
+            chatContainer.className = 'chat-container';
+            
+            allMessages.forEach(msg => {
+                const isSent = msg.from_user_id === telegramUser.id;
                 
-                if (!error) {
-                    msg.is_read = true;
-                    bubble.classList.remove('unread');
-                    updateUnreadBadge();
-                    await loadInbox();
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+                if (!isSent && !msg.is_read) {
+                    bubble.classList.add('unread');
                 }
-            };
+                
+                const text = document.createElement('div');
+                text.className = 'chat-text';
+                text.textContent = msg.memo_text;
+                
+                const time = document.createElement('div');
+                time.className = 'chat-time';
+                time.textContent = formatTime(msg.sent_at);
+                
+                bubble.appendChild(text);
+                bubble.appendChild(time);
+                messageDiv.appendChild(bubble);
+                
+                if (!isSent && !msg.is_read) {
+                    bubble.onclick = async () => {
+                        const { error } = await supabase
+                            .from('shares')
+                            .update({ is_read: true, read_at: new Date().toISOString() })
+                            .eq('id', msg.id);
+                        
+                        if (!error) {
+                            msg.is_read = true;
+                            bubble.classList.remove('unread');
+                            updateUnreadBadge();
+                            await loadInbox();
+                        }
+                    };
+                }
+                
+                chatContainer.appendChild(messageDiv);
+            });
+            
+            list.appendChild(chatContainer);
+            
+            list.scrollTop = list.scrollHeight;
+            
+            const replyBtn = document.createElement('button');
+            replyBtn.textContent = '↩️ Reply to @' + username;
+            replyBtn.style.width = '100%';
+            replyBtn.style.marginTop = '10px';
+            replyBtn.onclick = () => startReplyMode(username);
+            list.appendChild(replyBtn);
         }
-        
-        chatContainer.appendChild(messageDiv);
-    });
-    
-    list.appendChild(chatContainer);
-    
-    list.scrollTop = list.scrollHeight;
-    
-    const replyBtn = document.createElement('button');
-    replyBtn.textContent = '↩️ Reply to @' + username;
-    replyBtn.style.width = '100%';
-    replyBtn.style.marginTop = '10px';
-    replyBtn.onclick = () => startReplyMode(username);
-    list.appendChild(replyBtn);
-}
 
         function updateUnreadBadge() {
             const unreadCount = inboxMessages.filter(m => !m.is_read).length;
@@ -1480,51 +1498,37 @@
         }
 
         async function addMemo() {
-    const input = document.getElementById('memoInput');
-    const text = input.value.trim();
+            const input = document.getElementById('memoInput');
+            const text = input.value.trim();
 
-    if (!text) {
-        showAlert(t('alertEmpty'));
-        return;
-    }
+            if (!text) {
+                showAlert(t('alertEmpty'));
+                return;
+            }
 
-    if (replyMode && replyToUsername) {
-        await sendReply(text);
-        return;
-    }
+            if (replyMode && replyToUsername) {
+                await sendReply(text);
+                return;
+            }
 
-    // UTC 기준 시간 -> 사용자 오프셋으로 조정
-    const now = new Date();
-    const utcOffsetHours = parseFloat(utcOffset);
-    const userTime = new Date(now.getTime() + (utcOffsetHours - 9) * 60 * 60 * 1000); // KST(+9)에서 조정
-    const memoTime = userTime.toLocaleString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    }).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, '$3-$1-$2 $4');
-    console.log(`[addMemo] Text: ${text}, Device Local: ${now.toLocaleString('en-US')}, Offset: ${utcOffset}, Stored time: ${memoTime}`);
+            const { data, error } = await supabase
+                .from('memos')
+                .insert({
+                    user_id: telegramUser.id,
+                    text: text,
+                    time: new Date().toISOString()
+                })
+                .select();
 
-    const { data, error } = await supabase
-        .from('memos')
-        .insert({
-            user_id: telegramUser.id,
-            text: text,
-            time: memoTime 
-        })
-        .select();
+            if (error) {
+                showAlert('Error: ' + error.message);
+                return;
+            }
 
-    if (error) {
-        showAlert('Error: ' + error.message);
-        return;
-    }
+            input.value = '';
+            await loadMemos();
+        }
 
-    input.value = '';
-    await loadMemos();
-}
         async function sendReply(text) {
             const { data: users, error: userError } = await supabase
                 .from('users')
@@ -1601,30 +1605,29 @@
         }
 
         async function showMemoDetail(id) {
-    const memo = memos.find(m => m.id === id);
-    if (!memo) return;
+            const memo = memos.find(m => m.id === id);
+            if (!memo) return;
 
-    currentMemoId = id;
-    selectedFiles = [];
-    document.getElementById('myMemosView').classList.remove('active');
-    document.getElementById('detailView').classList.add('active');
-    document.getElementById('backBtn').style.display = 'block';
+            currentMemoId = id;
+            selectedFiles = [];
+            document.getElementById('myMemosView').classList.remove('active');
+            document.getElementById('detailView').classList.add('active');
+            document.getElementById('backBtn').style.display = 'block';
 
-    const time = memo.time; // 저장된 시간 그대로
-    console.log(`[showMemoDetail] Memo ID: ${id}, Time: ${time}, Offset: ${utcOffset}`);
-    document.getElementById('detailTime').textContent = time;
-    document.getElementById('detailContent').textContent = memo.text;
-    document.getElementById('detailEdit').value = memo.text;
-    document.getElementById('detailContent').style.display = 'block';
-    document.getElementById('detailEdit').classList.remove('active');
-    document.getElementById('fileInputWrapper').classList.remove('active');
-    document.getElementById('editBtn').style.display = 'inline-block';
-    document.getElementById('addFilesBtn').style.display = 'inline-block';
-    document.getElementById('sendBtn').style.display = 'inline-block';
-    document.getElementById('saveBtn').style.display = 'none';
+            const time = formatDateTime(memo.time);
+            document.getElementById('detailTime').textContent = time;
+            document.getElementById('detailContent').textContent = memo.text;
+            document.getElementById('detailEdit').value = memo.text;
+            document.getElementById('detailContent').style.display = 'block';
+            document.getElementById('detailEdit').classList.remove('active');
+            document.getElementById('fileInputWrapper').classList.remove('active');
+            document.getElementById('editBtn').style.display = 'inline-block';
+            document.getElementById('addFilesBtn').style.display = 'inline-block';
+            document.getElementById('sendBtn').style.display = 'inline-block';
+            document.getElementById('saveBtn').style.display = 'none';
 
-    await loadMemoFiles(id);
-}
+            await loadMemoFiles(id);
+        }
 
         async function loadMemoFiles(memoId) {
             const { data, error } = await supabase
@@ -1747,7 +1750,7 @@
             await loadMemos();
             const memo = memos.find(m => m.id === currentMemoId);
             if (memo) {
-                const time = new Date(memo.time).toLocaleString();
+                const time = formatDateTime(memo.time);
                 document.getElementById('detailTime').textContent = time;
                 document.getElementById('detailContent').textContent = text;
                 document.getElementById('detailContent').style.display = 'block';
@@ -1814,7 +1817,7 @@
         }
 
         function cancelReplyMode() {
-            replyMode = false;
+	    replyMode = false;
             replyToUsername = null;
             document.getElementById('replyModeIndicator').classList.remove('active');
             document.getElementById('memoInput').placeholder = t('placeholder');
@@ -1987,7 +1990,7 @@
                 .eq('memo_id', currentMemoId);
 
             try {
-                let messageText = `📝 New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n⏰ ${new Date(memo.time).toLocaleString()}`;
+                let messageText = `📝 New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n⏰ ${formatDateTime(memo.time)}`;
                 
                 const response = await fetch('/api/telegram', {
                     method: 'POST',
@@ -2138,7 +2141,7 @@
                 memo_name: memoName,
                 memo_content: memo.text,
                 memo_files: filesHtml,
-                memo_time: new Date(memo.time).toLocaleString()
+                memo_time: formatDateTime(memo.time)
             };
             
             emailjs.send(emailjsConfig.serviceId, emailjsConfig.templateId, emailData).then(() => {
@@ -2283,30 +2286,29 @@
         }
 
         function renderMemos() {
-    const list = document.getElementById('memoList');
-    const count = document.getElementById('memoCount');
-    list.innerHTML = '';
+            const list = document.getElementById('memoList');
+            const count = document.getElementById('memoCount');
+            list.innerHTML = '';
 
-    if (memos.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'memo-item empty';
-        empty.textContent = t('emptyState');
-        list.appendChild(empty);
-        count.textContent = '';
-    } else {
-        memos.forEach(memo => {
-            const item = document.createElement('div');
-            item.className = 'memo-item';
-            const preview = memo.text.split('\n')[0];
-            const time = memo.time; 
-            console.log(`[renderMemos] Memo ID: ${memo.id}, Time: ${time}, Offset: ${utcOffset}`);
-            item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
-            item.onclick = () => showMemoDetail(memo.id);
-            list.appendChild(item);
-        });
-        count.textContent = t('memoCount').replace('{count}', memos.length);
-    }
-}
+            if (memos.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'memo-item empty';
+                empty.textContent = t('emptyState');
+                list.appendChild(empty);
+                count.textContent = '';
+            } else {
+                memos.forEach(memo => {
+                    const item = document.createElement('div');
+                    item.className = 'memo-item';
+                    const preview = memo.text.split('\n')[0];
+                    const time = formatDateTime(memo.time);
+                    item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
+                    item.onclick = () => showMemoDetail(memo.id);
+                    list.appendChild(item);
+                });
+                count.textContent = t('memoCount').replace('{count}', memos.length);
+            }
+        }
 
         function showConfirm(message, callback) {
             document.getElementById('confirmMessage').textContent = message;
@@ -2324,27 +2326,28 @@
         }
 
         function saveTimeZone() {
-    const input = document.getElementById('utcOffsetInput').value.trim();
-    const errorLabel = document.getElementById('timezoneError');
-    
-    // 입력 검증: 숫자, -12 ~ +14 사이
-    const offset = parseFloat(input);
-    if (isNaN(offset) || offset < -12 || offset > 14) {
-        errorLabel.textContent = 'Enter a valid UTC offset (-12 to +14)!';
-        return;
-    }
-    
-    utcOffset = input;
-    localStorage.setItem('seednote_utc_offset', utcOffset);
-    document.getElementById('timezonePopup').classList.remove('active');
-    showAlert('Time zone saved!');
-    
-    // Inbox와 대화창 즉시 새로고침
-    renderInbox();
-    if (currentChatUserId && currentChatUsername) {
-        loadConversation(currentChatUserId, currentChatUsername);
-    }
-}
+            const input = document.getElementById('utcOffsetInput').value.trim();
+            const errorLabel = document.getElementById('timezoneError');
+            
+            // 입력 검증: 숫자, -12 ~ +14 사이
+            const offset = parseFloat(input);
+            if (isNaN(offset) || offset < -12 || offset > 14) {
+                errorLabel.textContent = 'Enter a valid UTC offset (-12 to +14)!';
+                return;
+            }
+            
+            utcOffset = input;
+            localStorage.setItem('seednote_utc_offset', utcOffset);
+            document.getElementById('timezonePopup').classList.remove('active');
+            showAlert('Time zone saved!');
+            
+            // Inbox와 대화창 즉시 새로고침
+            renderInbox();
+            renderMemos();
+            if (currentChatUserId && currentChatUsername) {
+                loadConversation(currentChatUserId, currentChatUsername);
+            }
+        }
 
         // ========== MENU FUNCTIONS ==========
         function showMenuPopup() {
@@ -2376,159 +2379,156 @@
         };
 
         // ========== PASSWORD FUNCTIONS ==========
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
-async function checkPassword() {
-    return new Promise((resolve) => {
-        const popup = document.getElementById('passwordPopup');
-        const title = document.getElementById('passwordPopupTitle');
-        const label = document.getElementById('passwordLabel');
-        const input = document.getElementById('passwordInput');
-        const confirmLabel = document.getElementById('confirmPasswordLabel');
-        const confirmInput = document.getElementById('confirmPasswordInput');
-        const errorLabel = document.getElementById('passwordError');
-        const saveBtn = document.getElementById('savePasswordBtn');
+        async function checkPassword() {
+            return new Promise((resolve) => {
+                const popup = document.getElementById('passwordPopup');
+                const title = document.getElementById('passwordPopupTitle');
+                const label = document.getElementById('passwordLabel');
+                const input = document.getElementById('passwordInput');
+                const confirmLabel = document.getElementById('confirmPasswordLabel');
+                const confirmInput = document.getElementById('confirmPasswordInput');
+                const errorLabel = document.getElementById('passwordError');
+                const saveBtn = document.getElementById('savePasswordBtn');
 
-        title.textContent = 'Enter Password';
-        label.textContent = 'Password:';
-        input.value = '';
-        confirmLabel.style.display = 'none';
-        confirmInput.style.display = 'none';
-        confirmInput.value = '';
-        errorLabel.textContent = '';
-        saveBtn.textContent = 'Unlock';
-
-        popup.classList.add('active');
-
-        const unlockHandler = async () => {
-            const password = input.value.trim();
-            if (!password) {
-                errorLabel.textContent = 'Please enter the password!';
-                return;
-            }
-
-            const hash = await hashPassword(password);
-            console.log('Input hash:', hash); // 디버깅용
-            console.log('Stored hash:', passwordHash); // 디버깅용
-
-            if (hash === passwordHash) {
-                popup.classList.remove('active');
-                saveBtn.onclick = null;
-                input.onkeydown = null;
-                resolve(true);
-            } else {
-                errorLabel.textContent = 'Incorrect password! Please try again.';
+                title.textContent = 'Enter Password';
+                label.textContent = 'Password:';
                 input.value = '';
-            }
-        };
+                confirmLabel.style.display = 'none';
+                confirmInput.style.display = 'none';
+                confirmInput.value = '';
+                errorLabel.textContent = '';
+                saveBtn.textContent = 'Unlock';
 
-        saveBtn.onclick = unlockHandler;
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter') unlockHandler();
-        };
+                popup.classList.add('active');
+
+                const unlockHandler = async () => {
+                    const password = input.value.trim();
+                    if (!password) {
+                        errorLabel.textContent = 'Please enter the password!';
+                        return;
+                    }
+
+                    const hash = await hashPassword(password);
+
+                    if (hash === passwordHash) {
+                        popup.classList.remove('active');
+                        saveBtn.onclick = null;
+                        input.onkeydown = null;
+                        resolve(true);
+                    } else {
+                        errorLabel.textContent = 'Incorrect password! Please try again.';
+                        input.value = '';
+                    }
+                };
+
+                saveBtn.onclick = unlockHandler;
+                input.onkeydown = (e) => {
+                    if (e.key === 'Enter') unlockHandler();
+                };
+
+                document.getElementById('cancelPasswordBtn').onclick = () => {
+                    errorLabel.textContent = 'Password is required to access the app!';
+                };
+            });
+        }
+
+        function showPasswordPopup() {
+            const popup = document.getElementById('passwordPopup');
+            const title = document.getElementById('passwordPopupTitle');
+            const label = document.getElementById('passwordLabel');
+            const input = document.getElementById('passwordInput');
+            const confirmLabel = document.getElementById('confirmPasswordLabel');
+            const confirmInput = document.getElementById('confirmPasswordInput');
+            const errorLabel = document.getElementById('passwordError');
+            const saveBtn = document.getElementById('savePasswordBtn');
+
+            input.value = '';
+            confirmInput.value = '';
+            errorLabel.textContent = '';
+
+            if (passwordHash) {
+                // Remove password
+                title.textContent = 'Remove Password';
+                label.textContent = 'Current Password:';
+                confirmLabel.style.display = 'none';
+                confirmInput.style.display = 'none';
+                saveBtn.textContent = 'Remove';
+            } else {
+                // Set password
+                title.textContent = 'Set Password';
+                label.textContent = 'New Password:';
+                confirmLabel.style.display = 'block';
+                confirmInput.style.display = 'block';
+                saveBtn.textContent = 'Save';
+            }
+
+            popup.classList.add('active');
+
+            // Remove any existing event listeners to prevent duplication
+            saveBtn.onclick = null;
+
+            saveBtn.onclick = async () => {
+                const password = input.value.trim();
+                errorLabel.textContent = '';
+
+                if (passwordHash) {
+                    // Remove password
+                    if (!password) {
+                        errorLabel.textContent = 'Please enter the current password!';
+                        return;
+                    }
+
+                    const hash = await hashPassword(password);
+
+                    if (hash !== passwordHash) {
+                        errorLabel.textContent = 'Incorrect password! Please try again.';
+                        input.value = '';
+                        return;
+                    }
+
+                    passwordHash = null;
+                    localStorage.removeItem('seednote_password');
+                    popup.classList.remove('active');
+                    showAlert('Password removed successfully!');
+                } else {
+                    // Set password
+                    const confirmPassword = confirmInput.value.trim();
+
+                    if (!password) {
+                        errorLabel.textContent = 'Please enter a password!';
+                        return;
+                    }
+
+                    if (password.length < 4) {
+                        errorLabel.textContent = 'Password must be at least 4 characters!';
+                        return;
+                    }
+
+                    if (password !== confirmPassword) {
+                        errorLabel.textContent = 'Passwords do not match!';
+                        return;
+                    }
+
+                    passwordHash = await hashPassword(password);
+                    localStorage.setItem('seednote_password', passwordHash);
+                    popup.classList.remove('active');
+                    showAlert('Password set successfully!');
+                }
+            };
+        }
 
         document.getElementById('cancelPasswordBtn').onclick = () => {
-            errorLabel.textContent = 'Password is required to access the app!';
+            document.getElementById('passwordPopup').classList.remove('active');
         };
-    });
-}
 
-function showPasswordPopup() {
-    const popup = document.getElementById('passwordPopup');
-    const title = document.getElementById('passwordPopupTitle');
-    const label = document.getElementById('passwordLabel');
-    const input = document.getElementById('passwordInput');
-    const confirmLabel = document.getElementById('confirmPasswordLabel');
-    const confirmInput = document.getElementById('confirmPasswordInput');
-    const errorLabel = document.getElementById('passwordError');
-    const saveBtn = document.getElementById('savePasswordBtn');
-
-    input.value = '';
-    confirmInput.value = '';
-    errorLabel.textContent = '';
-
-    if (passwordHash) {
-        // Remove password
-        title.textContent = 'Remove Password';
-        label.textContent = 'Current Password:';
-        confirmLabel.style.display = 'none';
-        confirmInput.style.display = 'none';
-        saveBtn.textContent = 'Remove';
-    } else {
-        // Set password
-        title.textContent = 'Set Password';
-        label.textContent = 'New Password:';
-        confirmLabel.style.display = 'block';
-        confirmInput.style.display = 'block';
-        saveBtn.textContent = 'Save';
-    }
-
-    popup.classList.add('active');
-
-    // Remove any existing event listeners to prevent duplication
-    saveBtn.onclick = null;
-
-    saveBtn.onclick = async () => {
-        const password = input.value.trim();
-        errorLabel.textContent = '';
-
-        if (passwordHash) {
-            // Remove password
-            if (!password) {
-                errorLabel.textContent = 'Please enter the current password!';
-                return;
-            }
-
-            const hash = await hashPassword(password);
-            console.log('Input hash:', hash); // 디버깅용
-            console.log('Stored hash:', passwordHash); // 디버깅용
-
-            if (hash !== passwordHash) {
-                errorLabel.textContent = 'Incorrect password! Please try again.';
-                input.value = '';
-                return;
-            }
-
-            passwordHash = null;
-            localStorage.removeItem('seednote_password');
-            popup.classList.remove('active');
-            showAlert('Password removed successfully!');
-        } else {
-            // Set password
-            const confirmPassword = confirmInput.value.trim();
-
-            if (!password) {
-                errorLabel.textContent = 'Please enter a password!';
-                return;
-            }
-
-            if (password.length < 4) {
-                errorLabel.textContent = 'Password must be at least 4 characters!';
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                errorLabel.textContent = 'Passwords do not match!';
-                return;
-            }
-
-            passwordHash = await hashPassword(password);
-            localStorage.setItem('seednote_password', passwordHash);
-            popup.classList.remove('active');
-            showAlert('Password set successfully!');
-        }
-    };
-}
-
-document.getElementById('cancelPasswordBtn').onclick = () => {
-    document.getElementById('passwordPopup').classList.remove('active');
-};
         // ========== BACKUP FUNCTIONS ==========
         async function backupData() {
             try {
@@ -2724,17 +2724,24 @@ document.getElementById('cancelPasswordBtn').onclick = () => {
         document.getElementById('addFilesBtn').onclick = toggleFileInput;
         document.getElementById('cancelReplyBtn').onclick = cancelReplyMode;
         document.getElementById('menuBtn').onclick = showMenuPopup;
+        
         document.getElementById('timezoneMenuItem').onclick = () => {
-        document.getElementById('menuPopup').classList.remove('active');
-        document.getElementById('utcOffsetInput').value = utcOffset;
-        document.getElementById('timezoneError').textContent = '';
-        document.getElementById('timezonePopup').classList.add('active');
+            document.getElementById('menuPopup').classList.remove('active');
+            document.getElementById('utcOffsetInput').value = utcOffset;
+            document.getElementById('timezoneError').textContent = '';
+            document.getElementById('timezonePopup').classList.add('active');
+        };
+
+        document.getElementById('autoDetectBtn').onclick = () => {
+            const autoOffset = -new Date().getTimezoneOffset() / 60;
+            document.getElementById('utcOffsetInput').value = autoOffset > 0 ? `+${autoOffset}` : autoOffset.toString();
+            document.getElementById('timezoneError').textContent = `Detected: UTC${autoOffset > 0 ? '+' : ''}${autoOffset}`;
         };
 
         document.getElementById('saveTimezoneBtn').onclick = saveTimeZone;
 
         document.getElementById('cancelTimezoneBtn').onclick = () => {
-        document.getElementById('timezonePopup').classList.remove('active');
+            document.getElementById('timezonePopup').classList.remove('active');
         };
 
         document.getElementById('sendTelegramBtn').onclick = sendViaTelegram;
@@ -2806,3 +2813,4 @@ document.getElementById('cancelPasswordBtn').onclick = () => {
     </script>
 </body>
 </html>
+
