@@ -39,42 +39,31 @@
 
         .back-btn {
             position: absolute;
-            left: 20px;
-            top: 20px;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             background: #0d0d0d;
             color: #00ff41;
             border: 2px solid #00ff41;
-            padding: 5px 15px;
+            padding: 4px 8px;
             cursor: pointer;
             display: none;
-            font-size: 12px;
+            font-size: 11px;
+            line-height: 1;
         }
 
         .back-btn:hover {
-            border-width: 4px;
-            color: #33ff66;
-        }
-
-        .lang-btn {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            background: #0d0d0d;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-            padding: 5px 15px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .lang-btn:hover {
-            border-width: 4px;
+            border-width: 3px;
             color: #33ff66;
         }
 
         h1 {
             font-size: 24px;
             margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 12px;
         }
 
         .subtitle {
@@ -659,7 +648,6 @@
     <div class="container">
         <div class="header">
             <button class="back-btn" id="backBtn">← Back</button>
-            <button class="lang-btn" id="langBtn">한국어</button>
             <h1>SEEDNOTE</h1>
             <div class="subtitle" id="subtitle">Plant your ideas, Grow with SEEDPI</div>
             <div class="user-info" id="userInfo">Loading...</div>
@@ -940,6 +928,9 @@
         };
         let contacts = [];
         let editingContactIndex = null;
+
+        // ========== TRANSLATIONS ==========
+        const t = (key) => translations.en[key] || key;
 
         // ========== INITIALIZATION ==========
         async function init() {
@@ -2060,10 +2051,6 @@
         }
 
         // ========== UI FUNCTIONS ==========
-        function t(key) {
-            return translations[currentLang][key] || key;
-        }
-
         function updateUI() {
             document.getElementById('subtitle').textContent = t('subtitle');
             document.getElementById('memoInput').placeholder = t('placeholder');
@@ -2075,7 +2062,6 @@
             document.getElementById('sendBtn').textContent = t('sendBtn');
             document.getElementById('addFilesBtn').textContent = t('addFilesBtn');
             document.getElementById('backBtn').textContent = t('backBtn');
-            document.getElementById('langBtn').textContent = t('langBtn');
             document.getElementById('myMemosTab').innerHTML = t('myMemosTab');
             document.getElementById('inboxTab').innerHTML = t('inboxTab') + '<span class="unread-badge" id="unreadBadge" style="display: none;">0</span>';
         }
@@ -2121,13 +2107,6 @@
         }
 
         // ========== EVENT LISTENERS ==========
-        document.getElementById('langBtn').onclick = () => {
-            currentLang = currentLang === 'en' ? 'ko' : 'en';
-            updateUI();
-            renderMemos();
-            renderInbox();
-        };
-
         document.getElementById('addBtn').onclick = addMemo;
         document.getElementById('clearBtn').onclick = clearAllMemos;
         document.getElementById('backBtn').onclick = goBack;
