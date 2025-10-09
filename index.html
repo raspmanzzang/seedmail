@@ -1499,36 +1499,37 @@ function formatTime(utcTimeString) {
         }
 
         async function addMemo() {
-            const input = document.getElementById('memoInput');
-            const text = input.value.trim();
+    const input = document.getElementById('memoInput');
+    const text = input.value.trim();
 
-            if (!text) {
-                showAlert(t('alertEmpty'));
-                return;
-            }
+    if (!text) {
+        showAlert(t('alertEmpty'));
+        return;
+    }
 
-            if (replyMode && replyToUsername) {
-                await sendReply(text);
-                return;
-            }
+    if (replyMode && replyToUsername) {
+        await sendReply(text);
+        return;
+    }
 
-            const { data, error } = await supabase
-                .from('memos')
-                .insert({
-                    user_id: telegramUser.id,
-                    text: text,
-                    time: new Date().toISOString()
-                })
-                .select();
+    // 그냥 UTC 시간으로 저장 (toISOString() 사용)
+    const { data, error } = await supabase
+        .from('memos')
+        .insert({
+            user_id: telegramUser.id,
+            text: text,
+            time: new Date().toISOString()  // ✅ 이게 전부!
+        })
+        .select();
 
-            if (error) {
-                showAlert('Error: ' + error.message);
-                return;
-            }
+    if (error) {
+        showAlert('Error: ' + error.message);
+        return;
+    }
 
-            input.value = '';
-            await loadMemos();
-        }
+    input.value = '';
+    await loadMemos();
+}
 
         async function sendReply(text) {
             const { data: users, error: userError } = await supabase
