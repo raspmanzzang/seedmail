@@ -1052,26 +1052,17 @@
         // 로컬 시간으로 변환하는 헬퍼 함수
         // ========== TIME HELPER FUNCTIONS ==========
 // 로컬 시간으로 변환하는 헬퍼 함수
+// ========== TIME HELPER FUNCTIONS ==========
 function toLocalTime(utcTimeString) {
     const date = new Date(utcTimeString);
-    
-    // ISO 형식(UTC)인지 확인
-    const isUTC = utcTimeString && typeof utcTimeString === 'string' && 
-                  utcTimeString.includes('T') && utcTimeString.includes('Z');
-    
-    if (isUTC) {
-        // UTC 시간이면 오프셋 적용
-        const offsetHours = parseFloat(utcOffset);
-        const offsetMinutes = (offsetHours - Math.floor(offsetHours)) * 60;
-        date.setHours(date.getHours() + Math.floor(offsetHours));
-        date.setMinutes(date.getMinutes() + offsetMinutes);
-    }
-    // 이미 로컬 시간 형식이면 그대로 사용
-    
+    // 사용자가 설정한 오프셋만큼 조정
+    const offsetHours = parseFloat(utcOffset);
+    const offsetMinutes = (offsetHours - Math.floor(offsetHours)) * 60;
+    date.setHours(date.getHours() + Math.floor(offsetHours));
+    date.setMinutes(date.getMinutes() + offsetMinutes);
     return date;
 }
 
-// 시간 포맷팅 함수
 function formatDateTime(utcTimeString) {
     const date = toLocalTime(utcTimeString);
     const year = date.getFullYear();
