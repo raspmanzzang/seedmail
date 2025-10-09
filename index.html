@@ -896,7 +896,7 @@
         <div class="popup" id="menuPopup">
             <div class="popup-content">
                 <h3>Settings</h3>
-                <button id="timezoneMenuItem" style="width: 100%; margin-bottom: 10px;">🕒 Set Time Zone</button>
+                <!-- <button id="timezoneMenuItem" style="width: 100%; margin-bottom: 10px;">🕒 Set Time Zone</button> -->
                 <button id="passwordMenuItem" style="width: 100%; margin-bottom: 10px;">🔒 Password</button>
                 <button id="backupMenuItem" style="width: 100%; margin-bottom: 10px;">💾 Backup</button>
                 <button id="recoverMenuItem" style="width: 100%; margin-bottom: 10px;">📥 Recover</button>
@@ -2324,7 +2324,7 @@ function formatTime(utcTimeString) {
             document.getElementById('alertMessage').textContent = message;
             document.getElementById('alertPopup').classList.add('active');
         }
-
+/*
         function saveTimeZone() {
             const input = document.getElementById('utcOffsetInput').value.trim();
             const errorLabel = document.getElementById('timezoneError');
@@ -2348,7 +2348,7 @@ function formatTime(utcTimeString) {
                 loadConversation(currentChatUserId, currentChatUsername);
             }
         }
-
+*/
         // ========== MENU FUNCTIONS ==========
         function showMenuPopup() {
             document.getElementById('menuPopup').classList.add('active');
@@ -2724,7 +2724,7 @@ function formatTime(utcTimeString) {
         document.getElementById('addFilesBtn').onclick = toggleFileInput;
         document.getElementById('cancelReplyBtn').onclick = cancelReplyMode;
         document.getElementById('menuBtn').onclick = showMenuPopup;
-        
+        /*
         document.getElementById('timezoneMenuItem').onclick = () => {
             document.getElementById('menuPopup').classList.remove('active');
             document.getElementById('utcOffsetInput').value = utcOffset;
@@ -2743,6 +2743,7 @@ function formatTime(utcTimeString) {
         document.getElementById('cancelTimezoneBtn').onclick = () => {
             document.getElementById('timezonePopup').classList.remove('active');
         };
+		*/
 
         document.getElementById('sendTelegramBtn').onclick = sendViaTelegram;
         document.getElementById('cancelTelegramBtn').onclick = () => {
