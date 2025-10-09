@@ -1485,17 +1485,25 @@
         return;
     }
 
+    // 사용자 시간대 시간
     const now = new Date();
-    const utcTime = new Date(now.getTime() - parseFloat(utcOffset) * 60 * 60 * 1000);
-    const memoTime = utcTime.toISOString();
-    console.log(`[addMemo] Text: ${text}, Local: ${now.toLocaleString('en-US')}, Offset: ${utcOffset}, UTC: ${memoTime}`);
+    const memoTime = now.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, '$3-$1-$2 $4');
+    console.log(`[addMemo] Text: ${text}, Local time: ${memoTime}, Offset: ${utcOffset}`);
 
     const { data, error } = await supabase
         .from('memos')
         .insert({
             user_id: telegramUser.id,
             text: text,
-            time: memoTime 
+            time: memoTime // KST 2025-10-09 21:16:00
         })
         .select();
 
@@ -1593,8 +1601,8 @@
     document.getElementById('detailView').classList.add('active');
     document.getElementById('backBtn').style.display = 'block';
 
-    const time = memo.time; // 저장된 로컬 시간 그대로 사용
-    console.log(`[showMemoDetail] Memo ID: ${id}, Time: ${memo.time}, UTC Offset: ${utcOffset}`);
+    const time = memo.time; // 저장된 시간 그대로
+    console.log(`[showMemoDetail] Memo ID: ${id}, Time: ${time}, Offset: ${utcOffset}`);
     document.getElementById('detailTime').textContent = time;
     document.getElementById('detailContent').textContent = memo.text;
     document.getElementById('detailEdit').value = memo.text;
@@ -2281,8 +2289,8 @@
             const item = document.createElement('div');
             item.className = 'memo-item';
             const preview = memo.text.split('\n')[0];
-            const time = memo.time; // 저장된 로컬 시간 그대로 사용
-            console.log(`[renderMemos] Memo ID: ${memo.id}, Time: ${memo.time}, UTC Offset: ${utcOffset}`);
+            const time = memo.time; // 저장된 시간 그대로
+            console.log(`[renderMemos] Memo ID: ${memo.id}, Time: ${time}, Offset: ${utcOffset}`);
             item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
             item.onclick = () => showMemoDetail(memo.id);
             list.appendChild(item);
