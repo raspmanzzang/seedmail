@@ -1,4 +1,7 @@
-module.exports = async function handler(req, res) {
+import fetch from 'node-fetch';
+
+export default async function handler(req, res) {
+  // CORS 헤더 설정
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -21,7 +24,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { chat_id, text, document } = req.body;
+    const { chat_id, text, document, disable_web_page_preview } = req.body;
 
     const telegramUrl = document 
       ? `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`
@@ -38,6 +41,9 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
     console.error('Telegram API error:', error);
-    res.status(500).json({ error: 'Failed to send message' });
+    res.status(500).json({ 
+      error: 'Failed to send message',
+      details: error.message 
+    });
   }
-};
+}
