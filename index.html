@@ -1218,7 +1218,14 @@
                 const time = document.createElement('div');
                 time.style.fontSize = '10px';
                 time.style.color = '#888888';
-                time.textContent = new Date(lastMsg.sent_at).toLocaleString();
+                time.textContent = new Date(lastMsg.sent_at).toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
                 
                 item.appendChild(senderDiv);
                 item.appendChild(preview);
@@ -1380,7 +1387,11 @@
                 
                 const time = document.createElement('div');
                 time.className = 'chat-time';
-                time.textContent = new Date(msg.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                time.textContent = new Date(msg.sent_at).toLocaleTimeString('ko-KR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
                 
                 bubble.appendChild(text);
                 bubble.appendChild(time);
