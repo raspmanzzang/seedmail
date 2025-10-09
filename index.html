@@ -913,10 +913,20 @@
     <script>
         // ========== CONFIGURATION ==========
         const CONFIG = {
-            supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co', 
+            supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co',
             supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndGVwdmtpcXBjYnd3ZXJuc2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5MTE3NDcsImV4cCI6MjA3NTQ4Nzc0N30.mDwMikzbs1etS4QMDuprpEVgLLZYlbjXKibQ6EZslXI', 
-            botToken: '8416248849:AAHHiLRr1MzdkOnMwe3gDBkgVHkEi6bQMto' 
+            botToken: '' 
         };
+
+        // Load bot token from meta tag (injected by Vercel)
+        function loadConfig() {
+            const botTokenMeta = document.querySelector('meta[name="bot-token"]');
+            if (botTokenMeta) {
+                CONFIG.botToken = botTokenMeta.content;
+            }
+        }
+
+        loadConfig();
 
         // ========== TRANSLATIONS ==========
         const translations = {
