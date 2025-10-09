@@ -911,11 +911,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <script>
-        // ========== CONFIGURATION ==========
         const CONFIG = {
-            supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co',
+            supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co', 
             supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndGVwdmtpcXBjYnd3ZXJuc2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5MTE3NDcsImV4cCI6MjA3NTQ4Nzc0N30.mDwMikzbs1etS4QMDuprpEVgLLZYlbjXKibQ6EZslXI', 
-            botToken: '' 
+            botToken: ''
         };
 
         // Load bot token from meta tag (injected by Vercel)
@@ -1950,7 +1949,8 @@
             try {
                 let messageText = `📝 New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n⏰ ${new Date(memo.time).toLocaleString()}`;
                 
-                const response = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`, {
+                // Use API route instead of direct bot token
+                const response = await fetch('/api/telegram', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1973,7 +1973,7 @@
                             .getPublicUrl(file.storage_path);
 
                         if (urlData && urlData.publicUrl) {
-                            await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`, {
+                            await fetch('/api/telegram', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
