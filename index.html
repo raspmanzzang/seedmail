@@ -1485,9 +1485,11 @@
         return;
     }
 
-    // 사용자 시간대 시간
+    // UTC 기준 시간 -> 사용자 오프셋으로 조정
     const now = new Date();
-    const memoTime = now.toLocaleString('en-US', {
+    const utcOffsetHours = parseFloat(utcOffset);
+    const userTime = new Date(now.getTime() + (utcOffsetHours - 9) * 60 * 60 * 1000); // KST(+9)에서 조정
+    const memoTime = userTime.toLocaleString('en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -1496,14 +1498,14 @@
         second: '2-digit',
         hour12: false
     }).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, '$3-$1-$2 $4');
-    console.log(`[addMemo] Text: ${text}, Local time: ${memoTime}, Offset: ${utcOffset}`);
+    console.log(`[addMemo] Text: ${text}, Device Local: ${now.toLocaleString('en-US')}, Offset: ${utcOffset}, Stored time: ${memoTime}`);
 
     const { data, error } = await supabase
         .from('memos')
         .insert({
             user_id: telegramUser.id,
             text: text,
-            time: memoTime // KST 2025-10-09 21:16:00
+            time: memoTime 
         })
         .select();
 
@@ -1515,7 +1517,6 @@
     input.value = '';
     await loadMemos();
 }
-
         async function sendReply(text) {
             const { data: users, error: userError } = await supabase
                 .from('users')
@@ -2289,7 +2290,7 @@
             const item = document.createElement('div');
             item.className = 'memo-item';
             const preview = memo.text.split('\n')[0];
-            const time = memo.time; // 저장된 시간 그대로
+            const time = memo.time; 
             console.log(`[renderMemos] Memo ID: ${memo.id}, Time: ${time}, Offset: ${utcOffset}`);
             item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
             item.onclick = () => showMemoDetail(memo.id);
