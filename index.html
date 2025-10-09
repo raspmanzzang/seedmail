@@ -246,6 +246,64 @@
             top: 10px;
         }
 
+        .memo-item.pinned {
+            background: #001a00;
+            border-left: 4px solid #33ff66;
+            padding-left: 6px;
+        }
+
+        .memo-item.pinned::after {
+            content: '📌';
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        .memo-item.pinned.unread::before {
+            right: 35px;
+        }
+
+        .context-menu {
+            position: fixed;
+            background: #0d0d0d;
+            border: 2px solid #00ff41;
+            padding: 5px 0;
+            z-index: 2000;
+            display: none;
+            min-width: 150px;
+        }
+
+        .context-menu.active {
+            display: block;
+        }
+
+        .context-menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            color: #00ff41;
+            font-size: 12px;
+        }
+
+        .context-menu-item:hover {
+            background: #001a00;
+        }
+
+        .context-menu-item.disabled {
+            color: #666666;
+            cursor: not-allowed;
+        }
+
+        .context-menu-item.disabled:hover {
+            background: transparent;
+        }
+
+        .memo-item.unread::before {
+            content: '🔴';
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
         .memo-sender {
             color: #33ff66;
             font-size: 11px;
@@ -837,6 +895,12 @@
                 <button id="saveConfigBtn" style="width: 100%;">Save Configuration</button>
             </div>
         </div>
+
+        <!-- Context Menu -->
+        <div class="context-menu" id="contextMenu">
+            <div class="context-menu-item" id="pinMenuItem">📌 Pin to Top</div>
+            <div class="context-menu-item" id="unpinMenuItem">📌 Unpin</div>
+        </div>
     </div>
 
     <!-- Supabase SDK -->
@@ -917,6 +981,9 @@
         let currentChatUserId = null;
         let replyMode = false;
         let replyToUsername = null;
+        let pinnedChats = [];
+        let contextMenuTarget = null;
+        let longPressTimer = null;
         let supabase = null;
         let telegramUser = null;
         let tg = window.Telegram?.WebApp;
@@ -936,8 +1003,10 @@
         async function init() {
             const savedEmailJS = localStorage.getItem('seednote_emailjs');
             const savedContacts = localStorage.getItem('seednote_contacts');
+            const savedPinned = localStorage.getItem('seednote_pinned');
             if (savedEmailJS) emailjsConfig = JSON.parse(savedEmailJS);
             if (savedContacts) contacts = JSON.parse(savedContacts);
+            if (savedPinned) pinnedChats = JSON.parse(savedPinned);
 
             if (!tg) {
                 showConfigPopup();
@@ -969,7 +1038,6 @@
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('myMemosView').classList.add('active');
                 
-                // Check for unread messages
                 updateUnreadBadge();
                 
             } catch (error) {
@@ -1079,16 +1147,26 @@
                 grouped[senderId].messages.push(msg);
             });
 
-            Object.keys(grouped).forEach(senderId => {
+            // Separate pinned and unpinned
+            const senderIds = Object.keys(grouped);
+            const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
+            const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
+
+            // Render pinned first
+            [...pinnedIds, ...unpinnedIds].forEach(senderId => {
                 const group = grouped[senderId];
                 const messages = group.messages;
                 const unreadCount = messages.filter(m => !m.is_read).length;
                 const lastMsg = messages[0];
+                const isPinned = pinnedChats.includes(parseInt(senderId));
                 
                 const item = document.createElement('div');
                 item.className = 'memo-item';
                 if (unreadCount > 0) {
                     item.classList.add('unread');
+                }
+                if (isPinned) {
+                    item.classList.add('pinned');
                 }
                 
                 const senderDiv = document.createElement('div');
@@ -1110,10 +1188,91 @@
                 item.appendChild(time);
                 
                 item.onclick = () => showInboxSender(senderId, group.username);
+                
+                // Right-click (PC)
+                item.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    showContextMenu(e.clientX, e.clientY, senderId, isPinned);
+                };
+                
+                // Long press (Mobile)
+                item.ontouchstart = (e) => {
+                    longPressTimer = setTimeout(() => {
+                        const touch = e.touches[0];
+                        showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
+                    }, 500);
+                };
+                
+                item.ontouchend = () => {
+                    clearTimeout(longPressTimer);
+                };
+                
+                item.ontouchmove = () => {
+                    clearTimeout(longPressTimer);
+                };
+                
                 list.appendChild(item);
             });
 
-            count.textContent = t('inboxCount').replace('{count}', Object.keys(grouped).length);
+            count.textContent = t('inboxCount').replace('{count}', senderIds.length);
+        }
+
+        function showContextMenu(x, y, senderId, isPinned) {
+            const menu = document.getElementById('contextMenu');
+            const pinItem = document.getElementById('pinMenuItem');
+            const unpinItem = document.getElementById('unpinMenuItem');
+            
+            contextMenuTarget = parseInt(senderId);
+            
+            // Show/hide appropriate option
+            if (isPinned) {
+                pinItem.style.display = 'none';
+                unpinItem.style.display = 'block';
+            } else {
+                pinItem.style.display = 'block';
+                unpinItem.style.display = 'none';
+                
+                // Check if already 5 pinned
+                if (pinnedChats.length >= 5) {
+                    pinItem.classList.add('disabled');
+                    pinItem.textContent = '📌 Pin to Top (Max 5)';
+                } else {
+                    pinItem.classList.remove('disabled');
+                    pinItem.textContent = '📌 Pin to Top';
+                }
+            }
+            
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.classList.add('active');
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('active');
+            contextMenuTarget = null;
+        }
+
+        function togglePin(senderId) {
+            const index = pinnedChats.indexOf(senderId);
+            
+            if (index > -1) {
+                // Unpin
+                pinnedChats.splice(index, 1);
+            } else {
+                // Pin (check limit)
+                if (pinnedChats.length >= 5) {
+                    showAlert('Maximum 5 chats can be pinned!');
+                    return;
+                }
+                pinnedChats.push(senderId);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
+            
+            // Re-render
+            renderInbox();
+            hideContextMenu();
         }
 
         function showInboxSender(senderId, senderUsername) {
@@ -2173,6 +2332,21 @@
                 addMemo();
             }
         };
+
+        // Context menu events
+        document.getElementById('pinMenuItem').onclick = () => {
+            if (!document.getElementById('pinMenuItem').classList.contains('disabled')) {
+                togglePin(contextMenuTarget);
+            }
+        };
+
+        document.getElementById('unpinMenuItem').onclick = () => {
+            togglePin(contextMenuTarget);
+        };
+
+        // Hide context menu on click outside
+        document.addEventListener('click', hideContextMenu);
+        document.addEventListener('touchstart', hideContextMenu);
 
         // ========== START ==========
         init();
