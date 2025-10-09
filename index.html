@@ -1472,38 +1472,51 @@
         }
 
         async function addMemo() {
-            const input = document.getElementById('memoInput');
-            const text = input.value.trim();
+    const input = document.getElementById('memoInput');
+    const text = input.value.trim();
 
-            if (!text) {
-                showAlert(t('alertEmpty'));
-                return;
-            }
+    if (!text) {
+        showAlert(t('alertEmpty'));
+        return;
+    }
 
-            // If in reply mode, send directly
-            if (replyMode && replyToUsername) {
-                await sendReply(text);
-                return;
-            }
+    // If in reply mode, send directly
+    if (replyMode && replyToUsername) {
+        await sendReply(text);
+        return;
+    }
 
-            // Otherwise, create normal memo
-            const { data, error } = await supabase
-                .from('memos')
-                .insert({
-                    user_id: telegramUser.id,
-                    text: text,
-                    time: new Date().toISOString()
-                })
-                .select();
+    // 로컬 시간 계산
+    const now = new Date();
+    now.setHours(now.getHours() + parseFloat(utcOffset));
+    const memoTime = now.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+)/, '$3-$1-$2 $4');
+    console.log(`[addMemo] Saving memo, Text: ${text}, Local time: ${memoTime}, UTC Offset: ${utcOffset}`);
 
-            if (error) {
-                showAlert('Error: ' + error.message);
-                return;
-            }
+    const { data, error } = await supabase
+        .from('memos')
+        .insert({
+            user_id: telegramUser.id,
+            text: text,
+            time: memoTime // 로컬 시간 저장
+        })
+        .select();
 
-            input.value = '';
-            await loadMemos();
-        }
+    if (error) {
+        showAlert('Error: ' + error.message);
+        return;
+    }
+
+    input.value = '';
+    await loadMemos();
+}
 
         async function sendReply(text) {
             const { data: users, error: userError } = await supabase
@@ -1581,29 +1594,30 @@
         }
 
         async function showMemoDetail(id) {
-            const memo = memos.find(m => m.id === id);
-            if (!memo) return;
+    const memo = memos.find(m => m.id === id);
+    if (!memo) return;
 
-            currentMemoId = id;
-            selectedFiles = [];
-            document.getElementById('myMemosView').classList.remove('active');
-            document.getElementById('detailView').classList.add('active');
-            document.getElementById('backBtn').style.display = 'block';
+    currentMemoId = id;
+    selectedFiles = [];
+    document.getElementById('myMemosView').classList.remove('active');
+    document.getElementById('detailView').classList.add('active');
+    document.getElementById('backBtn').style.display = 'block';
 
-            const time = new Date(memo.time).toLocaleString();
-            document.getElementById('detailTime').textContent = time;
-            document.getElementById('detailContent').textContent = memo.text;
-            document.getElementById('detailEdit').value = memo.text;
-            document.getElementById('detailContent').style.display = 'block';
-            document.getElementById('detailEdit').classList.remove('active');
-            document.getElementById('fileInputWrapper').classList.remove('active');
-            document.getElementById('editBtn').style.display = 'inline-block';
-            document.getElementById('addFilesBtn').style.display = 'inline-block';
-            document.getElementById('sendBtn').style.display = 'inline-block';
-            document.getElementById('saveBtn').style.display = 'none';
+    const time = memo.time; // 저장된 로컬 시간 그대로 사용
+    console.log(`[showMemoDetail] Memo ID: ${id}, Time: ${memo.time}, UTC Offset: ${utcOffset}`);
+    document.getElementById('detailTime').textContent = time;
+    document.getElementById('detailContent').textContent = memo.text;
+    document.getElementById('detailEdit').value = memo.text;
+    document.getElementById('detailContent').style.display = 'block';
+    document.getElementById('detailEdit').classList.remove('active');
+    document.getElementById('fileInputWrapper').classList.remove('active');
+    document.getElementById('editBtn').style.display = 'inline-block';
+    document.getElementById('addFilesBtn').style.display = 'inline-block';
+    document.getElementById('sendBtn').style.display = 'inline-block';
+    document.getElementById('saveBtn').style.display = 'none';
 
-            await loadMemoFiles(id);
-        }
+    await loadMemoFiles(id);
+}
 
         async function loadMemoFiles(memoId) {
             const { data, error } = await supabase
@@ -2262,29 +2276,30 @@
         }
 
         function renderMemos() {
-            const list = document.getElementById('memoList');
-            const count = document.getElementById('memoCount');
-            list.innerHTML = '';
+    const list = document.getElementById('memoList');
+    const count = document.getElementById('memoCount');
+    list.innerHTML = '';
 
-            if (memos.length === 0) {
-                const empty = document.createElement('div');
-                empty.className = 'memo-item empty';
-                empty.textContent = t('emptyState');
-                list.appendChild(empty);
-                count.textContent = '';
-            } else {
-                memos.forEach(memo => {
-                    const item = document.createElement('div');
-                    item.className = 'memo-item';
-                    const preview = memo.text.split('\n')[0];
-                    const time = new Date(memo.time).toLocaleString();
-                    item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
-                    item.onclick = () => showMemoDetail(memo.id);
-                    list.appendChild(item);
-                });
-                count.textContent = t('memoCount').replace('{count}', memos.length);
-            }
-        }
+    if (memos.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'memo-item empty';
+        empty.textContent = t('emptyState');
+        list.appendChild(empty);
+        count.textContent = '';
+    } else {
+        memos.forEach(memo => {
+            const item = document.createElement('div');
+            item.className = 'memo-item';
+            const preview = memo.text.split('\n')[0];
+            const time = memo.time; // 저장된 로컬 시간 그대로 사용
+            console.log(`[renderMemos] Memo ID: ${memo.id}, Time: ${memo.time}, UTC Offset: ${utcOffset}`);
+            item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
+            item.onclick = () => showMemoDetail(memo.id);
+            list.appendChild(item);
+        });
+        count.textContent = t('memoCount').replace('{count}', memos.length);
+    }
+}
 
         function showConfirm(message, callback) {
             document.getElementById('confirmMessage').textContent = message;
