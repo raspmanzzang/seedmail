@@ -1510,13 +1510,12 @@ function formatTime(utcTimeString) {
         return;
     }
 
-    // 그냥 UTC 시간으로 저장 (toISOString() 사용)
     const { data, error } = await supabase
         .from('memos')
         .insert({
             user_id: telegramUser.id,
-            text: text,
-            time: new Date().toISOString()  // ✅ 이게 전부!
+            text: text
+            // time 컬럼 삭제! timestamptz는 자동으로 현재 시간 입력
         })
         .select();
 
@@ -1528,7 +1527,6 @@ function formatTime(utcTimeString) {
     input.value = '';
     await loadMemos();
 }
-
         async function sendReply(text) {
             const { data: users, error: userError } = await supabase
                 .from('users')
@@ -1723,19 +1721,19 @@ function formatTime(utcTimeString) {
         }
 
         async function saveMemo() {
-            const text = document.getElementById('detailEdit').value.trim();
-            if (!text) {
-                showAlert(t('alertEmpty'));
-                return;
-            }
+    const text = document.getElementById('detailEdit').value.trim();
+    if (!text) {
+        showAlert(t('alertEmpty'));
+        return;
+    }
 
-            const { error } = await supabase
-                .from('memos')
-                .update({
-                    text: text,
-                    time: new Date().toISOString()
-                })
-                .eq('id', currentMemoId);
+    const { error } = await supabase
+        .from('memos')
+        .update({
+            text: text
+            // time 삭제! 자동 업데이트
+        })
+        .eq('id', currentMemoId);
 
             if (error) {
                 showAlert('Error: ' + error.message);
