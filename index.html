@@ -1491,61 +1491,66 @@
         }
 
         async function sendReply(text) {
-            const { data: users, error: userError } = await supabase
-                .from('users')
-                .select('telegram_id')
-                .eq('username', replyToUsername)
-                .limit(1);
+    const { data: users, error: userError } = await supabase
+        .from('users')
+        .select('telegram_id')
+        .eq('username', replyToUsername)
+        .limit(1);
 
-            if (userError || !users || users.length === 0) {
-                showAlert('User not found!');
-                return;
-            }
+    if (userError || !users || users.length === 0) {
+        showAlert('User not found!');
+        return;
+    }
 
-            const recipientId = users[0].telegram_id;
+    const recipientId = users[0].telegram_id;
+    const localTime = new Date().toISOString(); // 로컬 시간
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // 기기 시간대
 
-            try {
-                let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
-                                
-                const response = await fetch('/api/telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: recipientId,
-                        text: messageText
-                    })
+    try {
+        let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
+                        
+        const response = await fetch('/api/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: recipientId,
+                text: messageText,
+                local_time: localTime,
+                timezone: timezone
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result.ok) {
+            await supabase
+                .from('shares')
+                .insert({
+                    from_user_id: telegramUser.id,
+                    to_user_id: recipientId,
+                    to_username: replyToUsername,
+                    memo_text: text,
+                    memo_time: localTime,
+                    sent_at: localTime,
+                    timezone: timezone // 시간대 정보 저장
                 });
 
-                const result = await response.json();
-                
-                if (result.ok) {
-                    await supabase
-                        .from('shares')
-                        .insert({
-                            from_user_id: telegramUser.id,
-                            to_user_id: recipientId,
-                            to_username: replyToUsername,
-                            memo_text: text,
-                            memo_time: new Date().toISOString()
-                        });
-
-                    document.getElementById('memoInput').value = '';
-                    showAlert('Reply sent!');
-                    cancelReplyMode();
-                    
-                    // Refresh conversation if still viewing
-                    if (currentChatUsername === replyToUsername) {
-                        await loadInbox();
-                        await loadConversation(currentChatUserId, currentChatUsername);
-                    }
-                } else {
-                    showAlert('Failed to send reply!');
-                }
-            } catch (error) {
-                showAlert('Failed to send reply!');
-                console.error('Reply error:', error);
+            document.getElementById('memoInput').value = '';
+            showAlert('Reply sent!');
+            cancelReplyMode();
+            
+            if (currentChatUsername === replyToUsername) {
+                await loadInbox();
+                await loadConversation(currentChatUserId, currentChatUsername);
             }
+        } else {
+            showAlert('Failed to send reply!');
         }
+    } catch (error) {
+        showAlert('Failed to send reply!');
+        console.error('Reply error:', error);
+    }
+}
 
         async function clearAllMemos() {
             if (memos.length === 0) return;
@@ -1921,91 +1926,99 @@
         }
 
         async function sendViaTelegram() {
-            const username = document.getElementById('recipientUsername').value.trim().replace('@', '');
-            const errorLabel = document.getElementById('telegramError');
+    const username = document.getElementById('recipientUsername').value.trim().replace('@', '');
+    const errorLabel = document.getElementById('telegramError');
 
-            if (!username) {
-                errorLabel.textContent = 'Please enter a valid username!';
-                return;
-            }
+    if (!username) {
+        errorLabel.textContent = 'Please enter a valid username!';
+        return;
+    }
 
-            const memo = memos.find(m => m.id === currentMemoId);
-            if (!memo) return;
+    const memo = memos.find(m => m.id === currentMemoId);
+    if (!memo) return;
 
-            const { data: users, error: userError } = await supabase
-                .from('users')
-                .select('telegram_id')
-                .eq('username', username)
-                .limit(1);
+    const { data: users, error: userError } = await supabase
+        .from('users')
+        .select('telegram_id')
+        .eq('username', username)
+        .limit(1);
 
-            if (userError || !users || users.length === 0) {
-                errorLabel.textContent = 'User not found or hasn\'t started the bot!';
-                return;
-            }
+    if (userError || !users || users.length === 0) {
+        errorLabel.textContent = 'User not found or hasn\'t started the bot!';
+        return;
+    }
 
-            const recipientId = users[0].telegram_id;
+    const recipientId = users[0].telegram_id;
+    const localTime = new Date().toISOString(); // 로컬 시간 (예: 2025-10-09T19:22:00+09:00)
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // 기기 시간대
 
-            const { data: files } = await supabase
-                .from('files')
-                .select('*')
-                .eq('memo_id', currentMemoId);
+    const { data: files } = await supabase
+        .from('files')
+        .select('*')
+        .eq('memo_id', currentMemoId);
 
-            try {
-                let messageText = `📝 New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n⏰ ${new Date(memo.time).toLocaleString()}`;
-                
-                const response = await fetch('/api/telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: recipientId,
-                        text: messageText
-                    })
-                });
+    try {
+        let messageText = `📝 New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n⏰ ${new Date(memo.time).toLocaleString('en-US', { timeZone: timezone })}`;
+        
+        const response = await fetch('/api/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: recipientId,
+                text: messageText,
+                local_time: localTime,
+                timezone: timezone
+            })
+        });
 
-                const result = await response.json();
-                
-                if (!result.ok) {
-                    errorLabel.textContent = 'Failed to send message!';
-                    return;
-                }
+        const result = await response.json();
+        
+        if (!result.ok) {
+            errorLabel.textContent = 'Failed to send message!';
+            return;
+        }
 
-                if (files && files.length > 0) {
-                    for (const file of files) {
-                        const { data: urlData } = supabase.storage
-                            .from('memo-files')
-                            .getPublicUrl(file.storage_path);
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const { data: urlData } = supabase.storage
+                    .from('memo-files')
+                    .getPublicUrl(file.storage_path);
 
-                        if (urlData && urlData.publicUrl) {
-                            await fetch('/api/telegram', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    chat_id: recipientId,
-                                    text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${urlData.publicUrl}`,
-                                    disable_web_page_preview: false
-                                })
-                            });
-                        }
-                    }
-                }
-
-                await supabase
-                    .from('shares')
-                    .insert({
-                        from_user_id: telegramUser.id,
-                        to_user_id: recipientId,
-                        to_username: username,
-                        memo_text: memo.text,
-                        memo_time: memo.time
+                if (urlData && urlData.publicUrl) {
+                    await fetch('/api/telegram', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: recipientId,
+                            text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${urlData.publicUrl}`,
+                            disable_web_page_preview: false,
+                            local_time: localTime,
+                            timezone: timezone
+                        })
                     });
-
-                document.getElementById('telegramPopup').classList.remove('active');
-                showAlert('Sent successfully!');
-            } catch (error) {
-                errorLabel.textContent = 'Failed to send!';
-                console.error('Send error:', error);
+                }
             }
         }
+
+        await supabase
+            .from('shares')
+            .insert({
+                from_user_id: telegramUser.id,
+                to_user_id: recipientId,
+                to_username: username,
+                memo_text: memo.text,
+                memo_time: memo.time,
+                sent_at: localTime,
+                timezone: timezone // 시간대 정보 저장
+            });
+
+        document.getElementById('telegramPopup').classList.remove('active');
+        showAlert('Sent successfully!');
+    } catch (error) {
+        errorLabel.textContent = 'Failed to send!';
+        console.error('Send error:', error);
+    }
+}
 
         // ========== EMAIL FUNCTIONS ==========
         function showSenderPopup() {
