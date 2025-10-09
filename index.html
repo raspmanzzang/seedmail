@@ -40,9 +40,7 @@
         .back-btn {
     position: absolute;
     left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    margin-top: -5px;  
+    top: 20px;  /* subtitle을 가리지 않도록 고정 위치 */
     background: #0d0d0d;
     color: #00ff41;
     border: 2px solid #00ff41;
@@ -1153,19 +1151,28 @@
         document.getElementById('inboxTab').onclick = () => switchTab('inbox');
 
         function switchTab(tab) {
-            currentView = tab;
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.main-view').forEach(v => v.classList.remove('active'));
-            
-            if (tab === 'myMemos') {
-                document.getElementById('myMemosTab').classList.add('active');
-                document.getElementById('myMemosView').classList.add('active');
-            } else {
-                document.getElementById('inboxTab').classList.add('active');
-                document.getElementById('inboxView').classList.add('active');
-            }
-        }
+    currentView = tab;
+    
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.main-view').forEach(v => v.classList.remove('active'));
+    
+    // Detail view가 열려있다면 닫기
+    document.getElementById('detailView').classList.remove('active');
+    
+    // Back 버튼 숨기기
+    document.getElementById('backBtn').style.display = 'none';
+    
+    // currentMemoId 초기화
+    currentMemoId = null;
+    
+    if (tab === 'myMemos') {
+        document.getElementById('myMemosTab').classList.add('active');
+        document.getElementById('myMemosView').classList.add('active');
+    } else {
+        document.getElementById('inboxTab').classList.add('active');
+        document.getElementById('inboxView').classList.add('active');
+    }
+}
 
         // ========== INBOX FUNCTIONS ==========
         async function loadInbox() {
