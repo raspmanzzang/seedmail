@@ -24,7 +24,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { chat_id, text, document, disable_web_page_preview } = req.body;
+    const { chat_id, text, document, disable_web_page_preview, local_time, timezone } = req.body;
+
+    // 클라이언트에서 보낸 로컬 시간 확인
+    const sent_at = local_time ? new Date(local_time).toISOString() : new Date().toISOString();
+    console.log('Received local_time:', local_time, 'Timezone:', timezone, 'Stored sent_at:', sent_at);
 
     const telegramUrl = document 
       ? `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`
@@ -32,12 +36,22 @@ export default async function handler(req, res) {
 
     const response = await fetch(telegramUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body)
+      headers: { 'Content-Type': document ? 'multipart/form-data' : 'application/json' },
+      body: document ? req.body.document : JSON.stringify({
+        chat_id,
+        text,
+        disable_web_page_preview
+      })
     });
 
     const data = await response.json();
-    res.status(200).json(data);
+    
+    // Supabase에 저장 시 sent_at과 timezone 포함
+    if (data.ok) {
+      res.status(200).json({ ...data, sent_at, timezone });
+    } else {
+      res.status(500).json({ error: 'Telegram API failed', details: data });
+    }
 
   } catch (error) {
     console.error('Telegram API error:', error);
