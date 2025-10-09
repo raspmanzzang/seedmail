@@ -1743,8 +1743,8 @@
 
             try {
                 let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
-                
-                const response = await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`, {
+                                
+                const response = await fetch('/api/telegram', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
