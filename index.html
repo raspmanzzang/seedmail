@@ -1053,13 +1053,11 @@
         // ========== TIME HELPER FUNCTIONS ==========
 // 로컬 시간으로 변환하는 헬퍼 함수
 // ========== TIME HELPER FUNCTIONS ==========
+// ========== TIME HELPER FUNCTIONS ==========
 function toLocalTime(utcTimeString) {
     const date = new Date(utcTimeString);
-    // 사용자가 설정한 오프셋만큼 조정
-    const offsetHours = parseFloat(utcOffset);
-    const offsetMinutes = (offsetHours - Math.floor(offsetHours)) * 60;
-    date.setHours(date.getHours() + Math.floor(offsetHours));
-    date.setMinutes(date.getMinutes() + offsetMinutes);
+    // Date 객체는 이미 브라우저의 로컬 시간대로 변환됨!
+    // 추가 변환 필요 없음!
     return date;
 }
 
