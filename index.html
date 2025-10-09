@@ -57,13 +57,28 @@
             color: #33ff66;
         }
 
+        .menu-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #0d0d0d;
+            color: #00ff41;
+            border: 2px solid #00ff41;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .menu-btn:hover {
+            border-width: 3px;
+            color: #33ff66;
+        }
+
         h1 {
             font-size: 24px;
             margin-bottom: 10px;
-        }
-
-        .subtitle {
-            font-size: 12px;
         }
 
         .subtitle {
@@ -295,13 +310,6 @@
 
         .context-menu-item.disabled:hover {
             background: transparent;
-        }
-
-        .memo-item.unread::before {
-            content: '🔴';
-            position: absolute;
-            right: 10px;
-            top: 10px;
         }
 
         .memo-sender {
@@ -706,6 +714,7 @@
     <div class="container">
         <div class="header">
             <button class="back-btn" id="backBtn">← Back</button>
+            <button class="menu-btn" id="menuBtn">☰</button>
             <h1>SEEDNOTE</h1>
             <div class="subtitle" id="subtitle">Plant your ideas, Grow with SEEDPI</div>
             <div class="user-info" id="userInfo">Loading...</div>
@@ -881,6 +890,48 @@
             </div>
         </div>
 
+        <!-- Menu Popup -->
+        <div class="popup" id="menuPopup">
+            <div class="popup-content">
+                <h3>Settings</h3>
+                <button id="passwordMenuItem" style="width: 100%; margin-bottom: 10px;">🔒 Password</button>
+                <button id="backupMenuItem" style="width: 100%; margin-bottom: 10px;">💾 Backup</button>
+                <button id="recoverMenuItem" style="width: 100%; margin-bottom: 10px;">📥 Recover</button>
+                <button class="red" id="resetMenuItem" style="width: 100%; margin-bottom: 10px;">🗑️ Reset</button>
+                <button id="closeMenuBtn" style="width: 100%; margin-top: 10px;">Close</button>
+            </div>
+        </div>
+
+        <!-- Password Popup -->
+        <div class="popup" id="passwordPopup">
+            <div class="popup-content">
+                <h3 id="passwordPopupTitle">Set Password</h3>
+                <label id="passwordLabel">Enter Password:</label>
+                <input type="password" id="passwordInput" placeholder="Enter password">
+                <label id="confirmPasswordLabel" style="display: none;">Confirm Password:</label>
+                <input type="password" id="confirmPasswordInput" placeholder="Confirm password" style="display: none;">
+                <div class="error-label" id="passwordError"></div>
+                <div class="button-group">
+                    <button id="savePasswordBtn">Save</button>
+                    <button id="cancelPasswordBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recover Popup -->
+        <div class="popup" id="recoverPopup">
+            <div class="popup-content">
+                <h3>Recover Data</h3>
+                <label>Select Backup File:</label>
+                <input type="file" id="recoverFileInput" accept=".json">
+                <div class="error-label" id="recoverError"></div>
+                <div class="button-group">
+                    <button id="recoverBtn">Recover</button>
+                    <button id="cancelRecoverBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Config Popup -->
         <div class="popup" id="configPopup">
             <div class="popup-content">
@@ -929,58 +980,30 @@
 
         // ========== TRANSLATIONS ==========
         const translations = {
-            en: {
-                subtitle: "Plant your ideas, Grow with SEEDPI",
-                placeholder: "Enter your memo.",
-                addBtn: "Add",
-                clearBtn: "Clear All",
-                editBtn: "Edit",
-                saveBtn: "Save",
-                deleteBtn: "Delete",
-                sendBtn: "Send",
-                replyBtn: "Reply",
-                addFilesBtn: "Add Files",
-                backBtn: "← Back",
-                myMemosTab: "📝 My Memos",
-                inboxTab: "📬 Inbox",
-                emptyState: "No memos yet.\nAdd your first memo!",
-                emptyInbox: "No messages received yet.",
-                memoCount: "Total {count} memos",
-                inboxCount: "Total {count} senders",
-                confirmClear: "Are you sure you want to delete all memos?",
-                confirmDelete: "Are you sure you want to delete this memo?",
-                alertEmpty: "Please enter memo content!",
-                langBtn: "한국어",
-                userInfo: "User: {name}"
-            },
-            ko: {
-                subtitle: "Plant your ideas, Grow with SEEDPI",
-                placeholder: "메모를 입력하세요.",
-                addBtn: "추가",
-                clearBtn: "전체 삭제",
-                editBtn: "편집",
-                saveBtn: "저장",
-                deleteBtn: "삭제",
-                sendBtn: "보내기",
-                replyBtn: "답장",
-                addFilesBtn: "파일 추가",
-                backBtn: "← 뒤로",
-                myMemosTab: "📝 내 메모",
-                inboxTab: "📬 받은메모함",
-                emptyState: "메모가 없습니다.\n새로운 메모를 추가해보세요!",
-                emptyInbox: "받은 메시지가 없습니다.",
-                memoCount: "총 {count}개의 메모",
-                inboxCount: "총 {count}명",
-                confirmClear: "모든 메모를 삭제하시겠습니까?",
-                confirmDelete: "이 메모를 삭제하시겠습니까?",
-                alertEmpty: "메모 내용을 입력해주세요!",
-                langBtn: "English",
-                userInfo: "사용자: {name}"
-            }
+            subtitle: "Plant your ideas, Grow with SEEDPI",
+            placeholder: "Enter your memo.",
+            addBtn: "Add",
+            clearBtn: "Clear All",
+            editBtn: "Edit",
+            saveBtn: "Save",
+            deleteBtn: "Delete",
+            sendBtn: "Send",
+            replyBtn: "Reply",
+            addFilesBtn: "Add Files",
+            backBtn: "← Back",
+            myMemosTab: "📝 My Memos",
+            inboxTab: "📬 Inbox",
+            emptyState: "No memos yet.\nAdd your first memo!",
+            emptyInbox: "No messages received yet.",
+            memoCount: "Total {count} memos",
+            inboxCount: "Total {count} senders",
+            confirmClear: "Are you sure you want to delete all memos?",
+            confirmDelete: "Are you sure you want to delete this memo?",
+            alertEmpty: "Please enter memo content!",
+            userInfo: "User: {name}"
         };
 
         // ========== STATE ==========
-        let currentLang = 'en';
         let currentView = 'myMemos';
         let memos = [];
         let inboxMessages = [];
@@ -1004,9 +1027,10 @@
         };
         let contacts = [];
         let editingContactIndex = null;
+        let passwordHash = localStorage.getItem('seednote_password') || null;
 
         // ========== TRANSLATIONS ==========
-        const t = (key) => translations.en[key] || key;
+        const t = (key) => translations[key] || key;
 
         // ========== INITIALIZATION ==========
         async function init() {
@@ -1016,6 +1040,11 @@
             if (savedEmailJS) emailjsConfig = JSON.parse(savedEmailJS);
             if (savedContacts) contacts = JSON.parse(savedContacts);
             if (savedPinned) pinnedChats = JSON.parse(savedPinned);
+
+            // Check password protection
+            if (passwordHash) {
+                await checkPassword();
+            }
 
             if (!tg) {
                 showConfigPopup();
@@ -1392,10 +1421,6 @@
             list.appendChild(replyBtn);
         }
 
-        async function showInboxDetail(id, senderUsername) {
-            // This function is no longer needed - handled by loadConversation
-        }
-
         function updateUnreadBadge() {
             const unreadCount = inboxMessages.filter(m => !m.is_read).length;
             const badge = document.getElementById('unreadBadge');
@@ -1430,6 +1455,13 @@
                 return;
             }
 
+            // If in reply mode, send directly
+            if (replyMode && replyToUsername) {
+                await sendReply(text);
+                return;
+            }
+
+            // Otherwise, create normal memo
             const { data, error } = await supabase
                 .from('memos')
                 .insert({
@@ -1446,6 +1478,63 @@
 
             input.value = '';
             await loadMemos();
+        }
+
+        async function sendReply(text) {
+            const { data: users, error: userError } = await supabase
+                .from('users')
+                .select('telegram_id')
+                .eq('username', replyToUsername)
+                .limit(1);
+
+            if (userError || !users || users.length === 0) {
+                showAlert('User not found!');
+                return;
+            }
+
+            const recipientId = users[0].telegram_id;
+
+            try {
+                let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
+                                
+                const response = await fetch('/api/telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: recipientId,
+                        text: messageText
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.ok) {
+                    await supabase
+                        .from('shares')
+                        .insert({
+                            from_user_id: telegramUser.id,
+                            to_user_id: recipientId,
+                            to_username: replyToUsername,
+                            memo_text: text,
+                            memo_time: new Date().toISOString()
+                        });
+
+                    document.getElementById('memoInput').value = '';
+                    showAlert('Reply sent!');
+                    cancelReplyMode();
+                    
+                    // Refresh conversation if still viewing
+                    if (currentChatUsername === replyToUsername) {
+                        await loadInbox();
+                        await loadConversation(currentChatUserId, currentChatUsername);
+                    }
+                } else {
+                    showAlert('Failed to send reply!');
+                }
+            } catch (error) {
+                showAlert('Failed to send reply!');
+                console.error('Reply error:', error);
+            }
         }
 
         async function clearAllMemos() {
@@ -1658,10 +1747,6 @@
             });
         }
 
-        async function deleteInboxMessage() {
-            // No longer needed - messages deleted from conversation view
-        }
-
         function startReplyMode(username) {
             replyMode = true;
             replyToUsername = username;
@@ -1691,97 +1776,6 @@
             // Show Clear All button again
             document.getElementById('clearBtn').style.display = 'inline-block';
             document.getElementById('addBtn').textContent = t('addBtn');
-        }
-
-        async function addMemo() {
-            const input = document.getElementById('memoInput');
-            const text = input.value.trim();
-
-            if (!text) {
-                showAlert(t('alertEmpty'));
-                return;
-            }
-
-            // If in reply mode, send directly
-            if (replyMode && replyToUsername) {
-                await sendReply(text);
-                return;
-            }
-
-            // Otherwise, create normal memo
-            const { data, error } = await supabase
-                .from('memos')
-                .insert({
-                    user_id: telegramUser.id,
-                    text: text,
-                    time: new Date().toISOString()
-                })
-                .select();
-
-            if (error) {
-                showAlert('Error: ' + error.message);
-                return;
-            }
-
-            input.value = '';
-            await loadMemos();
-        }
-
-        async function sendReply(text) {
-            const { data: users, error: userError } = await supabase
-                .from('users')
-                .select('telegram_id')
-                .eq('username', replyToUsername)
-                .limit(1);
-
-            if (userError || !users || users.length === 0) {
-                showAlert('User not found!');
-                return;
-            }
-
-            const recipientId = users[0].telegram_id;
-
-            try {
-                let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
-                                
-                const response = await fetch('/api/telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: recipientId,
-                        text: messageText
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.ok) {
-                    await supabase
-                        .from('shares')
-                        .insert({
-                            from_user_id: telegramUser.id,
-                            to_user_id: recipientId,
-                            to_username: replyToUsername,
-                            memo_text: text,
-                            memo_time: new Date().toISOString()
-                        });
-
-                    document.getElementById('memoInput').value = '';
-                    showAlert('Reply sent!');
-                    cancelReplyMode();
-                    
-                    // Refresh conversation if still viewing
-                    if (currentChatUsername === replyToUsername) {
-                        await loadInbox();
-                        await loadConversation(currentChatUserId, currentChatUsername);
-                    }
-                } else {
-                    showAlert('Failed to send reply!');
-                }
-            } catch (error) {
-                showAlert('Failed to send reply!');
-                console.error('Reply error:', error);
-            }
         }
 
         // ========== FILE FUNCTIONS ==========
@@ -1949,7 +1943,6 @@
             try {
                 let messageText = `📝 New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n⏰ ${new Date(memo.time).toLocaleString()}`;
                 
-                // Use API route instead of direct bot token
                 const response = await fetch('/api/telegram', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2283,6 +2276,367 @@
             document.getElementById('alertPopup').classList.add('active');
         }
 
+        // ========== MENU FUNCTIONS ==========
+        function showMenuPopup() {
+            document.getElementById('menuPopup').classList.add('active');
+        }
+
+        document.getElementById('closeMenuBtn').onclick = () => {
+            document.getElementById('menuPopup').classList.remove('active');
+        };
+
+        document.getElementById('passwordMenuItem').onclick = () => {
+            document.getElementById('menuPopup').classList.remove('active');
+            showPasswordPopup();
+        };
+
+        document.getElementById('backupMenuItem').onclick = async () => {
+            document.getElementById('menuPopup').classList.remove('active');
+            await backupData();
+        };
+
+        document.getElementById('recoverMenuItem').onclick = () => {
+            document.getElementById('menuPopup').classList.remove('active');
+            showRecoverPopup();
+        };
+
+        document.getElementById('resetMenuItem').onclick = () => {
+            document.getElementById('menuPopup').classList.remove('active');
+            confirmReset();
+        };
+
+        // ========== PASSWORD FUNCTIONS ==========
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function checkPassword() {
+            return new Promise((resolve) => {
+                const popup = document.getElementById('passwordPopup');
+                const title = document.getElementById('passwordPopupTitle');
+                const label = document.getElementById('passwordLabel');
+                const input = document.getElementById('passwordInput');
+                const confirmLabel = document.getElementById('confirmPasswordLabel');
+                const confirmInput = document.getElementById('confirmPasswordInput');
+                const errorLabel = document.getElementById('passwordError');
+                const saveBtn = document.getElementById('savePasswordBtn');
+
+                title.textContent = 'Enter Password';
+                label.textContent = 'Password:';
+                input.value = '';
+                confirmLabel.style.display = 'none';
+                confirmInput.style.display = 'none';
+                confirmInput.value = '';
+                errorLabel.textContent = '';
+                saveBtn.textContent = 'Unlock';
+
+                popup.classList.add('active');
+
+                const unlockHandler = async () => {
+                    const password = input.value.trim();
+                    if (!password) {
+                        errorLabel.textContent = 'Please enter password!';
+                        return;
+                    }
+
+                    const hash = await hashPassword(password);
+                    if (hash === passwordHash) {
+                        popup.classList.remove('active');
+                        saveBtn.onclick = null;
+                        input.onkeydown = null;
+                        resolve(true);
+                    } else {
+                        errorLabel.textContent = 'Incorrect password!';
+                        input.value = '';
+                    }
+                };
+
+                saveBtn.onclick = unlockHandler;
+                input.onkeydown = (e) => {
+                    if (e.key === 'Enter') unlockHandler();
+                };
+
+                document.getElementById('cancelPasswordBtn').onclick = () => {
+                    // Cannot cancel password check on startup
+                };
+            });
+        }
+
+        function showPasswordPopup() {
+            const popup = document.getElementById('passwordPopup');
+            const title = document.getElementById('passwordPopupTitle');
+            const label = document.getElementById('passwordLabel');
+            const input = document.getElementById('passwordInput');
+            const confirmLabel = document.getElementById('confirmPasswordLabel');
+            const confirmInput = document.getElementById('confirmPasswordInput');
+            const errorLabel = document.getElementById('passwordError');
+            const saveBtn = document.getElementById('savePasswordBtn');
+
+            input.value = '';
+            confirmInput.value = '';
+            errorLabel.textContent = '';
+
+            if (passwordHash) {
+                // Remove password
+                title.textContent = 'Remove Password';
+                label.textContent = 'Current Password:';
+                confirmLabel.style.display = 'none';
+                confirmInput.style.display = 'none';
+                saveBtn.textContent = 'Remove';
+            } else {
+                // Set password
+                title.textContent = 'Set Password';
+                label.textContent = 'New Password:';
+                confirmLabel.style.display = 'block';
+                confirmInput.style.display = 'block';
+                saveBtn.textContent = 'Save';
+            }
+
+            popup.classList.add('active');
+        }
+
+        document.getElementById('savePasswordBtn').onclick = async () => {
+            const input = document.getElementById('passwordInput');
+            const confirmInput = document.getElementById('confirmPasswordInput');
+            const errorLabel = document.getElementById('passwordError');
+
+            const password = input.value.trim();
+
+            if (passwordHash) {
+                // Remove password
+                if (!password) {
+                    errorLabel.textContent = 'Please enter current password!';
+                    return;
+                }
+
+                const hash = await hashPassword(password);
+                if (hash !== passwordHash) {
+                    errorLabel.textContent = 'Incorrect password!';
+                    return;
+                }
+
+                passwordHash = null;
+                localStorage.removeItem('seednote_password');
+                document.getElementById('passwordPopup').classList.remove('active');
+                showAlert('Password removed!');
+            } else {
+                // Set password
+                const confirmPassword = confirmInput.value.trim();
+
+                if (!password) {
+                    errorLabel.textContent = 'Please enter password!';
+                    return;
+                }
+
+                if (password.length < 4) {
+                    errorLabel.textContent = 'Password must be at least 4 characters!';
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    errorLabel.textContent = 'Passwords do not match!';
+                    return;
+                }
+
+                passwordHash = await hashPassword(password);
+                localStorage.setItem('seednote_password', passwordHash);
+                document.getElementById('passwordPopup').classList.remove('active');
+                showAlert('Password set!');
+            }
+        };
+
+        document.getElementById('cancelPasswordBtn').onclick = () => {
+            document.getElementById('passwordPopup').classList.remove('active');
+        };
+
+        // ========== BACKUP FUNCTIONS ==========
+        async function backupData() {
+            try {
+                showAlert('Creating backup...');
+
+                // Get all memos with files
+                const { data: memosData, error: memosError } = await supabase
+                    .from('memos')
+                    .select('*')
+                    .eq('user_id', telegramUser.id);
+
+                if (memosError) throw memosError;
+
+                const { data: filesData, error: filesError } = await supabase
+                    .from('files')
+                    .select('*');
+
+                if (filesError) throw filesError;
+
+                // Get all inbox messages
+                const { data: inboxData, error: inboxError } = await supabase
+                    .from('shares')
+                    .select('*')
+                    .or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+
+                if (inboxError) throw inboxError;
+
+                // Create backup object
+                const backup = {
+                    version: '1.0',
+                    timestamp: new Date().toISOString(),
+                    user: {
+                        telegram_id: telegramUser.id,
+                        username: telegramUser.username,
+                        first_name: telegramUser.first_name
+                    },
+                    memos: memosData || [],
+                    files: filesData || [],
+                    inbox: inboxData || [],
+                    emailjs: emailjsConfig,
+                    contacts: contacts,
+                    pinnedChats: pinnedChats
+                };
+
+                // Download as JSON file
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `seednote_backup_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showAlert('Backup created successfully!');
+            } catch (error) {
+                console.error('Backup error:', error);
+                showAlert('Backup failed: ' + error.message);
+            }
+        }
+
+        // ========== RECOVER FUNCTIONS ==========
+        function showRecoverPopup() {
+            document.getElementById('recoverFileInput').value = '';
+            document.getElementById('recoverError').textContent = '';
+            document.getElementById('recoverPopup').classList.add('active');
+        }
+
+        document.getElementById('recoverBtn').onclick = async () => {
+            const fileInput = document.getElementById('recoverFileInput');
+            const errorLabel = document.getElementById('recoverError');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                errorLabel.textContent = 'Please select a backup file!';
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            try {
+                const text = await file.text();
+                const backup = JSON.parse(text);
+
+                if (!backup.version || !backup.user || !backup.memos) {
+                    errorLabel.textContent = 'Invalid backup file format!';
+                    return;
+                }
+
+                showConfirm('This will overwrite all current data. Continue?', async () => {
+                    try {
+                        showAlert('Recovering data...');
+
+                        // Delete existing data
+                        await supabase.from('memos').delete().eq('user_id', telegramUser.id);
+                        await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+
+                        // Restore memos
+                        if (backup.memos && backup.memos.length > 0) {
+                            const { error: memosError } = await supabase
+                                .from('memos')
+                                .insert(backup.memos.map(m => ({
+                                    user_id: telegramUser.id,
+                                    text: m.text,
+                                    time: m.time
+                                })));
+
+                            if (memosError) throw memosError;
+                        }
+
+                        // Restore inbox
+                        if (backup.inbox && backup.inbox.length > 0) {
+                            const { error: inboxError } = await supabase
+                                .from('shares')
+                                .insert(backup.inbox);
+
+                            if (inboxError) throw inboxError;
+                        }
+
+                        // Restore localStorage data
+                        if (backup.emailjs) {
+                            emailjsConfig = backup.emailjs;
+                            localStorage.setItem('seednote_emailjs', JSON.stringify(emailjsConfig));
+                        }
+
+                        if (backup.contacts) {
+                            contacts = backup.contacts;
+                            localStorage.setItem('seednote_contacts', JSON.stringify(contacts));
+                        }
+
+                        if (backup.pinnedChats) {
+                            pinnedChats = backup.pinnedChats;
+                            localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
+                        }
+
+                        document.getElementById('recoverPopup').classList.remove('active');
+                        showAlert('Data recovered successfully! Reloading...');
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } catch (error) {
+                        console.error('Recover error:', error);
+                        showAlert('Recovery failed: ' + error.message);
+                    }
+                });
+            } catch (error) {
+                errorLabel.textContent = 'Failed to read backup file!';
+                console.error('File read error:', error);
+            }
+        };
+
+        document.getElementById('cancelRecoverBtn').onclick = () => {
+            document.getElementById('recoverPopup').classList.remove('active');
+        };
+
+        // ========== RESET FUNCTIONS ==========
+        function confirmReset() {
+            showConfirm('⚠️ WARNING: This will delete ALL data permanently!\n\nAre you absolutely sure?', async () => {
+                showConfirm('This action cannot be undone! Delete everything?', async () => {
+                    try {
+                        showAlert('Deleting all data...');
+
+                        // Delete from Supabase
+                        await supabase.from('memos').delete().eq('user_id', telegramUser.id);
+                        await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+
+                        // Delete from localStorage
+                        localStorage.removeItem('seednote_emailjs');
+                        localStorage.removeItem('seednote_contacts');
+                        localStorage.removeItem('seednote_pinned');
+                        localStorage.removeItem('seednote_password');
+
+                        showAlert('All data deleted! Reloading...');
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } catch (error) {
+                        console.error('Reset error:', error);
+                        showAlert('Reset failed: ' + error.message);
+                    }
+                });
+            });
+        }
+
         // ========== EVENT LISTENERS ==========
         document.getElementById('addBtn').onclick = addMemo;
         document.getElementById('clearBtn').onclick = clearAllMemos;
@@ -2293,6 +2647,7 @@
         document.getElementById('sendBtn').onclick = showSendMethodPopup;
         document.getElementById('addFilesBtn').onclick = toggleFileInput;
         document.getElementById('cancelReplyBtn').onclick = cancelReplyMode;
+        document.getElementById('menuBtn').onclick = showMenuPopup;
 
         document.getElementById('sendTelegramBtn').onclick = sendViaTelegram;
         document.getElementById('cancelTelegramBtn').onclick = () => {
