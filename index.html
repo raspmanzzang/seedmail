@@ -31,33 +31,31 @@
         }
 
         .header {
-    display: flex;
-    flex-wrap: wrap; /* subtitle 아래로 */
-    align-items: center; /* 수직 중앙 정렬 */
-    justify-content: flex-start; /* 좌측 정렬 */
-    background: #001a00;
-    padding: 10px 20px;
-    position: relative;
-    width: 100%;
-}
+            background: #001a00;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
 
         .back-btn {
-    display: none; /* 기본 숨김 */
-    font-size: 11px;
-    color: #00ff41;
-    background: #0d0d0d;
-    border: 2px solid #00ff41;
-    padding: 4px 8px;
-    cursor: pointer;
-    font-family: 'Courier New', monospace;
-    line-height: 1;
-    order: 2; /* SEEDNOTE 옆 */
-}
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #0d0d0d;
+            color: #00ff41;
+            border: 2px solid #00ff41;
+            padding: 4px 8px;
+            cursor: pointer;
+            display: none;
+            font-size: 11px;
+            line-height: 1;
+        }
 
         .back-btn:hover {
-    border-width: 3px;
-    color: #33ff66;
-}
+            border-width: 3px;
+            color: #33ff66;
+        }
 
         .menu-btn {
             position: absolute;
@@ -78,22 +76,13 @@
         }
 
         h1 {
-    font-size: 24px;
-    color: #00ff41;
-    font-family: 'Courier New', monospace;
-    margin: 0;
-    padding-right: 10px; /* 백 버튼과 간격 */
-    order: 1;
-}
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
 
         .subtitle {
-    font-size: 12px;
-    color: #00ff41;
-    font-family: 'Courier New', monospace;
-    width: 100%; /* 아래로 배치 */
-    margin-top: 5px;
-    text-align: center;
-}
+            font-size: 12px;
+        }
 
         .user-info {
             font-size: 11px;
