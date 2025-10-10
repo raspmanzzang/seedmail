@@ -1686,7 +1686,7 @@ function formatTime(utcTimeString) {
         async function downloadFile(file) {
     try {
         // Vercel API 프록시 사용
-        const response = await fetch(`/api/file/${file.storage_path}`, {
+        const response = await fetch(`/api/download/${file.storage_path}`, {
             headers: {
                 'X-Telegram-Init-Data': tg.initData  // Telegram 인증 정보
             }
@@ -2031,7 +2031,7 @@ function formatTime(utcTimeString) {
                 if (files && files.length > 0) {
     for (const file of files) {
         // Vercel 프록시 URL 생성
-        const fileUrl = `https://seedmail-phi.vercel.app/api/file/${file.storage_path}?initData=${encodeURIComponent(tg.initData)}`;
+        const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}?initData=
         
         await fetch('/api/telegram', {
             method: 'POST',
@@ -2139,7 +2139,7 @@ if (files && files.length > 0) {
     
     for (const file of files) {
         // Vercel 프록시 URL (이메일에서는 initData 없어서 접근 불가)
-        const fileUrl = `https://seedmail-phi.vercel.app/api/file/${file.storage_path}`;
+        const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}`;
         
         filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
         filesHtml += `<div style="color: #00ff41;">📄 ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
