@@ -85,7 +85,7 @@ export default async function handler(req, res) {
     
     try {
         const pathArray = req.query.path || [];
-        const filePath = decodeURIComponent(pathArray.join('/')); // URL 디코딩
+        const filePath = decodeURIComponent(pathArray.join('/'));
         console.log('Raw path:', req.query.path, 'Parsed filePath:', filePath);
         
         if (!filePath || !filePath.includes('/')) {
