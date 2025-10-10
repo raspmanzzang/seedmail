@@ -1481,7 +1481,8 @@ replyBtn.style.marginTop = '10px';
 replyBtn.style.flexShrink = '0';
 replyBtn.onclick = () => startReplyMode(username);
 list.appendChild(replyBtn);
-
+    }
+    
     function updateUnreadBadge() {
         const unreadCount = inboxMessages.filter(m => !m.is_read).length;
         const badge = document.getElementById('unreadBadge');
