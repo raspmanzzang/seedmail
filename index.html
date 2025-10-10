@@ -2041,7 +2041,7 @@ const { error } = await supabase
 
                 const fileResult = await fileResponse.json();
                 if (!fileResult.ok) {
-                    console.error('Failed to send file link:', file.file_name);
+                    console.error('Failed to send file link:', file.file_name, fileResult);
                     errorLabel.textContent = `Failed to send file: ${file.file_name}`;
                     return;
                 }
