@@ -62,7 +62,7 @@ async function checkFileAccess(supabase, userId, filePath) {
         .eq('shares.to_user_id', userId);
     
     if (error) {
-        console.error('Access check error:', error);
+        console.error('Access check error:', error.message);
         return false;
     }
     
@@ -85,17 +85,16 @@ export default async function handler(req, res) {
     
     try {
         const pathArray = req.query.path || [];
-        const filePath = decodeURIComponent(pathArray.join('/'));
+        const filePath = pathArray.join('/'); // decodeURIComponent 제거
+        console.log('Raw path:', req.query.path, 'Parsed filePath:', filePath);
         
-        if (!filePath) {
-            console.error('Invalid file path:', req.query.path);
+        if (!filePath || !filePath.includes('/')) {
+            console.error('Invalid file path:', filePath);
             return res.status(400).json({ error: 'Invalid file path' });
         }
         
-        console.log('📁 File path:', filePath);
-        
         const initData = req.headers['x-telegram-init-data'];
-        console.log('🔑 initData received:', !!initData);
+        console.log('initData received:', !!initData);
         
         if (!initData) {
             return res.status(401).json({ 
@@ -118,7 +117,7 @@ export default async function handler(req, res) {
             });
         }
         
-        console.log('👤 User ID:', telegramUser.id);
+        console.log('User ID:', telegramUser.id);
         
         const supabase = createClient(
             process.env.SUPABASE_URL,
@@ -138,7 +137,7 @@ export default async function handler(req, res) {
             .download(filePath);
         
         if (error) {
-            console.error('Download error:', error);
+            console.error('Download error:', error.message);
             return res.status(404).json({ 
                 error: 'File not found',
                 details: error.message 
@@ -154,7 +153,7 @@ export default async function handler(req, res) {
         
         return res.status(200).send(buffer);
     } catch (error) {
-        console.error('API error:', error);
+        console.error('API error:', error.message);
         return res.status(500).json({ 
             error: 'Internal server error',
             message: error.message 
