@@ -1870,71 +1870,73 @@ const { error } = await supabase
     }
 
     async function uploadFiles(memoId) {
-        let uploadedCount = 0;
-        let failedFiles = [];
+    let uploadedCount = 0;
+    let failedFiles = [];
 
-        for (const file of selectedFiles) {
-            try {
-                const fileName = `${Date.now()}_${file.name}`;
-                const filePath = `${telegramUser.id}/${fileName}`;
+    for (const file of selectedFiles) {
+        try {
+            const fileName = `${Date.now()}_${file.name}`;
+            const filePath = `${telegramUser.id}/${fileName}`;
+            console.log('Uploading file:', filePath, 'for memo_id:', memoId);
 
-                const { data, error: uploadError } = await supabase.storage
-                    .from('memo-files')
-                    .upload(filePath, file, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
+            const { data, error: uploadError } = await supabase.storage
+                .from('memo-files')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
 
-                if (uploadError) {
-                    console.error('Upload error:', uploadError);
-                    failedFiles.push({
-                        name: file.name,
-                        error: 'Storage upload failed: ' + (uploadError.message || JSON.stringify(uploadError))
-                    });
-                    continue;
-                }
-
-                const { error: dbError } = await supabase
-                    .from('files')
-                    .insert({
-                        memo_id: memoId,
-                        file_name: file.name,
-                        file_size: file.size,
-                        file_type: file.type || 'application/octet-stream',
-                        storage_path: filePath
-                    });
-
-                if (dbError) {
-                    console.error('DB insert error:', dbError);
-                    failedFiles.push({
-                        name: file.name,
-                        error: 'Database insert failed: ' + (dbError.message || JSON.stringify(dbError))
-                    });
-                } else {
-                    uploadedCount++;
-                }
-            } catch (err) {
-                console.error('Unexpected error:', err);
+            if (uploadError) {
+                console.error('Upload error:', uploadError.message, uploadError);
                 failedFiles.push({
                     name: file.name,
-                    error: 'Unexpected error: ' + err.toString()
+                    error: 'Storage upload failed: ' + (uploadError.message || JSON.stringify(uploadError))
                 });
+                continue;
             }
-        }
 
-        if (failedFiles.length > 0) {
-            let errorMsg = ` Uploaded: ${uploadedCount}/${selectedFiles.length}\n\n Failed files:\n`;
-            failedFiles.forEach(f => {
-                errorMsg += `\n ${f.name}:\n${f.error}\n`;
+            console.log('File uploaded:', data.path);
+
+            const { error: dbError } = await supabase
+                .from('files')
+                .insert({
+                    memo_id: memoId,
+                    file_name: file.name,
+                    file_size: file.size,
+                    file_type: file.type || 'application/octet-stream',
+                    storage_path: data.path
+                });
+
+            if (dbError) {
+                console.error('DB insert error:', dbError.message, dbError);
+                failedFiles.push({
+                    name: file.name,
+                    error: 'Database insert failed: ' + (dbError.message || JSON.stringify(dbError))
+                });
+            } else {
+                uploadedCount++;
+            }
+        } catch (err) {
+            console.error('Unexpected error:', err.message, err);
+            failedFiles.push({
+                name: file.name,
+                error: 'Unexpected error: ' + err.toString()
             });
-            showAlert(errorMsg);
-        } else if (uploadedCount > 0) {
-            showAlert(` Successfully uploaded ${uploadedCount} file(s)!`);
-        } else {
-            showAlert(' No files were uploaded. Unknown error.');
         }
     }
 
+    if (failedFiles.length > 0) {
+        let errorMsg = `Uploaded: ${uploadedCount}/${selectedFiles.length}\n\nFailed files:\n`;
+        failedFiles.forEach(f => {
+            errorMsg += `\n${f.name}:\n${f.error}\n`;
+        });
+        showAlert(errorMsg);
+    } else if (uploadedCount > 0) {
+        showAlert(`Successfully uploaded ${uploadedCount} file(s)!`);
+    } else {
+        showAlert('No files were uploaded. Unknown error.');
+    }
+}
     // ========== SEND FUNCTIONS ==========
     function showSendMethodPopup() {
         document.getElementById('sendMethodPopup').classList.add('active');
