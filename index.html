@@ -1684,22 +1684,22 @@ function formatTime(utcTimeString) {
         }
 
         async function downloadFile(file) {
-            const { data, error } = await supabase.storage
-                .from('memo-files')
-                .download(file.storage_path);
+    // 90일 유효 Signed URL 생성
+    const { data, error } = await supabase.storage
+        .from('memo-files')
+        .createSignedUrl(file.storage_path, 7776000);  // 90일 = 7776000초
 
-            if (error) {
-                showAlert('Download failed: ' + error.message);
-                return;
-            }
+    if (error) {
+        showAlert('Download failed: ' + error.message);
+        return;
+    }
 
-            const url = URL.createObjectURL(data);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.file_name;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+    // 다운로드
+    const a = document.createElement('a');
+    a.href = data.signedUrl;
+    a.download = file.file_name;
+    a.click();
+}
 
         function goBack() {
             if (document.getElementById('detailView').classList.contains('active')) {
@@ -2012,24 +2012,22 @@ function formatTime(utcTimeString) {
                 }
 
                 if (files && files.length > 0) {
-                    for (const file of files) {
-                        const { data: urlData } = supabase.storage
-                            .from('memo-files')
-                            .getPublicUrl(file.storage_path);
+    for (const file of files) {
+        // 90일 유효 Signed URL 생성
+        const { data: urlData, error } = await supabase.storage
+            .from('memo-files')
+            .createSignedUrl(file.storage_path, 7776000);  // 90일
 
-                        if (urlData && urlData.publicUrl) {
-                            await fetch('/api/telegram', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    chat_id: recipientId,
-                                    text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${urlData.publicUrl}`,
-                                    disable_web_page_preview: false
-                                })
-                            });
-                        }
-                    }
-                }
+        if (urlData && urlData.signedUrl) {
+            await fetch('/api/telegram', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: recipientId,
+                    text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${urlData.signedUrl}\n\n⚠️ Link expires in 90 days`,
+                    disable_web_page_preview: false
+                })
+            });
 
                 await supabase
                     .from('shares')
@@ -2119,23 +2117,27 @@ function formatTime(utcTimeString) {
                 .eq('memo_id', currentMemoId);
 
             let filesHtml = '';
-            if (files && files.length > 0) {
-                filesHtml = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #00ff41;">';
-                filesHtml += '<div style="color: #33ff66; font-size: 14px; margin-bottom: 10px;">📎 Attached Files:</div>';
-                files.forEach(file => {
-                    const { data: urlData } = supabase.storage
-                        .from('memo-files')
-                        .getPublicUrl(file.storage_path);
-                    
-                    if (urlData && urlData.publicUrl) {
-                        filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
-                        filesHtml += `<div style="color: #00ff41;">📄 ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
-                        filesHtml += `<a href="${urlData.publicUrl}" style="color: #33ff66; text-decoration: underline; font-size: 12px;" target="_blank">🔗 Click to Download</a>`;
-                        filesHtml += `</div>`;
-                    }
-                });
-                filesHtml += '</div>';
-            }
+if (files && files.length > 0) {
+    filesHtml = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #00ff41;">';
+    filesHtml += '<div style="color: #33ff66; font-size: 14px; margin-bottom: 10px;">📎 Attached Files:</div>';
+    
+    // for...of 루프로 변경 (async/await 사용)
+    for (const file of files) {
+        // 90일 유효 Signed URL 생성
+        const { data: urlData } = await supabase.storage
+            .from('memo-files')
+            .createSignedUrl(file.storage_path, 7776000);  // 90일
+        
+        if (urlData && urlData.signedUrl) {
+            filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
+            filesHtml += `<div style="color: #00ff41;">📄 ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
+            filesHtml += `<a href="${urlData.signedUrl}" style="color: #33ff66; text-decoration: underline; font-size: 12px;" target="_blank">🔗 Click to Download</a>`;
+            filesHtml += `<div style="color: #888888; font-size: 10px; margin-top: 4px;">⚠️ Link expires in 90 days</div>`;
+            filesHtml += `</div>`;
+        }
+    }
+    filesHtml += '</div>';
+}
 
             emailjs.init(emailjsConfig.publicKey);
             
