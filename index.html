@@ -611,7 +611,7 @@
     flex-direction: column;
     gap: 10px;
     padding: 10px;
-    max-height: calc(100vh - 340px);
+    max-height: calc(100vh - 450px);
     overflow-y: auto;
 }
 
@@ -1375,7 +1375,7 @@ function toLocalTime(utcTimeString) {
     
     const list = document.getElementById('inboxList');
     list.innerHTML = '';
-    
+        
     const backBtn = document.createElement('button');
     backBtn.textContent = '← Back to Inbox';
     backBtn.style.width = '100%';
@@ -1413,6 +1413,8 @@ function toLocalTime(utcTimeString) {
         
         const chatContainer = document.createElement('div');
         chatContainer.className = 'chat-container';
+        chatContainer.style.flex = '1';
+        chatContainer.style.overflowY = 'auto';
                 
         allMessages.forEach(msg => {
             const isSent = msg.from_user_id === telegramUser.id;
