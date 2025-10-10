@@ -1227,89 +1227,94 @@ function toLocalTime(utcTimeString) {
     }
 
     function renderInbox() {
-        const list = document.getElementById('inboxList');
-        const count = document.getElementById('inboxCount');
-        list.innerHTML = '';
+    const list = document.getElementById('inboxList');
+    const count = document.getElementById('inboxCount');
+    list.innerHTML = '';
 
-        if (inboxMessages.length === 0) {
-            const empty = document.createElement('div');
-            empty.className = 'memo-item empty';
-            empty.textContent = t('emptyInbox');
-            list.appendChild(empty);
-            count.textContent = '';
-            return;
-        }
+    console.log('renderInbox called, inboxMessages:', inboxMessages); // 추가
 
-        const grouped = {};
-        inboxMessages.forEach(msg => {
-            const senderId = msg.from_user_id;
-            const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
-            
-            if (!grouped[senderId]) {
-                grouped[senderId] = {
-                    username: senderUsername,
-                    messages: []
-                };
-            }
-            grouped[senderId].messages.push(msg);
-        });
-
-        const senderIds = Object.keys(grouped);
-        const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
-        const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
-
-        [...pinnedIds, ...unpinnedIds].forEach(senderId => {
-            const group = grouped[senderId];
-            const messages = group.messages;
-            const unreadCount = messages.filter(m => !m.is_read).length;
-            const lastMsg = messages[0];
-            const isPinned = pinnedChats.includes(parseInt(senderId));
-            
-            const item = document.createElement('div');
-            item.className = 'memo-item';
-            if (unreadCount > 0) item.classList.add('unread');
-            if (isPinned) item.classList.add('pinned');
-            
-            const senderDiv = document.createElement('div');
-            senderDiv.className = 'memo-sender';
-            senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
-            
-            const preview = document.createElement('div');
-            preview.className = 'memo-preview';
-            const previewText = lastMsg.memo_text.split('\n')[0];
-            preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
-            
-            const time = document.createElement('div');
-            time.style.fontSize = '10px';
-            time.style.color = '#888888';
-            time.textContent = formatDateTime(lastMsg.sent_at);
-            
-            item.appendChild(senderDiv);
-            item.appendChild(preview);
-            item.appendChild(time);
-            
-            item.onclick = () => showInboxSender(senderId, group.username);
-            
-            item.oncontextmenu = (e) => {
-                e.preventDefault();
-                showContextMenu(e.clientX, e.clientY, senderId, isPinned);
-            };
-            
-            item.ontouchstart = (e) => {
-                longPressTimer = setTimeout(() => {
-                    const touch = e.touches[0];
-                    showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
-                }, 500);
-            };
-            
-            item.ontouchend = () => clearTimeout(longPressTimer);
-            item.ontouchmove = () => clearTimeout(longPressTimer);
-            
-            list.appendChild(item);
-        });
-
-        count.textContent = t('inboxCount').replace('{count}', senderIds.length);
+    if (inboxMessages.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'memo-item empty';
+        empty.textContent = t('emptyInbox');
+        list.appendChild(empty);
+        count.textContent = '';
+        return;
     }
+
+    const grouped = {};
+    inboxMessages.forEach(msg => {
+        const senderId = msg.from_user_id;
+        const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
+        
+        if (!grouped[senderId]) {
+            grouped[senderId] = {
+                username: senderUsername,
+                messages: []
+            };
+        }
+        grouped[senderId].messages.push(msg);
+    });
+
+    const senderIds = Object.keys(grouped);
+    const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
+    const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
+
+    [...pinnedIds, ...unpinnedIds].forEach(senderId => {
+        const group = grouped[senderId];
+        const messages = group.messages;
+        const unreadCount = messages.filter(m => !m.is_read).length;
+        const lastMsg = messages[0];
+        const isPinned = pinnedChats.includes(parseInt(senderId));
+        
+        const item = document.createElement('div');
+        item.className = 'memo-item';
+        if (unreadCount > 0) item.classList.add('unread');
+        if (isPinned) item.classList.add('pinned');
+        
+        const senderDiv = document.createElement('div');
+        senderDiv.className = 'memo-sender';
+        senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
+        
+        const preview = document.createElement('div');
+        preview.className = 'memo-preview';
+        const previewText = lastMsg.memo_text.split('\n')[0];
+        preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
+        
+        const time = document.createElement('div');
+        time.style.fontSize = '10px';
+        time.style.color = '#888888';
+        time.textContent = formatDateTime(lastMsg.sent_at);
+        
+        item.appendChild(senderDiv);
+        item.appendChild(preview);
+        item.appendChild(time);
+        
+        item.onclick = () => {
+            console.log('Clicked senderId:', senderId, 'username:', group.username); // 추가
+            showInboxSender(senderId, group.username);
+        };
+        
+        item.oncontextmenu = (e) => {
+            e.preventDefault();
+            showContextMenu(e.clientX, e.clientY, senderId, isPinned);
+        };
+        
+        item.ontouchstart = (e) => {
+            longPressTimer = setTimeout(() => {
+                const touch = e.touches[0];
+                showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
+            }, 500);
+        };
+        
+        item.ontouchend = () => clearTimeout(longPressTimer);
+        item.ontouchmove = () => clearTimeout(longPressTimer);
+        
+        list.appendChild(item);
+    });
+
+    count.textContent = t('inboxCount').replace('{count}', senderIds.length);
+}
 
     function showContextMenu(x, y, senderId, isPinned) {
         const menu = document.getElementById('contextMenu');
