@@ -607,13 +607,11 @@
     }
 
     .chat-container {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px;
-        max-height: calc(100vh - 340px);
-        overflow-y: auto;
-    }
+    display: block;  /* flex → block */
+    padding: 10px;
+    max-height: calc(100vh - 340px);
+    overflow-y: auto;
+}
 
     .chat-message {
         display: flex;
