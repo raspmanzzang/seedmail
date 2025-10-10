@@ -1389,83 +1389,96 @@ function toLocalTime(utcTimeString) {
     }
 
     async function loadConversation(userId, username) {
-        const list = document.getElementById('inboxList');
+    const list = document.getElementById('inboxList');
+    
+    const received = inboxMessages.filter(m => m.from_user_id == userId);
+    
+    const { data: sent, error } = await supabase
+        .from('shares')
+        .select('*')
+        .eq('from_user_id', telegramUser.id.toString())
+        .eq('to_user_id', userId.toString())
+        .order('sent_at', { ascending: true });
+    
+    if (error) {
+        console.error('Load sent messages error:', error);
+    }
+    
+    const allMessages = [...received, ...(sent || [])].sort((a, b) => 
+        new Date(a.sent_at) - new Date(b.sent_at)
+    );
+    
+    const chatContainer = document.createElement('div');
+    chatContainer.className = 'chat-container';
+    
+    allMessages.forEach(msg => {
+        const isSent = msg.from_user_id.toString() === telegramUser.id.toString();
         
-        const received = inboxMessages.filter(m => m.from_user_id == userId);
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
         
-        const { data: sent, error } = await supabase
-    .from('shares')
-    .select('*')
-    .eq('from_user_id', telegramUser.id.toString())
-    .eq('to_user_id', userId.toString())
-    .order('sent_at', { ascending: true });
-        
-        if (error) {
-            console.error('Load sent messages error:', error);
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+        if (!isSent && !msg.is_read) {
+            bubble.classList.add('unread');
         }
         
-        const allMessages = [...received, ...(sent || [])].sort((a, b) => 
-            new Date(a.sent_at) - new Date(b.sent_at)
-        );
+        const text = document.createElement('div');
+        text.className = 'chat-text';
+        text.textContent = msg.memo_text;
         
-        const chatContainer = document.createElement('div');
-        chatContainer.className = 'chat-container';
+        const time = document.createElement('div');
+        time.className = 'chat-time';
+        time.textContent = formatTime(msg.sent_at);
         
-        allMessages.forEach(msg => {
-            const isSent = msg.from_user_id.toString() === telegramUser.id.toString();
-
-const messageDiv = document.createElement('div');
-messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
-
-const bubble = document.createElement('div');
-bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
-if (!isSent && !msg.is_read) {
-    bubble.classList.add('unread');
+        bubble.appendChild(text);
+        bubble.appendChild(time);
+        messageDiv.appendChild(bubble);
+        
+        if (!isSent && !msg.is_read) {
+            bubble.onclick = async () => {
+                const { error } = await supabase
+                    .from('shares')
+                    .update({ is_read: true, read_at: new Date().toISOString() })
+                    .eq('id', msg.id);
+                
+                if (!error) {
+                    msg.is_read = true;
+                    bubble.classList.remove('unread');
+                    updateUnreadBadge();
+                    await loadInbox();
+                }
+            };
+        }
+        
+        chatContainer.appendChild(messageDiv);
+    });
+    
+    list.innerHTML = '';
+    
+    const backBtn = document.createElement('button');
+    backBtn.textContent = '← Back to Inbox';
+    backBtn.style.width = '100%';
+    backBtn.style.marginBottom = '10px';
+    backBtn.onclick = () => {
+        currentChatUsername = null;
+        currentChatUserId = null;
+        renderInbox();
+        document.getElementById('backBtn').style.display = 'none';
+    };
+    list.appendChild(backBtn);
+    list.appendChild(chatContainer);
+    
+    const replyBtn = document.createElement('button');
+    replyBtn.textContent = ' Reply to @' + username;
+    replyBtn.style.width = '100%';
+    replyBtn.style.marginTop = '10px';
+    replyBtn.onclick = () => startReplyMode(username);
+    list.appendChild(replyBtn);
+    
+    list.scrollTop = list.scrollHeight;
 }
-            
-            const text = document.createElement('div');
-            text.className = 'chat-text';
-            text.textContent = msg.memo_text;
-            
-            const time = document.createElement('div');
-            time.className = 'chat-time';
-            time.textContent = formatTime(msg.sent_at);
-            
-            bubble.appendChild(text);
-            bubble.appendChild(time);
-            messageDiv.appendChild(bubble);
-            
-            if (!isSent && !msg.is_read) {
-                bubble.onclick = async () => {
-                    const { error } = await supabase
-                        .from('shares')
-                        .update({ is_read: true, read_at: new Date().toISOString() })
-                        .eq('id', msg.id);
-                    
-                    if (!error) {
-                        msg.is_read = true;
-                        bubble.classList.remove('unread');
-                        updateUnreadBadge();
-                        await loadInbox();
-                    }
-                };
-            }
-            
-            chatContainer.appendChild(messageDiv);
-        });
-        
-        list.appendChild(chatContainer);
-        
-        list.scrollTop = list.scrollHeight;
-        
-        const replyBtn = document.createElement('button');
-        replyBtn.textContent = ' Reply to @' + username;
-        replyBtn.style.width = '100%';
-        replyBtn.style.marginTop = '10px';
-        replyBtn.onclick = () => startReplyMode(username);
-        list.appendChild(replyBtn);
-    }
-
+    
     function updateUnreadBadge() {
         const unreadCount = inboxMessages.filter(m => !m.is_read).length;
         const badge = document.getElementById('unreadBadge');
@@ -1548,25 +1561,27 @@ await loadMemos();}
             const result = await response.json();
             
             if (result.ok) {
-                await supabase
-                    .from('shares')
-                    .insert({
-                        from_user_id: telegramUser.id,
-                        to_user_id: recipientId,
-                        to_username: replyToUsername,
-                        memo_text: text,
-                        memo_time: new Date().toISOString()
-                    });
+    await supabase
+        .from('shares')
+        .insert({
+            from_user_id: telegramUser.id,
+            to_user_id: recipientId,
+            to_username: replyToUsername,
+            memo_text: text,
+            memo_time: new Date().toISOString(),
+            is_read: true
+        });
 
-                document.getElementById('memoInput').value = '';
-                showAlert('Reply sent!');
-                cancelReplyMode();
-                
-                // Refresh conversation if still viewing
-                if (currentChatUsername === replyToUsername) {
-                    await loadInbox();
-                    await loadConversation(currentChatUserId, currentChatUsername);
-                }
+    document.getElementById('memoInput').value = '';
+    showAlert('Reply sent!');
+    cancelReplyMode();
+    
+    // Refresh conversation if still viewing
+    if (currentChatUsername === replyToUsername) {
+        await loadInbox();
+        await loadConversation(currentChatUserId, currentChatUsername);
+    }
+}
             } else {
                 showAlert('Failed to send reply!');
             }
@@ -2068,17 +2083,17 @@ const { error } = await supabase
             sent_at: new Date().toISOString()
         });
         const { error: shareError } = await supabase
-            .from('shares')
-            .insert({
-                from_user_id: telegramUser.id.toString(),
-                to_user_id: recipientId.toString(),
-                to_username: username,
-                memo_id: currentMemoId,
-                memo_text: memo.text,
-                memo_time: memo.time,
-                sent_at: new Date().toISOString()
-            });
-
+    .from('shares')
+    .insert({
+        from_user_id: telegramUser.id.toString(),
+        to_user_id: recipientId.toString(),
+        to_username: username,
+        memo_id: currentMemoId,
+        memo_text: memo.text,
+        memo_time: memo.time,
+        sent_at: new Date().toISOString(),
+        is_read: true
+    });
         if (shareError) {
             errorLabel.textContent = 'Failed to save share record!';
             console.error('Share insert error:', shareError.message, shareError.details);
