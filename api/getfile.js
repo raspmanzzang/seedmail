@@ -1,30 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
-
-function verifyTelegramWebAppData(initData, botToken) {
-    if (!initData) return null;
-    
-    try {
-        const urlParams = new URLSearchParams(initData);
-        const hash = urlParams.get('hash');
-        urlParams.delete('hash');
-        
-        const dataCheckString = Array.from(urlParams.entries())
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, value]) => `${key}=${value}`)
-            .join('\n');
-        
-        const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
-        const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-        
-        if (calculatedHash !== hash) return null;
-        
-        const userStr = urlParams.get('user');
-        return userStr ? JSON.parse(userStr) : null;
-    } catch (error) {
-        return null;
-    }
-}
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,22 +9,10 @@ export default async function handler(req, res) {
     }
     
     try {
-        const { path } = req.query;
+        const { path, userId } = req.query;
         
-        if (!path) {
-            return res.status(400).json({ error: 'Missing path' });
-        }
-        
-        const initData = req.headers['x-telegram-init-data'];
-        const botToken = process.env.BOT_TOKEN;
-        
-        if (!botToken || !initData) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-        
-        const telegramUser = verifyTelegramWebAppData(initData, botToken);
-        if (!telegramUser) {
-            return res.status(401).json({ error: 'Invalid auth' });
+        if (!path || !userId) {
+            return res.status(400).json({ error: 'Missing parameters' });
         }
         
         const supabase = createClient(
@@ -58,8 +20,8 @@ export default async function handler(req, res) {
             process.env.SUPABASE_SERVICE_KEY
         );
         
-        // 권한 확인
-        let hasAccess = path.startsWith(`${telegramUser.id}/`);
+        // 권한 확인: 본인 파일이거나 공유받은 파일
+        let hasAccess = path.startsWith(`${userId}/`);
         
         if (!hasAccess) {
             const { data: fileData } = await supabase
@@ -73,7 +35,7 @@ export default async function handler(req, res) {
                     .from('shares')
                     .select('id')
                     .eq('memo_id', fileData.memo_id)
-                    .eq('to_user_id', telegramUser.id.toString())
+                    .eq('to_user_id', userId)
                     .single();
                 
                 hasAccess = !!shareData;
@@ -84,6 +46,7 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Access denied' });
         }
         
+        // 파일 다운로드
         const { data, error } = await supabase.storage
             .from('memo-files')
             .download(path);
