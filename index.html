@@ -2064,14 +2064,22 @@ const { error } = await supabase
         }
 
         // 공유 기록 저장
-        console.log('Inserting share record for memo_id:', currentMemoId);
+        console.log('Inserting share record:', {
+            from_user_id: telegramUser.id.toString(),
+            to_user_id: recipientId.toString(),
+            to_username: username,
+            memo_id: currentMemoId,
+            memo_text: memo.text,
+            memo_time: memo.time,
+            sent_at: new Date().toISOString()
+        });
         const { error: shareError } = await supabase
             .from('shares')
             .insert({
                 from_user_id: telegramUser.id.toString(),
                 to_user_id: recipientId.toString(),
                 to_username: username,
-                memo_id: currentMemoId, // UUID 유지
+                memo_id: currentMemoId,
                 memo_text: memo.text,
                 memo_time: memo.time,
                 sent_at: new Date().toISOString()
