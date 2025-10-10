@@ -2013,21 +2013,23 @@ const { error } = await supabase
                 return;
             }
 
-            if (files && files.length > 0) {
-for (const file of files) {
-    // Vercel 프록시 URL 생성
-    const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}?initData=
-    
-    await fetch('/api/telegram', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: recipientId,
-            text: ` ${file.file_name} (${formatFileSize(file.file_size)})\n ${fileUrl}\n\n Secure link - only accessible via Telegram`,
-            disable_web_page_preview: false
-        })
-    });
-}}await supabase
+           if (files && files.length > 0) {
+                for (const file of files) {
+                    // Vercel 프록시 URL 생성 (initData는 백엔드에서 처리)
+                    const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}`;
+                    
+                    await fetch('/api/telegram', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: recipientId,
+                            text: ` ${file.file_name} (${formatFileSize(file.file_size)})\n ${fileUrl}\n\n Secure link - only accessible via Telegram`,
+                            disable_web_page_preview: false
+                        })
+                    });
+                }
+            }
+await supabase
     .from('shares')
     .insert({
         from_user_id: telegramUser.id,
