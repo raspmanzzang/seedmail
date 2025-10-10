@@ -11,707 +11,706 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Courier New', monospace;
-            background: #000000;
-            color: #00ff41;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #0d0d0d;
-            border: 2px solid #00ff41;
-            border-radius: 5px;
-            min-height: calc(100vh - 40px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: #001a00;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 10px;
-            top: 20px;
-            background: #0d0d0d;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-            padding: 4px 8px;
-            cursor: pointer;
-            display: none;
-            font-size: 11px;
-            line-height: 1;
-        }
-
-        .back-btn:hover {
-            border-width: 3px;
-            color: #33ff66;
-        }
-
-        .menu-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: #0d0d0d;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 16px;
-            line-height: 1;
-        }
-
-        .menu-btn:hover {
-            border-width: 3px;
-            color: #33ff66;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            font-size: 12px;
-        }
-
-        .user-info {
-            font-size: 11px;
-            margin-top: 10px;
-            color: #888888;
-        }
-
-        .tabs {
-            display: flex;
-            border-bottom: 2px solid #00ff41;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            background: #0d0d0d;
-            border: none;
-            color: #888888;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            position: relative;
-        }
-
-        .tab.active {
-            color: #00ff41;
-            background: #001a00;
-        }
-
-        .tab:hover {
-            color: #33ff66;
-        }
-
-        .unread-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #ff4444;
-            color: #fff;
-            border-radius: 10px;
-            padding: 2px 6px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .loading-screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .loading-screen.hidden {
-            display: none;
-        }
-
-        .loading-emoji {
-            font-size: 48px;
-            margin-bottom: 20px;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .main-view {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            display: none;
-        }
-
-        .main-view.active {
-            display: flex;
-        }
-
-        .input-area {
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            background: #000000;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        button {
-            flex: 1;
-            background: #0d0d0d;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            border-width: 4px;
-            color: #33ff66;
-        }
-
-        button.red {
-            color: #ff4444;
-            border-color: #ff4444;
-        }
-
-        button.red:hover {
-            color: #ff6666;
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .memo-list {
-            background: #0d0d0d;
-            border: 2px solid #00ff41;
-            padding: 10px;
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-
-        .memo-item {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #00ff41;
-            position: relative;
-        }
-
-        .memo-item:hover {
-            background: #001a00;
-        }
-
-        .memo-item.empty {
-            color: #888888;
-            cursor: default;
-            text-align: center;
-        }
-
-        .memo-item.empty:hover {
-            background: transparent;
-        }
-
-        .memo-item.unread {
-            background: #001a00;
-            border-left: 4px solid #ff4444;
-            padding-left: 6px;
-        }
-
-        .memo-item.unread::before {
-            content: '🔴';
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-
-        .memo-item.pinned {
-            background: #001a00;
-            border-left: 4px solid #33ff66;
-            padding-left: 6px;
-        }
-
-        .memo-item.pinned::after {
-            content: '📌';
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-
-        .memo-item.pinned.unread::before {
-            right: 35px;
-        }
-
-        .context-menu {
-            position: fixed;
-            background: #0d0d0d;
-            border: 2px solid #00ff41;
-            padding: 5px 0;
-            z-index: 2000;
-            display: none;
-            min-width: 150px;
-        }
-
-        .context-menu.active {
-            display: block;
-        }
-
-        .context-menu-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            color: #00ff41;
-            font-size: 12px;
-        }
-
-        .context-menu-item:hover {
-            background: #001a00;
-        }
-
-        .context-menu-item.disabled {
-            color: #666666;
-            cursor: not-allowed;
-        }
-
-        .context-menu-item.disabled:hover {
-            background: transparent;
-        }
-
-        .memo-sender {
-            color: #33ff66;
-            font-size: 11px;
-            margin-bottom: 5px;
-        }
-
-        .memo-preview {
-            color: #00ff41;
-        }
-
-        .memo-count {
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .detail-view {
-            flex: 1;
-            padding: 20px;
-            display: none;
-            flex-direction: column;
-        }
-
-        .detail-view.active {
-            display: flex;
-        }
-
-        .detail-sender {
-            color: #33ff66;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .detail-time {
-            text-align: right;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-
-        .detail-content-wrapper {
-            background: #0d0d0d;
-            border: 2px solid #00ff41;
-            padding: 20px;
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-
-        .detail-content {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            margin-bottom: 15px;
-        }
-
-        .detail-files {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #00ff41;
-        }
-
-        .file-item {
-            background: #000000;
-            padding: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #00ff41;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            gap: 10px;
-        }
-
-        .file-info {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .file-name {
-            color: #00ff41;
-            margin-bottom: 3px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .file-size {
-            color: #888888;
-        }
-
-        .file-download {
-            padding: 3px 8px;
-            font-size: 10px;
-            cursor: pointer;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
-        .detail-edit {
-            width: 100%;
-            min-height: 200px;
-            background: #000000;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            display: none;
-        }
-
-        .detail-edit.active {
-            display: block;
-        }
-
-        .file-input-wrapper {
-            display: none;
-            margin-top: 10px;
-            padding: 10px;
-            background: #000000;
-            border: 2px solid #00ff41;
-        }
-
-        .file-input-wrapper.active {
-            display: block;
-        }
-
-        .file-input-label {
-            font-size: 11px;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .selected-files {
-            margin-top: 10px;
-            font-size: 11px;
-        }
-
-        .selected-file-item {
-            padding: 5px;
-            margin-bottom: 5px;
-            background: #001a00;
-            border: 1px solid #00ff41;
-        }
-
-        .popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .popup.active {
-            display: flex;
-        }
-
-        .popup-content {
-            background: #0d0d0d;
-            border: 2px solid #00ff41;
-            padding: 30px;
-            min-width: 300px;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .popup-content h3 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .popup-content label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-
-        .popup-content input, .popup-content select {
-            width: 100%;
-            background: #000000;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-            padding: 8px;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 15px;
-            font-size: 12px;
-        }
-        
-        .popup-content input:hover {
-            border-color: #33ff66;
-        }
-
-        .error-label {
-            color: #ff4444;
-            margin-bottom: 10px;
-            min-height: 20px;
-            font-size: 12px;
-        }
-
-        .send-method-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .send-method-btn {
-            flex: 1;
-            padding: 15px;
-            background: #0d0d0d;
-            border: 2px solid #00ff41;
-            color: #00ff41;
-            cursor: pointer;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .send-method-btn:hover {
-            border-width: 4px;
-            color: #33ff66;
-        }
-
-        .send-method-btn.selected {
-            background: #001a00;
-            border-width: 4px;
-        }
-
-        .contact-item {
-            background: #000000;
-            border: 2px solid #00ff41;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .contact-info {
-            flex: 1;
-            font-size: 12px;
-        }
-
-        .contact-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .contact-emails {
-            color: #888888;
-            font-size: 11px;
-        }
-
-        .contact-actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .contact-actions button {
-            padding: 5px 10px;
-            font-size: 11px;
-            flex: none;
-        }
-
-        .popup-link {
-            text-align: center;
-            margin-top: 15px;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .popup-link:hover {
-            color: #33ff66;
-        }
-
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #000000;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #00ff41;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #33ff66;
-        }
-
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .chat-message {
-            display: flex;
-            margin-bottom: 10px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .chat-message.sent {
-            justify-content: flex-end;
-        }
-
-        .chat-message.received {
-            justify-content: flex-start;
-        }
-
-        .chat-bubble {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 12px;
-            position: relative;
-        }
-
-        .chat-bubble.sent {
-            background: #00ff41;
-            color: #000000;
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-bubble.received {
-            background: #1a1a1a;
-            color: #00ff41;
-            border: 1px solid #00ff41;
-            border-bottom-left-radius: 2px;
-        }
-
-        .chat-bubble.unread {
-            border: 2px solid #ff4444;
-        }
-
-        .chat-time {
-            font-size: 9px;
-            color: #666666;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        .chat-bubble.sent .chat-time {
-            color: #003300;
-        }
-
-        .chat-text {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .reply-mode-indicator {
-            background: #001a00;
-            border: 2px solid #00ff41;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .reply-mode-indicator.active {
-            display: flex;
-        }
-
-        .reply-mode-text {
-            color: #33ff66;
-            font-size: 12px;
-        }
-
-        .cancel-reply-btn {
-            background: #0d0d0d;
-            color: #ff4444;
-            border: 2px solid #ff4444;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        .cancel-reply-btn:hover {
-            border-width: 3px;
-        }
-    </style>
-</head>
+    body {
+        font-family: 'Courier New', monospace;
+        background: #000000;
+        color: #00ff41;
+        padding: 20px;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #0d0d0d;
+        border: 2px solid #00ff41;
+        border-radius: 5px;
+        min-height: calc(100vh - 40px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        background: #001a00;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+    }
+
+    .back-btn {
+        position: absolute;
+        left: 10px;
+        top: 20px;
+        background: #0d0d0d;
+        color: #00ff41;
+        border: 2px solid #00ff41;
+        padding: 4px 8px;
+        cursor: pointer;
+        display: none;
+        font-size: 11px;
+        line-height: 1;
+    }
+
+    .back-btn:hover {
+        border-width: 3px;
+        color: #33ff66;
+    }
+
+    .menu-btn {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        background: #0d0d0d;
+        color: #00ff41;
+        border: 2px solid #00ff41;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .menu-btn:hover {
+        border-width: 3px;
+        color: #33ff66;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        font-size: 12px;
+    }
+
+    .user-info {
+        font-size: 11px;
+        margin-top: 10px;
+        color: #888888;
+    }
+
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #00ff41;
+    }
+
+    .tab {
+        flex: 1;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        background: #0d0d0d;
+        border: none;
+        color: #888888;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        position: relative;
+    }
+
+    .tab.active {
+        color: #00ff41;
+        background: #001a00;
+    }
+
+    .tab:hover {
+        color: #33ff66;
+    }
+
+    .unread-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #ff4444;
+        color: #fff;
+        border-radius: 10px;
+        padding: 2px 6px;
+        font-size: 10px;
+        font-weight: bold;
+    }
+
+    .loading-screen {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .loading-screen.hidden {
+        display: none;
+    }
+
+    .loading-emoji {
+        font-size: 48px;
+        margin-bottom: 20px;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .main-view {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        display: none;
+    }
+
+    .main-view.active {
+        display: flex;
+    }
+
+    .input-area {
+        margin-bottom: 20px;
+    }
+
+    textarea {
+        width: 100%;
+        background: #000000;
+        color: #00ff41;
+        border: 2px solid #00ff41;
+        padding: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        resize: vertical;
+        min-height: 60px;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    button {
+        flex: 1;
+        background: #0d0d0d;
+        color: #00ff41;
+        border: 2px solid #00ff41;
+        padding: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        border-width: 4px;
+        color: #33ff66;
+    }
+
+    button.red {
+        color: #ff4444;
+        border-color: #ff4444;
+    }
+
+    button.red:hover {
+        color: #ff6666;
+    }
+
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .memo-list {
+        background: #0d0d0d;
+        border: 2px solid #00ff41;
+        padding: 10px;
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+
+    .memo-item {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #00ff41;
+        position: relative;
+    }
+
+    .memo-item:hover {
+        background: #001a00;
+    }
+
+    .memo-item.empty {
+        color: #888888;
+        cursor: default;
+        text-align: center;
+    }
+
+    .memo-item.empty:hover {
+        background: transparent;
+    }
+
+    .memo-item.unread {
+        background: #001a00;
+        border-left: 4px solid #ff4444;
+        padding-left: 6px;
+    }
+
+    .memo-item.unread::before {
+        content: '';
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+    .memo-item.pinned {
+        background: #001a00;
+        border-left: 4px solid #33ff66;
+        padding-left: 6px;
+    }
+
+    .memo-item.pinned::after {
+        content: '';
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+    .memo-item.pinned.unread::before {
+        right: 35px;
+    }
+
+    .context-menu {
+        position: fixed;
+        background: #0d0d0d;
+        border: 2px solid #00ff41;
+        padding: 5px 0;
+        z-index: 2000;
+        display: none;
+        min-width: 150px;
+    }
+
+    .context-menu.active {
+        display: block;
+    }
+
+    .context-menu-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        color: #00ff41;
+        font-size: 12px;
+    }
+
+    .context-menu-item:hover {
+        background: #001a00;
+    }
+
+    .context-menu-item.disabled {
+        color: #666666;
+        cursor: not-allowed;
+    }
+
+    .context-menu-item.disabled:hover {
+        background: transparent;
+    }
+
+    .memo-sender {
+        color: #33ff66;
+        font-size: 11px;
+        margin-bottom: 5px;
+    }
+
+    .memo-preview {
+        color: #00ff41;
+    }
+
+    .memo-count {
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .detail-view {
+        flex: 1;
+        padding: 20px;
+        display: none;
+        flex-direction: column;
+    }
+
+    .detail-view.active {
+        display: flex;
+    }
+
+    .detail-sender {
+        color: #33ff66;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .detail-time {
+        text-align: right;
+        margin-bottom: 10px;
+        font-size: 12px;
+    }
+
+    .detail-content-wrapper {
+        background: #0d0d0d;
+        border: 2px solid #00ff41;
+        padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 10px;
+    }
+
+    .detail-content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin-bottom: 15px;
+    }
+
+    .detail-files {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #00ff41;
+    }
+
+    .file-item {
+        background: #000000;
+        padding: 8px;
+        margin-bottom: 8px;
+        border: 1px solid #00ff41;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        gap: 10px;
+    }
+
+    .file-info {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .file-name {
+        color: #00ff41;
+        margin-bottom: 3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .file-size {
+        color: #888888;
+    }
+
+    .file-download {
+        padding: 3px 8px;
+        font-size: 10px;
+        cursor: pointer;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .detail-edit {
+        width: 100%;
+        min-height: 200px;
+        background: #000000;
+        color: #00ff41;
+        border: 2px solid #00ff41;
+        padding: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        display: none;
+    }
+
+    .detail-edit.active {
+        display: block;
+    }
+
+    .file-input-wrapper {
+        display: none;
+        margin-top: 10px;
+        padding: 10px;
+        background: #000000;
+        border: 2px solid #00ff41;
+    }
+
+    .file-input-wrapper.active {
+        display: block;
+    }
+
+    .file-input-label {
+        font-size: 11px;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .selected-files {
+        margin-top: 10px;
+        font-size: 11px;
+    }
+
+    .selected-file-item {
+        padding: 5px;
+        margin-bottom: 5px;
+        background: #001a00;
+        border: 1px solid #00ff41;
+    }
+
+    .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .popup.active {
+        display: flex;
+    }
+
+    .popup-content {
+        background: #0d0d0d;
+        border: 2px solid #00ff41;
+        padding: 30px;
+        min-width: 300px;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .popup-content h3 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .popup-content label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+
+    .popup-content input, .popup-content select {
+        width: 100%;
+        background: #000000;
+        color: #00ff41;
+        border: 2px solid #00ff41;
+        padding: 8px;
+        font-family: 'Courier New', monospace;
+        margin-bottom: 15px;
+        font-size: 12px;
+    }
+    
+    .popup-content input:hover {
+        border-color: #33ff66;
+    }
+
+    .error-label {
+        color: #ff4444;
+        margin-bottom: 10px;
+        min-height: 20px;
+        font-size: 12px;
+    }
+
+    .send-method-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .send-method-btn {
+        flex: 1;
+        padding: 15px;
+        background: #0d0d0d;
+        border: 2px solid #00ff41;
+        color: #00ff41;
+        cursor: pointer;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .send-method-btn:hover {
+        border-width: 4px;
+        color: #33ff66;
+    }
+
+    .send-method-btn.selected {
+        background: #001a00;
+        border-width: 4px;
+    }
+
+    .contact-item {
+        background: #000000;
+        border: 2px solid #00ff41;
+        padding: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .contact-info {
+        flex: 1;
+        font-size: 12px;
+    }
+
+    .contact-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .contact-emails {
+        color: #888888;
+        font-size: 11px;
+    }
+
+    .contact-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .contact-actions button {
+        padding: 5px 10px;
+        font-size: 11px;
+        flex: none;
+    }
+
+    .popup-link {
+        text-align: center;
+        margin-top: 15px;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .popup-link:hover {
+        color: #33ff66;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #000000;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #00ff41;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #33ff66;
+    }
+
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .chat-message {
+        display: flex;
+        margin-bottom: 10px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chat-message.sent {
+        justify-content: flex-end;
+    }
+
+    .chat-message.received {
+        justify-content: flex-start;
+    }
+
+    .chat-bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 10px;
+        font-size: 12px;
+        position: relative;
+    }
+
+    .chat-bubble.sent {
+        background: #00ff41;
+        color: #000000;
+        border-bottom-right-radius: 2px;
+    }
+
+    .chat-bubble.received {
+        background: #1a1a1a;
+        color: #00ff41;
+        border: 1px solid #00ff41;
+        border-bottom-left-radius: 2px;
+    }
+
+    .chat-bubble.unread {
+        border: 2px solid #ff4444;
+    }
+
+    .chat-time {
+        font-size: 9px;
+        color: #666666;
+        margin-top: 5px;
+        text-align: right;
+    }
+
+    .chat-bubble.sent .chat-time {
+        color: #003300;
+    }
+
+    .chat-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .reply-mode-indicator {
+        background: #001a00;
+        border: 2px solid #00ff41;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .reply-mode-indicator.active {
+        display: flex;
+    }
+
+    .reply-mode-text {
+        color: #33ff66;
+        font-size: 12px;
+    }
+
+    .cancel-reply-btn {
+        background: #0d0d0d;
+        color: #ff4444;
+        border: 2px solid #ff4444;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 11px;
+    }
+
+    .cancel-reply-btn:hover {
+        border-width: 3px;
+    }
+</style></head>
 <body>
     <div class="container">
         <div class="header">
@@ -722,336 +721,334 @@
             <div class="user-info" id="userInfo">Loading...</div>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" id="myMemosTab">
-                📝 My Memos
-            </button>
-            <button class="tab" id="inboxTab">
-                📬 Inbox
-                <span class="unread-badge" id="unreadBadge" style="display: none;">0</span>
-            </button>
-        </div>
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" id="myMemosTab">
+             My Memos
+        </button>
+        <button class="tab" id="inboxTab">
+             Inbox
+            <span class="unread-badge" id="unreadBadge" style="display: none;">0</span>
+        </button>
+    </div>
 
-        <!-- Loading Screen -->
-        <div class="loading-screen" id="loadingScreen">
-            <div class="loading-emoji">🌱</div>
-            <div>Initializing SeedNote...</div>
-        </div>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-emoji"></div>
+        <div>Initializing SeedNote...</div>
+    </div>
 
-        <!-- My Memos View -->
-        <div class="main-view" id="myMemosView">
-            <div class="reply-mode-indicator" id="replyModeIndicator">
-                <div class="reply-mode-text" id="replyModeText">Replying to @username</div>
-                <button class="cancel-reply-btn" id="cancelReplyBtn">✕ Cancel</button>
-            </div>
-            <div class="input-area">
-                <textarea id="memoInput" placeholder="Enter your memo."></textarea>
-                <div class="button-group">
-                    <button id="addBtn">Add</button>
-                    <button class="red" id="clearBtn">Clear All</button>
-                </div>
-            </div>
-            <div class="memo-list" id="memoList"></div>
-            <div class="memo-count" id="memoCount"></div>
+    <!-- My Memos View -->
+    <div class="main-view" id="myMemosView">
+        <div class="reply-mode-indicator" id="replyModeIndicator">
+            <div class="reply-mode-text" id="replyModeText">Replying to @username</div>
+            <button class="cancel-reply-btn" id="cancelReplyBtn">✕ Cancel</button>
         </div>
-
-        <!-- Inbox View -->
-        <div class="main-view" id="inboxView">
-            <div class="memo-list" id="inboxList"></div>
-            <div class="memo-count" id="inboxCount"></div>
-        </div>
-
-        <!-- Detail View (My Memos) -->
-        <div class="detail-view" id="detailView">
-            <div class="detail-time" id="detailTime"></div>
-            <div class="detail-content-wrapper">
-                <div class="detail-content" id="detailContent"></div>
-                <div class="detail-files" id="detailFiles"></div>
-                <textarea class="detail-edit" id="detailEdit"></textarea>
-                <div class="file-input-wrapper" id="fileInputWrapper">
-                    <label class="file-input-label">Attach Files:</label>
-                    <input type="file" id="fileInput" multiple>
-                    <div class="selected-files" id="selectedFiles"></div>
-                </div>
-            </div>
+        <div class="input-area">
+            <textarea id="memoInput" placeholder="Enter your memo."></textarea>
             <div class="button-group">
-                <button id="editBtn">Edit</button>
-                <button id="addFilesBtn">Add Files</button>
-                <button id="sendBtn">Send</button>
-                <button id="saveBtn" style="display: none;">Save</button>
-                <button class="red" id="deleteBtn">Delete</button>
+                <button id="addBtn">Add</button>
+                <button class="red" id="clearBtn">Clear All</button>
             </div>
         </div>
+        <div class="memo-list" id="memoList"></div>
+        <div class="memo-count" id="memoCount"></div>
+    </div>
 
-        <!-- Send Method Popup -->
-        <div class="popup" id="sendMethodPopup">
-            <div class="popup-content">
-                <h3 id="sendMethodTitle">Choose Send Method</h3>
-                <div class="send-method-selector">
-                    <div class="send-method-btn" id="sendViaTelegram">
-                        <div style="font-size: 24px; margin-bottom: 5px;">✈️</div>
-                        <div>Telegram</div>
-                    </div>
-                    <div class="send-method-btn" id="sendViaEmail">
-                        <div style="font-size: 24px; margin-bottom: 5px;">📧</div>
-                        <div>Email</div>
-                    </div>
-                </div>
-                <button id="cancelSendMethodBtn" style="width: 100%;">Cancel</button>
-            </div>
-        </div>
+    <!-- Inbox View -->
+    <div class="main-view" id="inboxView">
+        <div class="memo-list" id="inboxList"></div>
+        <div class="memo-count" id="inboxCount"></div>
+    </div>
 
-        <!-- Telegram Send Popup -->
-        <div class="popup" id="telegramPopup">
-            <div class="popup-content">
-                <h3 id="telegramPopupTitle">Send via Telegram</h3>
-                <label>Recipient Telegram Username:</label>
-                <input type="text" id="recipientUsername" placeholder="@username or username">
-                <div class="error-label" id="telegramError"></div>
-                <div class="button-group">
-                    <button id="sendTelegramBtn">Send</button>
-                    <button id="cancelTelegramBtn">Cancel</button>
-                </div>
+    <!-- Detail View (My Memos) -->
+    <div class="detail-view" id="detailView">
+        <div class="detail-time" id="detailTime"></div>
+        <div class="detail-content-wrapper">
+            <div class="detail-content" id="detailContent"></div>
+            <div class="detail-files" id="detailFiles"></div>
+            <textarea class="detail-edit" id="detailEdit"></textarea>
+            <div class="file-input-wrapper" id="fileInputWrapper">
+                <label class="file-input-label">Attach Files:</label>
+                <input type="file" id="fileInput" multiple>
+                <div class="selected-files" id="selectedFiles"></div>
             </div>
         </div>
-
-        <!-- Email Send Popup -->
-        <div class="popup" id="emailPopup">
-            <div class="popup-content">
-                <h3 id="emailPopupTitle">Send via Email</h3>
-                <label>Contacts:</label>
-                <select id="contactSelect">
-                    <option value="">Select from contacts or add new</option>
-                </select>
-                <label>Recipient Email:</label>
-                <input type="email" id="recipientEmail" placeholder="Enter emails separated by commas">
-                <label>Memo Name:</label>
-                <input type="text" id="memoName" placeholder="Memo title">
-                <div class="error-label" id="emailError"></div>
-                <div class="button-group">
-                    <button id="sendEmailBtn">Send</button>
-                    <button id="manageContactsBtn">Contacts</button>
-                    <button id="cancelEmailBtn">Cancel</button>
-                </div>
-                <div class="popup-link" id="changeSenderLink">Change Sender Information</div>
-            </div>
-        </div>
-
-        <!-- Sender Setup Popup -->
-        <div class="popup" id="senderPopup">
-            <div class="popup-content">
-                <h3 id="senderPopupTitle">Sender Information</h3>
-                <label>EmailJS Public Key:</label>
-                <input type="text" id="emailjsPublicKey" placeholder="Your EmailJS Public Key">
-                <label>EmailJS Service ID:</label>
-                <input type="text" id="emailjsServiceId" placeholder="Your Service ID">
-                <label>EmailJS Template ID:</label>
-                <input type="text" id="emailjsTemplateId" placeholder="Your Template ID">
-                <div class="button-group">
-                    <button id="saveSenderBtn">Save</button>
-                    <button id="cancelSenderBtn">Cancel</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contacts Manager Popup -->
-        <div class="popup" id="contactsPopup">
-            <div class="popup-content" style="max-width: 500px;">
-                <h3 id="contactsPopupTitle">Manage Contacts</h3>
-                <div style="margin-bottom: 20px;">
-                    <label>Add New Contact:</label>
-                    <input type="text" id="newContactName" placeholder="Contact Name">
-                    <input type="email" id="newContactEmails" placeholder="Emails (comma-separated)">
-                    <button id="addContactBtn" style="width: 100%; margin-top: 10px;">Add Contact</button>
-                </div>
-                <div style="border-top: 2px solid #00ff41; padding-top: 20px;">
-                    <label>Saved Contacts:</label>
-                    <div id="contactsList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
-                </div>
-                <button id="closeContactsBtn" style="width: 100%; margin-top: 20px;">Close</button>
-            </div>
-        </div>
-
-        <!-- Confirm Popup -->
-        <div class="popup" id="confirmPopup">
-            <div class="popup-content">
-                <h3 id="confirmMessage"></h3>
-                <div class="button-group">
-                    <button id="confirmYesBtn">Yes</button>
-                    <button id="confirmNoBtn">No</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alert Popup -->
-        <div class="popup" id="alertPopup">
-            <div class="popup-content">
-                <h3 id="alertMessage"></h3>
-                <button id="alertOkBtn" style="width: 100%; margin-top: 10px;">OK</button>
-            </div>
-        </div>
-
-        <!-- Menu Popup -->
-        <div class="popup" id="menuPopup">
-            <div class="popup-content">
-                <h3>Settings</h3>
-                <!-- <button id="timezoneMenuItem" style="width: 100%; margin-bottom: 10px;">🕒 Set Time Zone</button> -->
-                <button id="passwordMenuItem" style="width: 100%; margin-bottom: 10px;">🔒 Password</button>
-                <button id="backupMenuItem" style="width: 100%; margin-bottom: 10px;">💾 Backup</button>
-                <button id="recoverMenuItem" style="width: 100%; margin-bottom: 10px;">📥 Recover</button>
-                <button class="red" id="resetMenuItem" style="width: 100%; margin-bottom: 10px;">🗑️ Reset</button>
-                <button id="closeMenuBtn" style="width: 100%; margin-top: 10px;">Close</button>
-            </div>
-        </div>
-
-        <!-- Time Zone Popup -->
-        <div class="popup" id="timezonePopup">
-            <div class="popup-content">
-                <h3>Set Time Zone</h3>
-                <button id="autoDetectBtn" style="width: 100%; margin-bottom: 10px;">🌍 Auto Detect</button>
-                <label style="font-size: 12px; margin-bottom: 5px; display: block;">UTC Offset (e.g., +9 for KST, -5 for EST):</label>
-                <input type="text" id="utcOffsetInput" placeholder="Enter UTC offset (e.g., +9, -5)">
-                <div class="error-label" id="timezoneError"></div>
-                <div class="button-group">
-                    <button id="saveTimezoneBtn">Save</button>
-                    <button id="cancelTimezoneBtn">Cancel</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Password Popup -->
-        <div class="popup" id="passwordPopup">
-            <div class="popup-content">
-                <h3 id="passwordPopupTitle">Set Password</h3>
-                <label id="passwordLabel">Enter Password:</label>
-                <input type="password" id="passwordInput" placeholder="Enter password">
-                <label id="confirmPasswordLabel" style="display: none;">Confirm Password:</label>
-                <input type="password" id="confirmPasswordInput" placeholder="Confirm password" style="display: none;">
-                <div class="error-label" id="passwordError"></div>
-                <div class="button-group">
-                    <button id="savePasswordBtn">Save</button>
-                    <button id="cancelPasswordBtn">Cancel</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recover Popup -->
-        <div class="popup" id="recoverPopup">
-            <div class="popup-content">
-                <h3>Recover Data</h3>
-                <label>Select Backup File:</label>
-                <input type="file" id="recoverFileInput" accept=".json">
-                <div class="error-label" id="recoverError"></div>
-                <div class="button-group">
-                    <button id="recoverBtn">Recover</button>
-                    <button id="cancelRecoverBtn">Cancel</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Config Popup -->
-        <div class="popup" id="configPopup">
-            <div class="popup-content">
-                <h3>Configuration Required</h3>
-                <label>Supabase URL:</label>
-                <input type="text" id="supabaseUrl" placeholder="https://xxxxx.supabase.co">
-                <label>Supabase Anon Key:</label>
-                <input type="text" id="supabaseKey" placeholder="eyJhbGc...">
-                <label>Telegram Bot Token:</label>
-                <input type="text" id="botToken" placeholder="123456:ABC-DEF...">
-                <div class="error-label" id="configError"></div>
-                <button id="saveConfigBtn" style="width: 100%;">Save Configuration</button>
-            </div>
-        </div>
-
-        <!-- Context Menu -->
-        <div class="context-menu" id="contextMenu">
-            <div class="context-menu-item" id="pinMenuItem">📌 Pin to Top</div>
-            <div class="context-menu-item" id="unpinMenuItem">📌 Unpin</div>
+        <div class="button-group">
+            <button id="editBtn">Edit</button>
+            <button id="addFilesBtn">Add Files</button>
+            <button id="sendBtn">Send</button>
+            <button id="saveBtn" style="display: none;">Save</button>
+            <button class="red" id="deleteBtn">Delete</button>
         </div>
     </div>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Telegram WebApp SDK -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- Send Method Popup -->
+    <div class="popup" id="sendMethodPopup">
+        <div class="popup-content">
+            <h3 id="sendMethodTitle">Choose Send Method</h3>
+            <div class="send-method-selector">
+                <div class="send-method-btn" id="sendViaTelegram">
+                    <div style="font-size: 24px; margin-bottom: 5px;"></div>
+                    <div>Telegram</div>
+                </div>
+                <div class="send-method-btn" id="sendViaEmail">
+                    <div style="font-size: 24px; margin-bottom: 5px;"></div>
+                    <div>Email</div>
+                </div>
+            </div>
+            <button id="cancelSendMethodBtn" style="width: 100%;">Cancel</button>
+        </div>
+    </div>
 
-    <script>
-        const CONFIG = {
-            supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co', 
-            supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndGVwdmtpcXBjYnd3ZXJuc2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5MTE3NDcsImV4cCI6MjA3NTQ4Nzc0N30.mDwMikzbs1etS4QMDuprpEVgLLZYlbjXKibQ6EZslXI', 
-            botToken: ''
-        };
+    <!-- Telegram Send Popup -->
+    <div class="popup" id="telegramPopup">
+        <div class="popup-content">
+            <h3 id="telegramPopupTitle">Send via Telegram</h3>
+            <label>Recipient Telegram Username:</label>
+            <input type="text" id="recipientUsername" placeholder="@username or username">
+            <div class="error-label" id="telegramError"></div>
+            <div class="button-group">
+                <button id="sendTelegramBtn">Send</button>
+                <button id="cancelTelegramBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-        // Load bot token from meta tag (injected by Vercel)
-        function loadConfig() {
-            const botTokenMeta = document.querySelector('meta[name="bot-token"]');
-            if (botTokenMeta) {
-                CONFIG.botToken = botTokenMeta.content;
-            }
+    <!-- Email Send Popup -->
+    <div class="popup" id="emailPopup">
+        <div class="popup-content">
+            <h3 id="emailPopupTitle">Send via Email</h3>
+            <label>Contacts:</label>
+            <select id="contactSelect">
+                <option value="">Select from contacts or add new</option>
+            </select>
+            <label>Recipient Email:</label>
+            <input type="email" id="recipientEmail" placeholder="Enter emails separated by commas">
+            <label>Memo Name:</label>
+            <input type="text" id="memoName" placeholder="Memo title">
+            <div class="error-label" id="emailError"></div>
+            <div class="button-group">
+                <button id="sendEmailBtn">Send</button>
+                <button id="manageContactsBtn">Contacts</button>
+                <button id="cancelEmailBtn">Cancel</button>
+            </div>
+            <div class="popup-link" id="changeSenderLink">Change Sender Information</div>
+        </div>
+    </div>
+
+    <!-- Sender Setup Popup -->
+    <div class="popup" id="senderPopup">
+        <div class="popup-content">
+            <h3 id="senderPopupTitle">Sender Information</h3>
+            <label>EmailJS Public Key:</label>
+            <input type="text" id="emailjsPublicKey" placeholder="Your EmailJS Public Key">
+            <label>EmailJS Service ID:</label>
+            <input type="text" id="emailjsServiceId" placeholder="Your Service ID">
+            <label>EmailJS Template ID:</label>
+            <input type="text" id="emailjsTemplateId" placeholder="Your Template ID">
+            <div class="button-group">
+                <button id="saveSenderBtn">Save</button>
+                <button id="cancelSenderBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacts Manager Popup -->
+    <div class="popup" id="contactsPopup">
+        <div class="popup-content" style="max-width: 500px;">
+            <h3 id="contactsPopupTitle">Manage Contacts</h3>
+            <div style="margin-bottom: 20px;">
+                <label>Add New Contact:</label>
+                <input type="text" id="newContactName" placeholder="Contact Name">
+                <input type="email" id="newContactEmails" placeholder="Emails (comma-separated)">
+                <button id="addContactBtn" style="width: 100%; margin-top: 10px;">Add Contact</button>
+            </div>
+            <div style="border-top: 2px solid #00ff41; padding-top: 20px;">
+                <label>Saved Contacts:</label>
+                <div id="contactsList" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
+            </div>
+            <button id="closeContactsBtn" style="width: 100%; margin-top: 20px;">Close</button>
+        </div>
+    </div>
+
+    <!-- Confirm Popup -->
+    <div class="popup" id="confirmPopup">
+        <div class="popup-content">
+            <h3 id="confirmMessage"></h3>
+            <div class="button-group">
+                <button id="confirmYesBtn">Yes</button>
+                <button id="confirmNoBtn">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Popup -->
+    <div class="popup" id="alertPopup">
+        <div class="popup-content">
+            <h3 id="alertMessage"></h3>
+            <button id="alertOkBtn" style="width: 100%; margin-top: 10px;">OK</button>
+        </div>
+    </div>
+
+    <!-- Menu Popup -->
+    <div class="popup" id="menuPopup">
+        <div class="popup-content">
+            <h3>Settings</h3>
+            <!-- <button id="timezoneMenuItem" style="width: 100%; margin-bottom: 10px;"> Set Time Zone</button> -->
+            <button id="passwordMenuItem" style="width: 100%; margin-bottom: 10px;"> Password</button>
+            <button id="backupMenuItem" style="width: 100%; margin-bottom: 10px;"> Backup</button>
+            <button id="recoverMenuItem" style="width: 100%; margin-bottom: 10px;"> Recover</button>
+            <button class="red" id="resetMenuItem" style="width: 100%; margin-bottom: 10px;"> Reset</button>
+            <button id="closeMenuBtn" style="width: 100%; margin-top: 10px;">Close</button>
+        </div>
+    </div>
+
+    <!-- Time Zone Popup -->
+    <div class="popup" id="timezonePopup">
+        <div class="popup-content">
+            <h3>Set Time Zone</h3>
+            <button id="autoDetectBtn" style="width: 100%; margin-bottom: 10px;"> Auto Detect</button>
+            <label style="font-size: 12px; margin-bottom: 5px; display: block;">UTC Offset (e.g., +9 for KST, -5 for EST):</label>
+            <input type="text" id="utcOffsetInput" placeholder="Enter UTC offset (e.g., +9, -5)">
+            <div class="error-label" id="timezoneError"></div>
+            <div class="button-group">
+                <button id="saveTimezoneBtn">Save</button>
+                <button id="cancelTimezoneBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Password Popup -->
+    <div class="popup" id="passwordPopup">
+        <div class="popup-content">
+            <h3 id="passwordPopupTitle">Set Password</h3>
+            <label id="passwordLabel">Enter Password:</label>
+            <input type="password" id="passwordInput" placeholder="Enter password">
+            <label id="confirmPasswordLabel" style="display: none;">Confirm Password:</label>
+            <input type="password" id="confirmPasswordInput" placeholder="Confirm password" style="display: none;">
+            <div class="error-label" id="passwordError"></div>
+            <div class="button-group">
+                <button id="savePasswordBtn">Save</button>
+                <button id="cancelPasswordBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recover Popup -->
+    <div class="popup" id="recoverPopup">
+        <div class="popup-content">
+            <h3>Recover Data</h3>
+            <label>Select Backup File:</label>
+            <input type="file" id="recoverFileInput" accept=".json">
+            <div class="error-label" id="recoverError"></div>
+            <div class="button-group">
+                <button id="recoverBtn">Recover</button>
+                <button id="cancelRecoverBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Config Popup -->
+    <div class="popup" id="configPopup">
+        <div class="popup-content">
+            <h3>Configuration Required</h3>
+            <label>Supabase URL:</label>
+            <input type="text" id="supabaseUrl" placeholder="https://xxxxx.supabase.co">
+            <label>Supabase Anon Key:</label>
+            <input type="text" id="supabaseKey" placeholder="eyJhbGc...">
+            <label>Telegram Bot Token:</label>
+            <input type="text" id="botToken" placeholder="123456:ABC-DEF...">
+            <div class="error-label" id="configError"></div>
+            <button id="saveConfigBtn" style="width: 100%;">Save Configuration</button>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" id="pinMenuItem"> Pin to Top</div>
+        <div class="context-menu-item" id="unpinMenuItem"> Unpin</div>
+    </div>
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Telegram WebApp SDK --><script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<script>
+    const CONFIG = {
+        supabaseUrl: 'https://vgtepvkiqpcbwwernsdc.supabase.co', 
+        supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndGVwdmtpcXBjYnd3ZXJuc2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5MTE3NDcsImV4cCI6MjA3NTQ4Nzc0N30.mDwMikzbs1etS4QMDuprpEVgLLZYlbjXKibQ6EZslXI', 
+        botToken: ''
+    };
+
+    // Load bot token from meta tag (injected by Vercel)
+    function loadConfig() {
+        const botTokenMeta = document.querySelector('meta[name="bot-token"]');
+        if (botTokenMeta) {
+            CONFIG.botToken = botTokenMeta.content;
         }
+    }
 
-        loadConfig();
+    loadConfig();
 
-        // ========== TRANSLATIONS ==========
-        const translations = {
-            subtitle: "Plant your ideas, Grow with SEEDPI",
-            placeholder: "Enter your memo.",
-            addBtn: "Add",
-            clearBtn: "Clear All",
-            editBtn: "Edit",
-            saveBtn: "Save",
-            deleteBtn: "Delete",
-            sendBtn: "Send",
-            replyBtn: "Reply",
-            addFilesBtn: "Add Files",
-            backBtn: "← Back",
-            myMemosTab: "📝 My Memos",
-            inboxTab: "📬 Inbox",
-            emptyState: "No memos yet.\nAdd your first memo!",
-            emptyInbox: "No messages received yet.",
-            memoCount: "Total {count} memos",
-            inboxCount: "Total {count} senders",
-            confirmClear: "Are you sure you want to delete all memos?",
-            confirmDelete: "Are you sure you want to delete this memo?",
-            alertEmpty: "Please enter memo content!",
-            userInfo: "User: {name}"
-        };
+    // ========== TRANSLATIONS ==========
+    const translations = {
+        subtitle: "Plant your ideas, Grow with SEEDPI",
+        placeholder: "Enter your memo.",
+        addBtn: "Add",
+        clearBtn: "Clear All",
+        editBtn: "Edit",
+        saveBtn: "Save",
+        deleteBtn: "Delete",
+        sendBtn: "Send",
+        replyBtn: "Reply",
+        addFilesBtn: "Add Files",
+        backBtn: "← Back",
+        myMemosTab: " My Memos",
+        inboxTab: " Inbox",
+        emptyState: "No memos yet.\nAdd your first memo!",
+        emptyInbox: "No messages received yet.",
+        memoCount: "Total {count} memos",
+        inboxCount: "Total {count} senders",
+        confirmClear: "Are you sure you want to delete all memos?",
+        confirmDelete: "Are you sure you want to delete this memo?",
+        alertEmpty: "Please enter memo content!",
+        userInfo: "User: {name}"
+    };
 
-        // ========== STATE ==========
-        let currentView = 'myMemos';
-        let memos = [];
-        let inboxMessages = [];
-        let currentMemoId = null;
-        let currentInboxId = null;
-        let currentChatUsername = null;
-        let currentChatUserId = null;
-        let replyMode = false;
-        let replyToUsername = null;
-        let pinnedChats = [];
-        let contextMenuTarget = null;
-        let longPressTimer = null;
-        let supabase = null;
-        let telegramUser = null;
-        let tg = window.Telegram?.WebApp;
-        let selectedFiles = [];
-        let emailjsConfig = {
-            publicKey: '',
-            serviceId: '',
-            templateId: ''
-        };
-        let contacts = [];
-        let editingContactIndex = null;
-        let passwordHash = localStorage.getItem('seednote_password') || null;
-        let utcOffset = localStorage.getItem('seednote_utc_offset') || '0';
+    // ========== STATE ==========
+    let currentView = 'myMemos';
+    let memos = [];
+    let inboxMessages = [];
+    let currentMemoId = null;
+    let currentInboxId = null;
+    let currentChatUsername = null;
+    let currentChatUserId = null;
+    let replyMode = false;
+    let replyToUsername = null;
+    let pinnedChats = [];
+    let contextMenuTarget = null;
+    let longPressTimer = null;
+    let supabase = null;
+    let telegramUser = null;
+    let tg = window.Telegram?.WebApp;
+    let selectedFiles = [];
+    let emailjsConfig = {
+        publicKey: '',
+        serviceId: '',
+        templateId: ''
+    };
+    let contacts = [];
+    let editingContactIndex = null;
+    let passwordHash = localStorage.getItem('seednote_password') || null;
+    let utcOffset = localStorage.getItem('seednote_utc_offset') || '0';
 
-        // ========== TIME HELPER FUNCTIONS ==========
-        // 로컬 시간으로 변환하는 헬퍼 함수
-        // ========== TIME HELPER FUNCTIONS ==========
-// 로컬 시간으로 변환하는 헬퍼 함수
+    // ========== TIME HELPER FUNCTIONS ==========
+    // 로컬 시간으로 변환하는 헬퍼 함수
+    // ========== TIME HELPER FUNCTIONS ==========// 로컬 시간으로 변환하는 헬퍼 함수
 // ========== TIME HELPER FUNCTIONS ==========
 // ========== TIME HELPER FUNCTIONS ==========
 // ========== TIME HELPER FUNCTIONS ==========
@@ -1059,9 +1056,7 @@
 // ========== TIME HELPER FUNCTIONS ==========
 function toLocalTime(utcTimeString) {
     return new Date(utcTimeString);
-}
-
-function formatDateTime(utcTimeString) {
+}function formatDateTime(utcTimeString) {
     const date = toLocalTime(utcTimeString);
     return date.toLocaleString('en-US', {
         year: 'numeric',
@@ -1071,9 +1066,7 @@ function formatDateTime(utcTimeString) {
         minute: '2-digit',
         hour12: false
     });
-}
-
-function formatTime(utcTimeString) {
+}function formatTime(utcTimeString) {
     const date = toLocalTime(utcTimeString);
     return date.toLocaleTimeString('en-US', {
         hour: '2-digit',
@@ -1082,545 +1075,689 @@ function formatTime(utcTimeString) {
     });
 }
         // ========== TRANSLATIONS ==========
-        const t = (key) => translations[key] || key;
-
-        // ========== INITIALIZATION ==========
-        async function init() {
-            const savedEmailJS = localStorage.getItem('seednote_emailjs');
-            const savedContacts = localStorage.getItem('seednote_contacts');
-            const savedPinned = localStorage.getItem('seednote_pinned');
-            if (savedEmailJS) emailjsConfig = JSON.parse(savedEmailJS);
-            if (savedContacts) contacts = JSON.parse(savedContacts);
-            if (savedPinned) pinnedChats = JSON.parse(savedPinned);
-            
-            // 자동으로 로컬 시간대 감지 (시간 오프셋 계산)
-            const autoOffset = -new Date().getTimezoneOffset() / 60;
-            utcOffset = localStorage.getItem('seednote_utc_offset') || autoOffset.toString();
-            
-            // 처음 실행이거나 저장된 값이 없으면 자동 감지된 값을 저장
-            if (!localStorage.getItem('seednote_utc_offset')) {
-                localStorage.setItem('seednote_utc_offset', utcOffset);
-            }
-            
-            // 시간대 입력 UI 초기화
-            const utcOffsetInput = document.getElementById('utcOffsetInput');
-            if (utcOffsetInput) {
-                utcOffsetInput.value = utcOffset;
-            }
-
-            // Check password protection
-            if (passwordHash) {
-                await checkPassword();
-            }
-
-            if (!tg) {
-                showConfigPopup();
-                return;
-            }
-
-            tg.ready();
-            tg.expand();
-
-            telegramUser = tg.initDataUnsafe?.user;
-            if (!telegramUser) {
-                showAlert('Error: Cannot get Telegram user data');
-                return;
-            }
-
-            if (!CONFIG.supabaseUrl || !CONFIG.supabaseAnonKey) {
-                showConfigPopup();
-                return;
-            }
-
-            try {
-                supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
-                
-                await createOrUpdateUser();
-                await loadMemos();
-                await loadInbox();
-                
-                updateUI();
-                document.getElementById('loadingScreen').classList.add('hidden');
-                document.getElementById('myMemosView').classList.add('active');
-                
-                updateUnreadBadge();
-                
-            } catch (error) {
-                console.error('Initialization error:', error);
-                showAlert('Error: ' + error.message);
-            }
+        const t = (key) => translations[key] || key;    // ========== INITIALIZATION ==========
+    async function init() {
+        const savedEmailJS = localStorage.getItem('seednote_emailjs');
+        const savedContacts = localStorage.getItem('seednote_contacts');
+        const savedPinned = localStorage.getItem('seednote_pinned');
+        if (savedEmailJS) emailjsConfig = JSON.parse(savedEmailJS);
+        if (savedContacts) contacts = JSON.parse(savedContacts);
+        if (savedPinned) pinnedChats = JSON.parse(savedPinned);
+        
+        // 자동으로 로컬 시간대 감지 (시간 오프셋 계산)
+        const autoOffset = -new Date().getTimezoneOffset() / 60;
+        utcOffset = localStorage.getItem('seednote_utc_offset') || autoOffset.toString();
+        
+        // 처음 실행이거나 저장된 값이 없으면 자동 감지된 값을 저장
+        if (!localStorage.getItem('seednote_utc_offset')) {
+            localStorage.setItem('seednote_utc_offset', utcOffset);
+        }
+        
+        // 시간대 입력 UI 초기화
+        const utcOffsetInput = document.getElementById('utcOffsetInput');
+        if (utcOffsetInput) {
+            utcOffsetInput.value = utcOffset;
         }
 
-        function showConfigPopup() {
-            document.getElementById('configPopup').classList.add('active');
+        // Check password protection
+        if (passwordHash) {
+            await checkPassword();
+        }
+
+        if (!tg) {
+            showConfigPopup();
+            return;
+        }
+
+        tg.ready();
+        tg.expand();
+
+        telegramUser = tg.initDataUnsafe?.user;
+        if (!telegramUser) {
+            showAlert('Error: Cannot get Telegram user data');
+            return;
+        }
+
+        if (!CONFIG.supabaseUrl || !CONFIG.supabaseAnonKey) {
+            showConfigPopup();
+            return;
+        }
+
+        try {
+            supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
+            
+            await createOrUpdateUser();
+            await loadMemos();
+            await loadInbox();
+            
+            updateUI();
             document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('myMemosView').classList.add('active');
+            
+            updateUnreadBadge();
+            
+        } catch (error) {
+            console.error('Initialization error:', error);
+            showAlert('Error: ' + error.message);
+        }
+    }
+
+    function showConfigPopup() {
+        document.getElementById('configPopup').classList.add('active');
+        document.getElementById('loadingScreen').classList.add('hidden');
+    }
+
+    document.getElementById('saveConfigBtn').onclick = () => {
+        CONFIG.supabaseUrl = document.getElementById('supabaseUrl').value.trim();
+        CONFIG.supabaseAnonKey = document.getElementById('supabaseKey').value.trim();
+        CONFIG.botToken = document.getElementById('botToken').value.trim();
+        
+        if (!CONFIG.supabaseUrl || !CONFIG.supabaseAnonKey || !CONFIG.botToken) {
+            document.getElementById('configError').textContent = 'All fields are required!';
+            return;
+        }
+        
+        document.getElementById('configPopup').classList.remove('active');
+        document.getElementById('loadingScreen').classList.remove('hidden');
+        init();
+    };
+
+    async function createOrUpdateUser() {
+        const { data, error } = await supabase
+            .from('users')
+            .upsert({
+                telegram_id: telegramUser.id,
+                username: telegramUser.username || '',
+                first_name: telegramUser.first_name || ''
+            }, { onConflict: 'telegram_id' });
+        
+        if (error) throw error;
+        
+        const displayName = telegramUser.first_name || telegramUser.username || 'User';
+        document.getElementById('userInfo').textContent = 
+            t('userInfo').replace('{name}', displayName);
+    }
+
+    // ========== TAB SWITCHING ==========
+    document.getElementById('myMemosTab').onclick = () => switchTab('myMemos');
+    document.getElementById('inboxTab').onclick = () => switchTab('inbox');
+
+    function switchTab(tab) {
+        currentView = tab;
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.main-view').forEach(v => v.classList.remove('active'));
+        
+        // Detail view가 열려있다면 닫기
+        document.getElementById('detailView').classList.remove('active');
+        
+        // Back 버튼 숨기기
+        document.getElementById('backBtn').style.display = 'none';
+        
+        // currentMemoId 초기화
+        currentMemoId = null;
+        
+        if (tab === 'myMemos') {
+            document.getElementById('myMemosTab').classList.add('active');
+            document.getElementById('myMemosView').classList.add('active');
+        } else {
+            document.getElementById('inboxTab').classList.add('active');
+            document.getElementById('inboxView').classList.add('active');
+        }
+    }
+
+    // ========== INBOX FUNCTIONS ==========
+    async function loadInbox() {
+        const { data, error } = await supabase
+            .from('shares')
+            .select('*, from_user:users!shares_from_user_id_fkey(username, first_name)')
+            .eq('to_user_id', telegramUser.id)
+            .order('sent_at', { ascending: false });
+        
+        if (error) {
+            console.error('Load inbox error:', error);
+            return;
+        }
+        
+        inboxMessages = data || [];
+        renderInbox();
+    }
+
+    function renderInbox() {
+        const list = document.getElementById('inboxList');
+        const count = document.getElementById('inboxCount');
+        list.innerHTML = '';
+
+        if (inboxMessages.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'memo-item empty';
+            empty.textContent = t('emptyInbox');
+            list.appendChild(empty);
+            count.textContent = '';
+            return;
         }
 
-        document.getElementById('saveConfigBtn').onclick = () => {
-            CONFIG.supabaseUrl = document.getElementById('supabaseUrl').value.trim();
-            CONFIG.supabaseAnonKey = document.getElementById('supabaseKey').value.trim();
-            CONFIG.botToken = document.getElementById('botToken').value.trim();
+        const grouped = {};
+        inboxMessages.forEach(msg => {
+            const senderId = msg.from_user_id;
+            const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
             
-            if (!CONFIG.supabaseUrl || !CONFIG.supabaseAnonKey || !CONFIG.botToken) {
-                document.getElementById('configError').textContent = 'All fields are required!';
-                return;
-            }
-            
-            document.getElementById('configPopup').classList.remove('active');
-            document.getElementById('loadingScreen').classList.remove('hidden');
-            init();
-        };
-
-        async function createOrUpdateUser() {
-            const { data, error } = await supabase
-                .from('users')
-                .upsert({
-                    telegram_id: telegramUser.id,
-                    username: telegramUser.username || '',
-                    first_name: telegramUser.first_name || ''
-                }, { onConflict: 'telegram_id' });
-            
-            if (error) throw error;
-            
-            const displayName = telegramUser.first_name || telegramUser.username || 'User';
-            document.getElementById('userInfo').textContent = 
-                t('userInfo').replace('{name}', displayName);
-        }
-
-        // ========== TAB SWITCHING ==========
-        document.getElementById('myMemosTab').onclick = () => switchTab('myMemos');
-        document.getElementById('inboxTab').onclick = () => switchTab('inbox');
-
-        function switchTab(tab) {
-            currentView = tab;
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.main-view').forEach(v => v.classList.remove('active'));
-            
-            // Detail view가 열려있다면 닫기
-            document.getElementById('detailView').classList.remove('active');
-            
-            // Back 버튼 숨기기
-            document.getElementById('backBtn').style.display = 'none';
-            
-            // currentMemoId 초기화
-            currentMemoId = null;
-            
-            if (tab === 'myMemos') {
-                document.getElementById('myMemosTab').classList.add('active');
-                document.getElementById('myMemosView').classList.add('active');
-            } else {
-                document.getElementById('inboxTab').classList.add('active');
-                document.getElementById('inboxView').classList.add('active');
-            }
-        }
-
-        // ========== INBOX FUNCTIONS ==========
-        async function loadInbox() {
-            const { data, error } = await supabase
-                .from('shares')
-                .select('*, from_user:users!shares_from_user_id_fkey(username, first_name)')
-                .eq('to_user_id', telegramUser.id)
-                .order('sent_at', { ascending: false });
-            
-            if (error) {
-                console.error('Load inbox error:', error);
-                return;
-            }
-            
-            inboxMessages = data || [];
-            renderInbox();
-        }
-
-        function renderInbox() {
-            const list = document.getElementById('inboxList');
-            const count = document.getElementById('inboxCount');
-            list.innerHTML = '';
-
-            if (inboxMessages.length === 0) {
-                const empty = document.createElement('div');
-                empty.className = 'memo-item empty';
-                empty.textContent = t('emptyInbox');
-                list.appendChild(empty);
-                count.textContent = '';
-                return;
-            }
-
-            const grouped = {};
-            inboxMessages.forEach(msg => {
-                const senderId = msg.from_user_id;
-                const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
-                
-                if (!grouped[senderId]) {
-                    grouped[senderId] = {
-                        username: senderUsername,
-                        messages: []
-                    };
-                }
-                grouped[senderId].messages.push(msg);
-            });
-
-            const senderIds = Object.keys(grouped);
-            const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
-            const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
-
-            [...pinnedIds, ...unpinnedIds].forEach(senderId => {
-                const group = grouped[senderId];
-                const messages = group.messages;
-                const unreadCount = messages.filter(m => !m.is_read).length;
-                const lastMsg = messages[0];
-                const isPinned = pinnedChats.includes(parseInt(senderId));
-                
-                const item = document.createElement('div');
-                item.className = 'memo-item';
-                if (unreadCount > 0) item.classList.add('unread');
-                if (isPinned) item.classList.add('pinned');
-                
-                const senderDiv = document.createElement('div');
-                senderDiv.className = 'memo-sender';
-                senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
-                
-                const preview = document.createElement('div');
-                preview.className = 'memo-preview';
-                const previewText = lastMsg.memo_text.split('\n')[0];
-                preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
-                
-                const time = document.createElement('div');
-                time.style.fontSize = '10px';
-                time.style.color = '#888888';
-                time.textContent = formatDateTime(lastMsg.sent_at);
-                
-                item.appendChild(senderDiv);
-                item.appendChild(preview);
-                item.appendChild(time);
-                
-                item.onclick = () => showInboxSender(senderId, group.username);
-                
-                item.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    showContextMenu(e.clientX, e.clientY, senderId, isPinned);
+            if (!grouped[senderId]) {
+                grouped[senderId] = {
+                    username: senderUsername,
+                    messages: []
                 };
-                
-                item.ontouchstart = (e) => {
-                    longPressTimer = setTimeout(() => {
-                        const touch = e.touches[0];
-                        showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
-                    }, 500);
-                };
-                
-                item.ontouchend = () => clearTimeout(longPressTimer);
-                item.ontouchmove = () => clearTimeout(longPressTimer);
-                
-                list.appendChild(item);
-            });
-
-            count.textContent = t('inboxCount').replace('{count}', senderIds.length);
-        }
-
-        function showContextMenu(x, y, senderId, isPinned) {
-            const menu = document.getElementById('contextMenu');
-            const pinItem = document.getElementById('pinMenuItem');
-            const unpinItem = document.getElementById('unpinMenuItem');
-            
-            contextMenuTarget = parseInt(senderId);
-            
-            // Show/hide appropriate option
-            if (isPinned) {
-                pinItem.style.display = 'none';
-                unpinItem.style.display = 'block';
-            } else {
-                pinItem.style.display = 'block';
-                unpinItem.style.display = 'none';
-                
-                // Check if already 5 pinned
-                if (pinnedChats.length >= 5) {
-                    pinItem.classList.add('disabled');
-                    pinItem.textContent = '📌 Pin to Top (Max 5)';
-                } else {
-                    pinItem.classList.remove('disabled');
-                    pinItem.textContent = '📌 Pin to Top';
-                }
             }
-            
-            menu.style.left = x + 'px';
-            menu.style.top = y + 'px';
-            menu.classList.add('active');
-        }
+            grouped[senderId].messages.push(msg);
+        });
 
-        function hideContextMenu() {
-            document.getElementById('contextMenu').classList.remove('active');
-            contextMenuTarget = null;
-        }
+        const senderIds = Object.keys(grouped);
+        const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
+        const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
 
-        function togglePin(senderId) {
-            const index = pinnedChats.indexOf(senderId);
+        [...pinnedIds, ...unpinnedIds].forEach(senderId => {
+            const group = grouped[senderId];
+            const messages = group.messages;
+            const unreadCount = messages.filter(m => !m.is_read).length;
+            const lastMsg = messages[0];
+            const isPinned = pinnedChats.includes(parseInt(senderId));
             
-            if (index > -1) {
-                // Unpin
-                pinnedChats.splice(index, 1);
-            } else {
-                // Pin (check limit)
-                if (pinnedChats.length >= 5) {
-                    showAlert('Maximum 5 chats can be pinned!');
-                    return;
-                }
-                pinnedChats.push(senderId);
-            }
+            const item = document.createElement('div');
+            item.className = 'memo-item';
+            if (unreadCount > 0) item.classList.add('unread');
+            if (isPinned) item.classList.add('pinned');
             
-            // Save to localStorage
-            localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
+            const senderDiv = document.createElement('div');
+            senderDiv.className = 'memo-sender';
+            senderDiv.textContent = `From: @${group.username} ${unreadCount > 0 ? '(' + unreadCount + ' new)' : ''}`;
             
-            // Re-render
-            renderInbox();
-            hideContextMenu();
-        }
-
-        function showInboxSender(senderId, senderUsername) {
-            currentChatUsername = senderUsername;
-            currentChatUserId = senderId;
+            const preview = document.createElement('div');
+            preview.className = 'memo-preview';
+            const previewText = lastMsg.memo_text.split('\n')[0];
+            preview.textContent = `${previewText.substring(0, 50)}${previewText.length > 50 ? '...' : ''}`;
             
-            const list = document.getElementById('inboxList');
-            list.innerHTML = '';
+            const time = document.createElement('div');
+            time.style.fontSize = '10px';
+            time.style.color = '#888888';
+            time.textContent = formatDateTime(lastMsg.sent_at);
             
-            const backBtn = document.createElement('button');
-            backBtn.textContent = '← Back to Inbox';
-            backBtn.style.width = '100%';
-            backBtn.style.marginBottom = '10px';
-            backBtn.onclick = () => {
-                currentChatUsername = null;
-                currentChatUserId = null;
-                renderInbox();
-                document.getElementById('backBtn').style.display = 'none';
+            item.appendChild(senderDiv);
+            item.appendChild(preview);
+            item.appendChild(time);
+            
+            item.onclick = () => showInboxSender(senderId, group.username);
+            
+            item.oncontextmenu = (e) => {
+                e.preventDefault();
+                showContextMenu(e.clientX, e.clientY, senderId, isPinned);
             };
-            list.appendChild(backBtn);
             
-            // Load conversation (both sent and received)
-            loadConversation(senderId, senderUsername);
-        }
+            item.ontouchstart = (e) => {
+                longPressTimer = setTimeout(() => {
+                    const touch = e.touches[0];
+                    showContextMenu(touch.clientX, touch.clientY, senderId, isPinned);
+                }, 500);
+            };
+            
+            item.ontouchend = () => clearTimeout(longPressTimer);
+            item.ontouchmove = () => clearTimeout(longPressTimer);
+            
+            list.appendChild(item);
+        });
 
-        async function loadConversation(userId, username) {
-            const list = document.getElementById('inboxList');
-            
-            const received = inboxMessages.filter(m => m.from_user_id == userId);
-            
-            const { data: sent, error } = await supabase
-                .from('shares')
-                .select('*')
-                .eq('from_user_id', telegramUser.id)
-                .eq('to_user_id', userId)
-                .order('sent_at', { ascending: true });
-            
-            if (error) {
-                console.error('Load sent messages error:', error);
-            }
-            
-            const allMessages = [...received, ...(sent || [])].sort((a, b) => 
-                new Date(a.sent_at) - new Date(b.sent_at)
-            );
-            
-            const chatContainer = document.createElement('div');
-            chatContainer.className = 'chat-container';
-            
-            allMessages.forEach(msg => {
-                const isSent = msg.from_user_id === telegramUser.id;
-                
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
-                
-                const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
-                if (!isSent && !msg.is_read) {
-                    bubble.classList.add('unread');
-                }
-                
-                const text = document.createElement('div');
-                text.className = 'chat-text';
-                text.textContent = msg.memo_text;
-                
-                const time = document.createElement('div');
-                time.className = 'chat-time';
-                time.textContent = formatTime(msg.sent_at);
-                
-                bubble.appendChild(text);
-                bubble.appendChild(time);
-                messageDiv.appendChild(bubble);
-                
-                if (!isSent && !msg.is_read) {
-                    bubble.onclick = async () => {
-                        const { error } = await supabase
-                            .from('shares')
-                            .update({ is_read: true, read_at: new Date().toISOString() })
-                            .eq('id', msg.id);
-                        
-                        if (!error) {
-                            msg.is_read = true;
-                            bubble.classList.remove('unread');
-                            updateUnreadBadge();
-                            await loadInbox();
-                        }
-                    };
-                }
-                
-                chatContainer.appendChild(messageDiv);
-            });
-            
-            list.appendChild(chatContainer);
-            
-            list.scrollTop = list.scrollHeight;
-            
-            const replyBtn = document.createElement('button');
-            replyBtn.textContent = '↩️ Reply to @' + username;
-            replyBtn.style.width = '100%';
-            replyBtn.style.marginTop = '10px';
-            replyBtn.onclick = () => startReplyMode(username);
-            list.appendChild(replyBtn);
-        }
+        count.textContent = t('inboxCount').replace('{count}', senderIds.length);
+    }
 
-        function updateUnreadBadge() {
-            const unreadCount = inboxMessages.filter(m => !m.is_read).length;
-            const badge = document.getElementById('unreadBadge');
+    function showContextMenu(x, y, senderId, isPinned) {
+        const menu = document.getElementById('contextMenu');
+        const pinItem = document.getElementById('pinMenuItem');
+        const unpinItem = document.getElementById('unpinMenuItem');
+        
+        contextMenuTarget = parseInt(senderId);
+        
+        // Show/hide appropriate option
+        if (isPinned) {
+            pinItem.style.display = 'none';
+            unpinItem.style.display = 'block';
+        } else {
+            pinItem.style.display = 'block';
+            unpinItem.style.display = 'none';
             
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount;
-                badge.style.display = 'block';
+            // Check if already 5 pinned
+            if (pinnedChats.length >= 5) {
+                pinItem.classList.add('disabled');
+                pinItem.textContent = ' Pin to Top (Max 5)';
             } else {
-                badge.style.display = 'none';
+                pinItem.classList.remove('disabled');
+                pinItem.textContent = ' Pin to Top';
             }
         }
+        
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+        menu.classList.add('active');
+    }
 
-        // ========== MEMO FUNCTIONS ==========
-        async function loadMemos() {
-            const { data, error } = await supabase
-                .from('memos')
-                .select('*')
-                .eq('user_id', telegramUser.id)
-                .order('created_at', { ascending: false });
-            
-            if (error) throw error;
-            memos = data || [];
-            renderMemos();
+    function hideContextMenu() {
+        document.getElementById('contextMenu').classList.remove('active');
+        contextMenuTarget = null;
+    }
+
+    function togglePin(senderId) {
+        const index = pinnedChats.indexOf(senderId);
+        
+        if (index > -1) {
+            // Unpin
+            pinnedChats.splice(index, 1);
+        } else {
+            // Pin (check limit)
+            if (pinnedChats.length >= 5) {
+                showAlert('Maximum 5 chats can be pinned!');
+                return;
+            }
+            pinnedChats.push(senderId);
         }
-
-        async function addMemo() {
-    const input = document.getElementById('memoInput');
-    const text = input.value.trim();
-
-    if (!text) {
-        showAlert(t('alertEmpty'));
-        return;
+        
+        // Save to localStorage
+        localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
+        
+        // Re-render
+        renderInbox();
+        hideContextMenu();
     }
 
-    if (replyMode && replyToUsername) {
-        await sendReply(text);
-        return;
+    function showInboxSender(senderId, senderUsername) {
+        currentChatUsername = senderUsername;
+        currentChatUserId = senderId;
+        
+        const list = document.getElementById('inboxList');
+        list.innerHTML = '';
+        
+        const backBtn = document.createElement('button');
+        backBtn.textContent = '← Back to Inbox';
+        backBtn.style.width = '100%';
+        backBtn.style.marginBottom = '10px';
+        backBtn.onclick = () => {
+            currentChatUsername = null;
+            currentChatUserId = null;
+            renderInbox();
+            document.getElementById('backBtn').style.display = 'none';
+        };
+        list.appendChild(backBtn);
+        
+        // Load conversation (both sent and received)
+        loadConversation(senderId, senderUsername);
     }
 
-    const { data, error } = await supabase
-        .from('memos')
-        .insert({
-            user_id: telegramUser.id,
-            text: text
-            // time 컬럼 삭제! timestamptz는 자동으로 현재 시간 입력
-        })
-        .select();
-
-    if (error) {
-        showAlert('Error: ' + error.message);
-        return;
+    async function loadConversation(userId, username) {
+        const list = document.getElementById('inboxList');
+        
+        const received = inboxMessages.filter(m => m.from_user_id == userId);
+        
+        const { data: sent, error } = await supabase
+            .from('shares')
+            .select('*')
+            .eq('from_user_id', telegramUser.id)
+            .eq('to_user_id', userId)
+            .order('sent_at', { ascending: true });
+        
+        if (error) {
+            console.error('Load sent messages error:', error);
+        }
+        
+        const allMessages = [...received, ...(sent || [])].sort((a, b) => 
+            new Date(a.sent_at) - new Date(b.sent_at)
+        );
+        
+        const chatContainer = document.createElement('div');
+        chatContainer.className = 'chat-container';
+        
+        allMessages.forEach(msg => {
+            const isSent = msg.from_user_id === telegramUser.id;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+            if (!isSent && !msg.is_read) {
+                bubble.classList.add('unread');
+            }
+            
+            const text = document.createElement('div');
+            text.className = 'chat-text';
+            text.textContent = msg.memo_text;
+            
+            const time = document.createElement('div');
+            time.className = 'chat-time';
+            time.textContent = formatTime(msg.sent_at);
+            
+            bubble.appendChild(text);
+            bubble.appendChild(time);
+            messageDiv.appendChild(bubble);
+            
+            if (!isSent && !msg.is_read) {
+                bubble.onclick = async () => {
+                    const { error } = await supabase
+                        .from('shares')
+                        .update({ is_read: true, read_at: new Date().toISOString() })
+                        .eq('id', msg.id);
+                    
+                    if (!error) {
+                        msg.is_read = true;
+                        bubble.classList.remove('unread');
+                        updateUnreadBadge();
+                        await loadInbox();
+                    }
+                };
+            }
+            
+            chatContainer.appendChild(messageDiv);
+        });
+        
+        list.appendChild(chatContainer);
+        
+        list.scrollTop = list.scrollHeight;
+        
+        const replyBtn = document.createElement('button');
+        replyBtn.textContent = ' Reply to @' + username;
+        replyBtn.style.width = '100%';
+        replyBtn.style.marginTop = '10px';
+        replyBtn.onclick = () => startReplyMode(username);
+        list.appendChild(replyBtn);
     }
 
-    input.value = '';
-    await loadMemos();
+    function updateUnreadBadge() {
+        const unreadCount = inboxMessages.filter(m => !m.is_read).length;
+        const badge = document.getElementById('unreadBadge');
+        
+        if (unreadCount > 0) {
+            badge.textContent = unreadCount;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    // ========== MEMO FUNCTIONS ==========
+    async function loadMemos() {
+        const { data, error } = await supabase
+            .from('memos')
+            .select('*')
+            .eq('user_id', telegramUser.id)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        memos = data || [];
+        renderMemos();
+    }
+
+    async function addMemo() {
+const input = document.getElementById('memoInput');
+const text = input.value.trim();
+
+if (!text) {
+    showAlert(t('alertEmpty'));
+    return;
 }
+
+if (replyMode && replyToUsername) {
+    await sendReply(text);
+    return;
+}
+
+const { data, error } = await supabase
+    .from('memos')
+    .insert({
+        user_id: telegramUser.id,
+        text: text
+        // time 컬럼 삭제! timestamptz는 자동으로 현재 시간 입력
+    })
+    .select();
+
+if (error) {
+    showAlert('Error: ' + error.message);
+    return;
+}
+
+input.value = '';
+await loadMemos();}
         async function sendReply(text) {
             const { data: users, error: userError } = await supabase
                 .from('users')
                 .select('telegram_id')
                 .eq('username', replyToUsername)
-                .limit(1);
+                .limit(1);        if (userError || !users || users.length === 0) {
+            showAlert('User not found!');
+            return;
+        }
 
-            if (userError || !users || users.length === 0) {
-                showAlert('User not found!');
+        const recipientId = users[0].telegram_id;
+
+        try {
+            let messageText = ` Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
+                            
+            const response = await fetch('/api/telegram', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: recipientId,
+                    text: messageText
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.ok) {
+                await supabase
+                    .from('shares')
+                    .insert({
+                        from_user_id: telegramUser.id,
+                        to_user_id: recipientId,
+                        to_username: replyToUsername,
+                        memo_text: text,
+                        memo_time: new Date().toISOString()
+                    });
+
+                document.getElementById('memoInput').value = '';
+                showAlert('Reply sent!');
+                cancelReplyMode();
+                
+                // Refresh conversation if still viewing
+                if (currentChatUsername === replyToUsername) {
+                    await loadInbox();
+                    await loadConversation(currentChatUserId, currentChatUsername);
+                }
+            } else {
+                showAlert('Failed to send reply!');
+            }
+        } catch (error) {
+            showAlert('Failed to send reply!');
+            console.error('Reply error:', error);
+        }
+    }
+
+    async function clearAllMemos() {
+        if (memos.length === 0) return;
+        
+        showConfirm(t('confirmClear'), async () => {
+            const { error } = await supabase
+                .from('memos')
+                .delete()
+                .eq('user_id', telegramUser.id);
+            
+            if (error) {
+                showAlert('Error: ' + error.message);
                 return;
             }
+            
+            await loadMemos();
+        });
+    }
 
-            const recipientId = users[0].telegram_id;
+    async function showMemoDetail(id) {
+        const memo = memos.find(m => m.id === id);
+        if (!memo) return;
 
-            try {
-                let messageText = `📝 Reply from @${telegramUser.username || telegramUser.first_name}:\n\n${text}`;
-                                
-                const response = await fetch('/api/telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: recipientId,
-                        text: messageText
-                    })
-                });
+        currentMemoId = id;
+        selectedFiles = [];
+        document.getElementById('myMemosView').classList.remove('active');
+        document.getElementById('detailView').classList.add('active');
+        document.getElementById('backBtn').style.display = 'block';
 
-                const result = await response.json();
-                
-                if (result.ok) {
-                    await supabase
-                        .from('shares')
-                        .insert({
-                            from_user_id: telegramUser.id,
-                            to_user_id: recipientId,
-                            to_username: replyToUsername,
-                            memo_text: text,
-                            memo_time: new Date().toISOString()
-                        });
+        const time = formatDateTime(memo.time);
+        document.getElementById('detailTime').textContent = time;
+        document.getElementById('detailContent').textContent = memo.text;
+        document.getElementById('detailEdit').value = memo.text;
+        document.getElementById('detailContent').style.display = 'block';
+        document.getElementById('detailEdit').classList.remove('active');
+        document.getElementById('fileInputWrapper').classList.remove('active');
+        document.getElementById('editBtn').style.display = 'inline-block';
+        document.getElementById('addFilesBtn').style.display = 'inline-block';
+        document.getElementById('sendBtn').style.display = 'inline-block';
+        document.getElementById('saveBtn').style.display = 'none';
 
-                    document.getElementById('memoInput').value = '';
-                    showAlert('Reply sent!');
-                    cancelReplyMode();
-                    
-                    // Refresh conversation if still viewing
-                    if (currentChatUsername === replyToUsername) {
-                        await loadInbox();
-                        await loadConversation(currentChatUserId, currentChatUsername);
-                    }
-                } else {
-                    showAlert('Failed to send reply!');
-                }
-            } catch (error) {
-                showAlert('Failed to send reply!');
-                console.error('Reply error:', error);
-            }
+        await loadMemoFiles(id);
+    }
+
+    async function loadMemoFiles(memoId) {
+        const { data, error } = await supabase
+            .from('files')
+            .select('*')
+            .eq('memo_id', memoId);
+
+        if (error) {
+            console.error('Error loading files:', error);
+            return;
         }
 
-        async function clearAllMemos() {
-            if (memos.length === 0) return;
-            
-            showConfirm(t('confirmClear'), async () => {
-                const { error } = await supabase
-                    .from('memos')
-                    .delete()
-                    .eq('user_id', telegramUser.id);
+        const filesDiv = document.getElementById('detailFiles');
+        filesDiv.innerHTML = '';
+
+        if (data && data.length > 0) {
+            data.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
                 
-                if (error) {
-                    showAlert('Error: ' + error.message);
-                    return;
-                }
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
                 
-                await loadMemos();
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = file.file_name;
+                
+                const fileSize = document.createElement('div');
+                fileSize.className = 'file-size';
+                fileSize.textContent = formatFileSize(file.file_size);
+                
+                fileInfo.appendChild(fileName);
+                fileInfo.appendChild(fileSize);
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'file-download';
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = () => downloadFile(file);
+                
+                fileItem.appendChild(fileInfo);
+                fileItem.appendChild(downloadBtn);
+                filesDiv.appendChild(fileItem);
             });
         }
+    }
 
-        async function showMemoDetail(id) {
-            const memo = memos.find(m => m.id === id);
-            if (!memo) return;
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
 
-            currentMemoId = id;
-            selectedFiles = [];
-            document.getElementById('myMemosView').classList.remove('active');
-            document.getElementById('detailView').classList.add('active');
-            document.getElementById('backBtn').style.display = 'block';
+    async function downloadFile(file) {
+try {
+    // Vercel API 프록시 사용
+    const response = await fetch(`/api/download/${file.storage_path}`, {
+        headers: {
+            'X-Telegram-Init-Data': tg.initData  // Telegram 인증 정보
+        }
+    });
 
+    if (!response.ok) {
+        if (response.status === 401) {
+            showAlert('Authentication failed. Please reopen from Telegram.');
+        } else if (response.status === 403) {
+            showAlert('You do not have permission to access this file.');
+        } else {
+            showAlert('Download failed: ' + response.statusText);
+        }
+        return;
+    }
+
+    // 파일 다운로드
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.file_name;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+} catch (error) {
+    console.error('Download error:', error);
+    showAlert('Download failed: ' + error.message);
+}}    function goBack() {
+        if (document.getElementById('detailView').classList.contains('active')) {
+            document.getElementById('myMemosView').classList.add('active');
+            document.getElementById('detailView').classList.remove('active');
+        }
+        
+        document.getElementById('backBtn').style.display = 'none';
+        currentMemoId = null;
+        currentInboxId = null;
+        selectedFiles = [];
+        document.getElementById('fileInput').value = '';
+        document.getElementById('selectedFiles').innerHTML = '';
+    }
+
+    function editMemo() {
+        document.getElementById('detailContent').style.display = 'none';
+        document.getElementById('detailEdit').classList.add('active');
+        document.getElementById('editBtn').style.display = 'none';
+        document.getElementById('addFilesBtn').style.display = 'none';
+        document.getElementById('sendBtn').style.display = 'none';
+        document.getElementById('saveBtn').style.display = 'inline-block';
+        document.getElementById('detailEdit').focus();
+    }
+
+    async function saveMemo() {
+const text = document.getElementById('detailEdit').value.trim();
+if (!text) {
+    showAlert(t('alertEmpty'));
+    return;
+}
+
+const { error } = await supabase
+    .from('memos')
+    .update({
+        text: text
+        // time 삭제! 자동 업데이트
+    })
+    .eq('id', currentMemoId);
+
+        if (error) {
+            showAlert('Error: ' + error.message);
+            return;
+        }
+
+        if (selectedFiles.length > 0) {
+            showAlert(`Uploading ${selectedFiles.length} file(s)...`);
+            await uploadFiles(currentMemoId);
+        }
+
+        await loadMemos();
+        const memo = memos.find(m => m.id === currentMemoId);
+        if (memo) {
             const time = formatDateTime(memo.time);
             document.getElementById('detailTime').textContent = time;
-            document.getElementById('detailContent').textContent = memo.text;
-            document.getElementById('detailEdit').value = memo.text;
+            document.getElementById('detailContent').textContent = text;
             document.getElementById('detailContent').style.display = 'block';
             document.getElementById('detailEdit').classList.remove('active');
             document.getElementById('fileInputWrapper').classList.remove('active');
@@ -1628,424 +1765,269 @@ function formatTime(utcTimeString) {
             document.getElementById('addFilesBtn').style.display = 'inline-block';
             document.getElementById('sendBtn').style.display = 'inline-block';
             document.getElementById('saveBtn').style.display = 'none';
-
-            await loadMemoFiles(id);
-        }
-
-        async function loadMemoFiles(memoId) {
-            const { data, error } = await supabase
-                .from('files')
-                .select('*')
-                .eq('memo_id', memoId);
-
-            if (error) {
-                console.error('Error loading files:', error);
-                return;
-            }
-
-            const filesDiv = document.getElementById('detailFiles');
-            filesDiv.innerHTML = '';
-
-            if (data && data.length > 0) {
-                data.forEach(file => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-                    
-                    const fileInfo = document.createElement('div');
-                    fileInfo.className = 'file-info';
-                    
-                    const fileName = document.createElement('div');
-                    fileName.className = 'file-name';
-                    fileName.textContent = file.file_name;
-                    
-                    const fileSize = document.createElement('div');
-                    fileSize.className = 'file-size';
-                    fileSize.textContent = formatFileSize(file.file_size);
-                    
-                    fileInfo.appendChild(fileName);
-                    fileInfo.appendChild(fileSize);
-                    
-                    const downloadBtn = document.createElement('button');
-                    downloadBtn.className = 'file-download';
-                    downloadBtn.textContent = 'Download';
-                    downloadBtn.onclick = () => downloadFile(file);
-                    
-                    fileItem.appendChild(fileInfo);
-                    fileItem.appendChild(downloadBtn);
-                    filesDiv.appendChild(fileItem);
-                });
-            }
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-        }
-
-        async function downloadFile(file) {
-    try {
-        // Vercel API 프록시 사용
-        const response = await fetch(`/api/download/${file.storage_path}`, {
-            headers: {
-                'X-Telegram-Init-Data': tg.initData  // Telegram 인증 정보
-            }
-        });
-
-        if (!response.ok) {
-            if (response.status === 401) {
-                showAlert('Authentication failed. Please reopen from Telegram.');
-            } else if (response.status === 403) {
-                showAlert('You do not have permission to access this file.');
-            } else {
-                showAlert('Download failed: ' + response.statusText);
-            }
-            return;
-        }
-
-        // 파일 다운로드
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = file.file_name;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-    } catch (error) {
-        console.error('Download error:', error);
-        showAlert('Download failed: ' + error.message);
-    }
-}
-
-        function goBack() {
-            if (document.getElementById('detailView').classList.contains('active')) {
-                document.getElementById('myMemosView').classList.add('active');
-                document.getElementById('detailView').classList.remove('active');
-            }
             
-            document.getElementById('backBtn').style.display = 'none';
-            currentMemoId = null;
-            currentInboxId = null;
             selectedFiles = [];
             document.getElementById('fileInput').value = '';
             document.getElementById('selectedFiles').innerHTML = '';
+            
+            await loadMemoFiles(currentMemoId);
         }
-
-        function editMemo() {
-            document.getElementById('detailContent').style.display = 'none';
-            document.getElementById('detailEdit').classList.add('active');
-            document.getElementById('editBtn').style.display = 'none';
-            document.getElementById('addFilesBtn').style.display = 'none';
-            document.getElementById('sendBtn').style.display = 'none';
-            document.getElementById('saveBtn').style.display = 'inline-block';
-            document.getElementById('detailEdit').focus();
-        }
-
-        async function saveMemo() {
-    const text = document.getElementById('detailEdit').value.trim();
-    if (!text) {
-        showAlert(t('alertEmpty'));
-        return;
     }
 
-    const { error } = await supabase
-        .from('memos')
-        .update({
-            text: text
-            // time 삭제! 자동 업데이트
-        })
-        .eq('id', currentMemoId);
+    async function deleteCurrentMemo() {
+        showConfirm(t('confirmDelete'), async () => {
+            const { data: files } = await supabase
+                .from('files')
+                .select('storage_path')
+                .eq('memo_id', currentMemoId);
 
+            if (files && files.length > 0) {
+                const paths = files.map(f => f.storage_path);
+                await supabase.storage.from('memo-files').remove(paths);
+            }
+
+            const { error } = await supabase
+                .from('memos')
+                .delete()
+                .eq('id', currentMemoId);
+            
             if (error) {
                 showAlert('Error: ' + error.message);
                 return;
             }
-
-            if (selectedFiles.length > 0) {
-                showAlert(`Uploading ${selectedFiles.length} file(s)...`);
-                await uploadFiles(currentMemoId);
-            }
-
+            
             await loadMemos();
-            const memo = memos.find(m => m.id === currentMemoId);
-            if (memo) {
-                const time = formatDateTime(memo.time);
-                document.getElementById('detailTime').textContent = time;
-                document.getElementById('detailContent').textContent = text;
-                document.getElementById('detailContent').style.display = 'block';
-                document.getElementById('detailEdit').classList.remove('active');
-                document.getElementById('fileInputWrapper').classList.remove('active');
-                document.getElementById('editBtn').style.display = 'inline-block';
-                document.getElementById('addFilesBtn').style.display = 'inline-block';
-                document.getElementById('sendBtn').style.display = 'inline-block';
-                document.getElementById('saveBtn').style.display = 'none';
-                
-                selectedFiles = [];
-                document.getElementById('fileInput').value = '';
-                document.getElementById('selectedFiles').innerHTML = '';
-                
-                await loadMemoFiles(currentMemoId);
-            }
-        }
-
-        async function deleteCurrentMemo() {
-            showConfirm(t('confirmDelete'), async () => {
-                const { data: files } = await supabase
-                    .from('files')
-                    .select('storage_path')
-                    .eq('memo_id', currentMemoId);
-
-                if (files && files.length > 0) {
-                    const paths = files.map(f => f.storage_path);
-                    await supabase.storage.from('memo-files').remove(paths);
-                }
-
-                const { error } = await supabase
-                    .from('memos')
-                    .delete()
-                    .eq('id', currentMemoId);
-                
-                if (error) {
-                    showAlert('Error: ' + error.message);
-                    return;
-                }
-                
-                await loadMemos();
-                goBack();
-            });
-        }
-
-        function startReplyMode(username) {
-            replyMode = true;
-            replyToUsername = username;
-            
-            document.getElementById('inboxView').classList.remove('active');
-            document.getElementById('myMemosView').classList.add('active');
-            document.getElementById('backBtn').style.display = 'none';
-            switchTab('myMemos');
-            
-            const indicator = document.getElementById('replyModeIndicator');
-            indicator.classList.add('active');
-            document.getElementById('replyModeText').textContent = `↩️ Replying to @${username}`;
-            document.getElementById('memoInput').focus();
-            document.getElementById('memoInput').placeholder = `Reply to @${username}...`;
-            
-            // Hide Clear All button in reply mode
-            document.getElementById('clearBtn').style.display = 'none';
-            document.getElementById('addBtn').textContent = 'Send Reply';
-        }
-
-        function cancelReplyMode() {
-	    replyMode = false;
-            replyToUsername = null;
-            document.getElementById('replyModeIndicator').classList.remove('active');
-            document.getElementById('memoInput').placeholder = t('placeholder');
-            
-            // Show Clear All button again
-            document.getElementById('clearBtn').style.display = 'inline-block';
-            document.getElementById('addBtn').textContent = t('addBtn');
-        }
-
-        // ========== FILE FUNCTIONS ==========
-        function toggleFileInput() {
-            const wrapper = document.getElementById('fileInputWrapper');
-            
-            if (document.getElementById('editBtn').style.display !== 'none') {
-                editMemo();
-            }
-            
-            if (wrapper.classList.contains('active')) {
-                wrapper.classList.remove('active');
-            } else {
-                wrapper.classList.add('active');
-            }
-        }
-
-        document.getElementById('fileInput').onchange = (e) => {
-            selectedFiles = Array.from(e.target.files);
-            updateSelectedFilesList();
-        };
-
-        function updateSelectedFilesList() {
-            const filesDiv = document.getElementById('selectedFiles');
-            filesDiv.innerHTML = '';
-            
-            if (selectedFiles.length === 0) {
-                filesDiv.innerHTML = '<div style="color: #888888;">No files selected</div>';
-                return;
-            }
-            
-            selectedFiles.forEach((file, index) => {
-                const item = document.createElement('div');
-                item.className = 'selected-file-item';
-                item.textContent = `${file.name} (${formatFileSize(file.size)})`;
-                filesDiv.appendChild(item);
-            });
-        }
-
-        async function uploadFiles(memoId) {
-            let uploadedCount = 0;
-            let failedFiles = [];
-
-            for (const file of selectedFiles) {
-                try {
-                    const fileName = `${Date.now()}_${file.name}`;
-                    const filePath = `${telegramUser.id}/${fileName}`;
-
-                    const { data, error: uploadError } = await supabase.storage
-                        .from('memo-files')
-                        .upload(filePath, file, {
-                            cacheControl: '3600',
-                            upsert: false
-                        });
-
-                    if (uploadError) {
-                        console.error('Upload error:', uploadError);
-                        failedFiles.push({
-                            name: file.name,
-                            error: 'Storage upload failed: ' + (uploadError.message || JSON.stringify(uploadError))
-                        });
-                        continue;
-                    }
-
-                    const { error: dbError } = await supabase
-                        .from('files')
-                        .insert({
-                            memo_id: memoId,
-                            file_name: file.name,
-                            file_size: file.size,
-                            file_type: file.type || 'application/octet-stream',
-                            storage_path: filePath
-                        });
-
-                    if (dbError) {
-                        console.error('DB insert error:', dbError);
-                        failedFiles.push({
-                            name: file.name,
-                            error: 'Database insert failed: ' + (dbError.message || JSON.stringify(dbError))
-                        });
-                    } else {
-                        uploadedCount++;
-                    }
-                } catch (err) {
-                    console.error('Unexpected error:', err);
-                    failedFiles.push({
-                        name: file.name,
-                        error: 'Unexpected error: ' + err.toString()
-                    });
-                }
-            }
-
-            if (failedFiles.length > 0) {
-                let errorMsg = `✅ Uploaded: ${uploadedCount}/${selectedFiles.length}\n\n❌ Failed files:\n`;
-                failedFiles.forEach(f => {
-                    errorMsg += `\n📄 ${f.name}:\n${f.error}\n`;
-                });
-                showAlert(errorMsg);
-            } else if (uploadedCount > 0) {
-                showAlert(`✅ Successfully uploaded ${uploadedCount} file(s)!`);
-            } else {
-                showAlert('⚠️ No files were uploaded. Unknown error.');
-            }
-        }
-
-        // ========== SEND FUNCTIONS ==========
-        function showSendMethodPopup() {
-            document.getElementById('sendMethodPopup').classList.add('active');
-        }
-
-        document.getElementById('sendViaTelegram').onclick = () => {
-            document.getElementById('sendMethodPopup').classList.remove('active');
-            showTelegramPopup();
-        };
-
-        document.getElementById('sendViaEmail').onclick = () => {
-            document.getElementById('sendMethodPopup').classList.remove('active');
-            if (!emailjsConfig.publicKey || !emailjsConfig.serviceId || !emailjsConfig.templateId) {
-                showSenderPopup();
-            } else {
-                showEmailPopup();
-            }
-        };
-
-        document.getElementById('cancelSendMethodBtn').onclick = () => {
-            document.getElementById('sendMethodPopup').classList.remove('active');
-        };
-
-        function showTelegramPopup() {
-            document.getElementById('recipientUsername').value = '';
-            document.getElementById('telegramError').textContent = '';
-            document.getElementById('telegramPopup').classList.add('active');
-        }
-
-        async function sendViaTelegram() {
-            const username = document.getElementById('recipientUsername').value.trim().replace('@', '');
-            const errorLabel = document.getElementById('telegramError');
-
-            if (!username) {
-                errorLabel.textContent = 'Please enter a valid username!';
-                return;
-            }
-
-            const memo = memos.find(m => m.id === currentMemoId);
-            if (!memo) return;
-
-            const { data: users, error: userError } = await supabase
-                .from('users')
-                .select('telegram_id')
-                .eq('username', username)
-                .limit(1);
-
-            if (userError || !users || users.length === 0) {
-                errorLabel.textContent = 'User not found or hasn\'t started the bot!';
-                return;
-            }
-
-            const recipientId = users[0].telegram_id;
-
-            const { data: files } = await supabase
-                .from('files')
-                .select('*')
-                .eq('memo_id', currentMemoId);
-
-            try {
-                let messageText = `📝 New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n⏰ ${formatDateTime(memo.time)}`;
-                
-                const response = await fetch('/api/telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: recipientId,
-                        text: messageText
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (!result.ok) {
-                    errorLabel.textContent = 'Failed to send message!';
-                    return;
-                }
-
-                if (files && files.length > 0) {
-    for (const file of files) {
-        // Vercel 프록시 URL 생성
-        const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}?initData=
-        
-        await fetch('/api/telegram', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: recipientId,
-                text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${fileUrl}\n\n🔒 Secure link - only accessible via Telegram`,
-                disable_web_page_preview: false
-            })
+            goBack();
         });
     }
-}
 
-await supabase
+    function startReplyMode(username) {
+        replyMode = true;
+        replyToUsername = username;
+        
+        document.getElementById('inboxView').classList.remove('active');
+        document.getElementById('myMemosView').classList.add('active');
+        document.getElementById('backBtn').style.display = 'none';
+        switchTab('myMemos');
+        
+        const indicator = document.getElementById('replyModeIndicator');
+        indicator.classList.add('active');
+        document.getElementById('replyModeText').textContent = ` Replying to @${username}`;
+        document.getElementById('memoInput').focus();
+        document.getElementById('memoInput').placeholder = `Reply to @${username}...`;
+        
+        // Hide Clear All button in reply mode
+        document.getElementById('clearBtn').style.display = 'none';
+        document.getElementById('addBtn').textContent = 'Send Reply';
+    }
+
+    function cancelReplyMode() {
+    replyMode = false;
+        replyToUsername = null;
+        document.getElementById('replyModeIndicator').classList.remove('active');
+        document.getElementById('memoInput').placeholder = t('placeholder');
+        
+        // Show Clear All button again
+        document.getElementById('clearBtn').style.display = 'inline-block';
+        document.getElementById('addBtn').textContent = t('addBtn');
+    }
+
+    // ========== FILE FUNCTIONS ==========
+    function toggleFileInput() {
+        const wrapper = document.getElementById('fileInputWrapper');
+        
+        if (document.getElementById('editBtn').style.display !== 'none') {
+            editMemo();
+        }
+        
+        if (wrapper.classList.contains('active')) {
+            wrapper.classList.remove('active');
+        } else {
+            wrapper.classList.add('active');
+        }
+    }
+
+    document.getElementById('fileInput').onchange = (e) => {
+        selectedFiles = Array.from(e.target.files);
+        updateSelectedFilesList();
+    };
+
+    function updateSelectedFilesList() {
+        const filesDiv = document.getElementById('selectedFiles');
+        filesDiv.innerHTML = '';
+        
+        if (selectedFiles.length === 0) {
+            filesDiv.innerHTML = '<div style="color: #888888;">No files selected</div>';
+            return;
+        }
+        
+        selectedFiles.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'selected-file-item';
+            item.textContent = `${file.name} (${formatFileSize(file.size)})`;
+            filesDiv.appendChild(item);
+        });
+    }
+
+    async function uploadFiles(memoId) {
+        let uploadedCount = 0;
+        let failedFiles = [];
+
+        for (const file of selectedFiles) {
+            try {
+                const fileName = `${Date.now()}_${file.name}`;
+                const filePath = `${telegramUser.id}/${fileName}`;
+
+                const { data, error: uploadError } = await supabase.storage
+                    .from('memo-files')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (uploadError) {
+                    console.error('Upload error:', uploadError);
+                    failedFiles.push({
+                        name: file.name,
+                        error: 'Storage upload failed: ' + (uploadError.message || JSON.stringify(uploadError))
+                    });
+                    continue;
+                }
+
+                const { error: dbError } = await supabase
+                    .from('files')
+                    .insert({
+                        memo_id: memoId,
+                        file_name: file.name,
+                        file_size: file.size,
+                        file_type: file.type || 'application/octet-stream',
+                        storage_path: filePath
+                    });
+
+                if (dbError) {
+                    console.error('DB insert error:', dbError);
+                    failedFiles.push({
+                        name: file.name,
+                        error: 'Database insert failed: ' + (dbError.message || JSON.stringify(dbError))
+                    });
+                } else {
+                    uploadedCount++;
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                failedFiles.push({
+                    name: file.name,
+                    error: 'Unexpected error: ' + err.toString()
+                });
+            }
+        }
+
+        if (failedFiles.length > 0) {
+            let errorMsg = ` Uploaded: ${uploadedCount}/${selectedFiles.length}\n\n Failed files:\n`;
+            failedFiles.forEach(f => {
+                errorMsg += `\n ${f.name}:\n${f.error}\n`;
+            });
+            showAlert(errorMsg);
+        } else if (uploadedCount > 0) {
+            showAlert(` Successfully uploaded ${uploadedCount} file(s)!`);
+        } else {
+            showAlert(' No files were uploaded. Unknown error.');
+        }
+    }
+
+    // ========== SEND FUNCTIONS ==========
+    function showSendMethodPopup() {
+        document.getElementById('sendMethodPopup').classList.add('active');
+    }
+
+    document.getElementById('sendViaTelegram').onclick = () => {
+        document.getElementById('sendMethodPopup').classList.remove('active');
+        showTelegramPopup();
+    };
+
+    document.getElementById('sendViaEmail').onclick = () => {
+        document.getElementById('sendMethodPopup').classList.remove('active');
+        if (!emailjsConfig.publicKey || !emailjsConfig.serviceId || !emailjsConfig.templateId) {
+            showSenderPopup();
+        } else {
+            showEmailPopup();
+        }
+    };
+
+    document.getElementById('cancelSendMethodBtn').onclick = () => {
+        document.getElementById('sendMethodPopup').classList.remove('active');
+    };
+
+    function showTelegramPopup() {
+        document.getElementById('recipientUsername').value = '';
+        document.getElementById('telegramError').textContent = '';
+        document.getElementById('telegramPopup').classList.add('active');
+    }
+
+    async function sendViaTelegram() {
+        const username = document.getElementById('recipientUsername').value.trim().replace('@', '');
+        const errorLabel = document.getElementById('telegramError');
+
+        if (!username) {
+            errorLabel.textContent = 'Please enter a valid username!';
+            return;
+        }
+
+        const memo = memos.find(m => m.id === currentMemoId);
+        if (!memo) return;
+
+        const { data: users, error: userError } = await supabase
+            .from('users')
+            .select('telegram_id')
+            .eq('username', username)
+            .limit(1);
+
+        if (userError || !users || users.length === 0) {
+            errorLabel.textContent = 'User not found or hasn\'t started the bot!';
+            return;
+        }
+
+        const recipientId = users[0].telegram_id;
+
+        const { data: files } = await supabase
+            .from('files')
+            .select('*')
+            .eq('memo_id', currentMemoId);
+
+        try {
+            let messageText = ` New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n ${formatDateTime(memo.time)}`;
+            
+            const response = await fetch('/api/telegram', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: recipientId,
+                    text: messageText
+                })
+            });
+
+            const result = await response.json();
+            
+            if (!result.ok) {
+                errorLabel.textContent = 'Failed to send message!';
+                return;
+            }
+
+            if (files && files.length > 0) {
+for (const file of files) {
+    // Vercel 프록시 URL 생성
+    const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}?initData=
+    
+    await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: recipientId,
+            text: ` ${file.file_name} (${formatFileSize(file.file_size)})\n ${fileUrl}\n\n Secure link - only accessible via Telegram`,
+            disable_web_page_preview: false
+        })
+    });
+}}await supabase
     .from('shares')
     .insert({
         from_user_id: telegramUser.id,
@@ -2053,410 +2035,342 @@ await supabase
         to_username: username,
         memo_text: memo.text,
         memo_time: memo.time
-    });
-
-document.getElementById('telegramPopup').classList.remove('active');
+    });document.getElementById('telegramPopup').classList.remove('active');
 showAlert('Sent successfully!');			
             } catch (error) {
                 errorLabel.textContent = 'Failed to send!';
                 console.error('Send error:', error);
             }
-        }
-
-        // ========== EMAIL FUNCTIONS ==========
-        function showSenderPopup() {
-            document.getElementById('emailjsPublicKey').value = emailjsConfig.publicKey || '';
-            document.getElementById('emailjsServiceId').value = emailjsConfig.serviceId || '';
-            document.getElementById('emailjsTemplateId').value = emailjsConfig.templateId || '';
-            document.getElementById('senderPopup').classList.add('active');
-        }
-
-        function showEmailPopup() {
-            document.getElementById('recipientEmail').value = '';
-            document.getElementById('memoName').value = '';
-            document.getElementById('emailError').textContent = '';
-            loadContactsSelect();
-            document.getElementById('emailPopup').classList.add('active');
-        }
-
-        function loadContactsSelect() {
-            const select = document.getElementById('contactSelect');
-            select.innerHTML = '<option value="">Select from contacts or add new</option>';
-            contacts.forEach((contact, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${contact.name} (${contact.emails})`;
-                select.appendChild(option);
-            });
-        }
-
-        document.getElementById('contactSelect').onchange = () => {
-            const select = document.getElementById('contactSelect');
-            const index = select.value;
-            if (index !== '') {
-                const contact = contacts[index];
-                document.getElementById('recipientEmail').value = contact.emails;
-                document.getElementById('memoName').value = contact.name;
-            }
-        };
-
-        async function sendViaEmail() {
-            let recipientInput = document.getElementById('recipientEmail').value.trim();
-            const memoName = document.getElementById('memoName').value.trim();
-            const errorLabel = document.getElementById('emailError');
-
-            const recipients = recipientInput.split(',').map(email => email.trim()).filter(email => email);
-            const invalidEmails = recipients.filter(email => !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/));
-            if (invalidEmails.length > 0) {
-                errorLabel.textContent = 'Invalid email format!';
-                return;
-            }
-
-            if (recipients.length === 0) {
-                errorLabel.textContent = 'Invalid email format!';
-                return;
-            }
-
-            if (!memoName) {
-                errorLabel.textContent = 'Please enter a memo name!';
-                return;
-            }
-
-            const memo = memos.find(m => m.id === currentMemoId);
-            if (!memo) return;
-
-            const toEmail = recipients.join(',');
-
-            const { data: files } = await supabase
-                .from('files')
-                .select('*')
-                .eq('memo_id', currentMemoId);
-
-            let filesHtml = '';
-if (files && files.length > 0) {
-    filesHtml = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #00ff41;">';
-    filesHtml += '<div style="color: #33ff66; font-size: 14px; margin-bottom: 10px;">📎 Attached Files:</div>';
-    
-    for (const file of files) {
-        // Vercel 프록시 URL (이메일에서는 initData 없어서 접근 불가)
-        const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}`;
-        
-        filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
-        filesHtml += `<div style="color: #00ff41;">📄 ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
-        filesHtml += `<div style="color: #ff8800; font-size: 11px; margin-top: 4px;">⚠️ To download: Open the link in SeedNote Telegram bot</div>`;
-        filesHtml += `<a href="${fileUrl}" style="color: #33ff66; text-decoration: underline; font-size: 12px;" target="_blank">🔗 Open in Telegram</a>`;
-        filesHtml += `</div>`;
+        }    // ========== EMAIL FUNCTIONS ==========
+    function showSenderPopup() {
+        document.getElementById('emailjsPublicKey').value = emailjsConfig.publicKey || '';
+        document.getElementById('emailjsServiceId').value = emailjsConfig.serviceId || '';
+        document.getElementById('emailjsTemplateId').value = emailjsConfig.templateId || '';
+        document.getElementById('senderPopup').classList.add('active');
     }
-    filesHtml += '</div>';
-}
 
-            emailjs.init(emailjsConfig.publicKey);
-            
-            const emailData = {
-                to_email: toEmail,
-                memo_name: memoName,
-                memo_content: memo.text,
-                memo_files: filesHtml,
-                memo_time: formatDateTime(memo.time)
-            };
-            
-            emailjs.send(emailjsConfig.serviceId, emailjsConfig.templateId, emailData).then(() => {
-                document.getElementById('emailPopup').classList.remove('active');
-                showAlert('Sent successfully!');
-            }).catch((error) => {
-                console.error('EmailJS error:', error);
-                showAlert('Failed to send email!');
-            });
-        }
+    function showEmailPopup() {
+        document.getElementById('recipientEmail').value = '';
+        document.getElementById('memoName').value = '';
+        document.getElementById('emailError').textContent = '';
+        loadContactsSelect();
+        document.getElementById('emailPopup').classList.add('active');
+    }
 
-        function saveEmailJSConfig() {
-            localStorage.setItem('seednote_emailjs', JSON.stringify(emailjsConfig));
-        }
+    function loadContactsSelect() {
+        const select = document.getElementById('contactSelect');
+        select.innerHTML = '<option value="">Select from contacts or add new</option>';
+        contacts.forEach((contact, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = `${contact.name} (${contact.emails})`;
+            select.appendChild(option);
+        });
+    }
 
-        function saveContacts() {
-            localStorage.setItem('seednote_contacts', JSON.stringify(contacts));
-        }
-
-        // ========== CONTACTS FUNCTIONS ==========
-        function showContactsPopup() {
-            document.getElementById('newContactName').value = '';
-            document.getElementById('newContactEmails').value = '';
-            document.getElementById('addContactBtn').textContent = 'Add Contact';
-            editingContactIndex = null;
-            renderContactsList();
-            document.getElementById('contactsPopup').classList.add('active');
-        }
-
-        function renderContactsList() {
-            const list = document.getElementById('contactsList');
-            list.innerHTML = '';
-            
-            if (contacts.length === 0) {
-                list.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">No contacts saved yet.</div>';
-                return;
-            }
-            
-            contacts.forEach((contact, index) => {
-                const item = document.createElement('div');
-                item.className = 'contact-item';
-                
-                const info = document.createElement('div');
-                info.className = 'contact-info';
-                
-                const name = document.createElement('div');
-                name.className = 'contact-name';
-                name.textContent = contact.name;
-                
-                const emails = document.createElement('div');
-                emails.className = 'contact-emails';
-                emails.textContent = contact.emails;
-                
-                info.appendChild(name);
-                info.appendChild(emails);
-                
-                const actions = document.createElement('div');
-                actions.className = 'contact-actions';
-                
-                const editBtn = document.createElement('button');
-                editBtn.textContent = 'Edit';
-                editBtn.onclick = () => editContact(index);
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'red';
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.onclick = () => deleteContact(index);
-                
-                actions.appendChild(editBtn);
-                actions.appendChild(deleteBtn);
-                
-                item.appendChild(info);
-                item.appendChild(actions);
-                list.appendChild(item);
-            });
-        }
-
-        function editContact(index) {
+    document.getElementById('contactSelect').onchange = () => {
+        const select = document.getElementById('contactSelect');
+        const index = select.value;
+        if (index !== '') {
             const contact = contacts[index];
-            document.getElementById('newContactName').value = contact.name;
-            document.getElementById('newContactEmails').value = contact.emails;
-            document.getElementById('addContactBtn').textContent = 'Save';
-            editingContactIndex = index;
-            document.querySelector('#contactsPopup .popup-content').scrollTop = 0;
+            document.getElementById('recipientEmail').value = contact.emails;
+            document.getElementById('memoName').value = contact.name;
+        }
+    };
+
+    async function sendViaEmail() {
+        let recipientInput = document.getElementById('recipientEmail').value.trim();
+        const memoName = document.getElementById('memoName').value.trim();
+        const errorLabel = document.getElementById('emailError');
+
+        const recipients = recipientInput.split(',').map(email => email.trim()).filter(email => email);
+        const invalidEmails = recipients.filter(email => !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/));
+        if (invalidEmails.length > 0) {
+            errorLabel.textContent = 'Invalid email format!';
+            return;
         }
 
-        function deleteContact(index) {
-            showConfirm('Delete this contact?', () => {
-                contacts.splice(index, 1);
-                saveContacts();
-                renderContactsList();
-                loadContactsSelect();
-            });
+        if (recipients.length === 0) {
+            errorLabel.textContent = 'Invalid email format!';
+            return;
         }
 
-        function addOrUpdateContact() {
-            const name = document.getElementById('newContactName').value.trim();
-            const emails = document.getElementById('newContactEmails').value.trim();
+        if (!memoName) {
+            errorLabel.textContent = 'Please enter a memo name!';
+            return;
+        }
+
+        const memo = memos.find(m => m.id === currentMemoId);
+        if (!memo) return;
+
+        const toEmail = recipients.join(',');
+
+        const { data: files } = await supabase
+            .from('files')
+            .select('*')
+            .eq('memo_id', currentMemoId);
+
+        let filesHtml = '';if (files && files.length > 0) {
+    filesHtml = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #00ff41;">';
+    filesHtml += '<div style="color: #33ff66; font-size: 14px; margin-bottom: 10px;"> Attached Files:</div>';for (const file of files) {
+    // Vercel 프록시 URL (이메일에서는 initData 없어서 접근 불가)
+    const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}`;
+    
+    filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
+    filesHtml += `<div style="color: #00ff41;"> ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
+    filesHtml += `<div style="color: #ff8800; font-size: 11px; margin-top: 4px;"> To download: Open the link in SeedNote Telegram bot</div>`;
+    filesHtml += `<a href="${fileUrl}" style="color: #33ff66; text-decoration: underline; font-size: 12px;" target="_blank"> Open in Telegram</a>`;
+    filesHtml += `</div>`;
+}
+filesHtml += '</div>';}        emailjs.init(emailjsConfig.publicKey);
+        
+        const emailData = {
+            to_email: toEmail,
+            memo_name: memoName,
+            memo_content: memo.text,
+            memo_files: filesHtml,
+            memo_time: formatDateTime(memo.time)
+        };
+        
+        emailjs.send(emailjsConfig.serviceId, emailjsConfig.templateId, emailData).then(() => {
+            document.getElementById('emailPopup').classList.remove('active');
+            showAlert('Sent successfully!');
+        }).catch((error) => {
+            console.error('EmailJS error:', error);
+            showAlert('Failed to send email!');
+        });
+    }
+
+    function saveEmailJSConfig() {
+        localStorage.setItem('seednote_emailjs', JSON.stringify(emailjsConfig));
+    }
+
+    function saveContacts() {
+        localStorage.setItem('seednote_contacts', JSON.stringify(contacts));
+    }
+
+    // ========== CONTACTS FUNCTIONS ==========
+    function showContactsPopup() {
+        document.getElementById('newContactName').value = '';
+        document.getElementById('newContactEmails').value = '';
+        document.getElementById('addContactBtn').textContent = 'Add Contact';
+        editingContactIndex = null;
+        renderContactsList();
+        document.getElementById('contactsPopup').classList.add('active');
+    }
+
+    function renderContactsList() {
+        const list = document.getElementById('contactsList');
+        list.innerHTML = '';
+        
+        if (contacts.length === 0) {
+            list.innerHTML = '<div style="text-align: center; color: #888888; padding: 20px;">No contacts saved yet.</div>';
+            return;
+        }
+        
+        contacts.forEach((contact, index) => {
+            const item = document.createElement('div');
+            item.className = 'contact-item';
             
-            if (!name || !emails) {
-                showAlert('Please fill in all fields!');
-                return;
-            }
+            const info = document.createElement('div');
+            info.className = 'contact-info';
             
-            const recipients = emails.split(',').map(email => email.trim()).filter(email => email);
-            const invalidEmails = recipients.filter(email => !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/));
-            if (invalidEmails.length > 0) {
-                showAlert('Invalid email format!');
-                return;
-            }
+            const name = document.createElement('div');
+            name.className = 'contact-name';
+            name.textContent = contact.name;
             
-            if (editingContactIndex !== null) {
-                contacts[editingContactIndex] = { name, emails };
-                editingContactIndex = null;
-            } else {
-                contacts.push({ name, emails });
-            }
+            const emails = document.createElement('div');
+            emails.className = 'contact-emails';
+            emails.textContent = contact.emails;
             
+            info.appendChild(name);
+            info.appendChild(emails);
+            
+            const actions = document.createElement('div');
+            actions.className = 'contact-actions';
+            
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.onclick = () => editContact(index);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'red';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.onclick = () => deleteContact(index);
+            
+            actions.appendChild(editBtn);
+            actions.appendChild(deleteBtn);
+            
+            item.appendChild(info);
+            item.appendChild(actions);
+            list.appendChild(item);
+        });
+    }
+
+    function editContact(index) {
+        const contact = contacts[index];
+        document.getElementById('newContactName').value = contact.name;
+        document.getElementById('newContactEmails').value = contact.emails;
+        document.getElementById('addContactBtn').textContent = 'Save';
+        editingContactIndex = index;
+        document.querySelector('#contactsPopup .popup-content').scrollTop = 0;
+    }
+
+    function deleteContact(index) {
+        showConfirm('Delete this contact?', () => {
+            contacts.splice(index, 1);
             saveContacts();
             renderContactsList();
             loadContactsSelect();
-            document.getElementById('newContactName').value = '';
-            document.getElementById('newContactEmails').value = '';
-            document.getElementById('addContactBtn').textContent = 'Add Contact';
-            showAlert('Contact saved!');
-        }
+        });
+    }
 
-        // ========== UI FUNCTIONS ==========
-        function updateUI() {
-            document.getElementById('subtitle').textContent = t('subtitle');
-            document.getElementById('memoInput').placeholder = t('placeholder');
-            document.getElementById('addBtn').textContent = t('addBtn');
-            document.getElementById('clearBtn').textContent = t('clearBtn');
-            document.getElementById('editBtn').textContent = t('editBtn');
-            document.getElementById('saveBtn').textContent = t('saveBtn');
-            document.getElementById('deleteBtn').textContent = t('deleteBtn');
-            document.getElementById('sendBtn').textContent = t('sendBtn');
-            document.getElementById('addFilesBtn').textContent = t('addFilesBtn');
-            document.getElementById('backBtn').textContent = t('backBtn');
-            document.getElementById('myMemosTab').innerHTML = t('myMemosTab');
-            document.getElementById('inboxTab').innerHTML = t('inboxTab') + '<span class="unread-badge" id="unreadBadge" style="display: none;">0</span>';
+    function addOrUpdateContact() {
+        const name = document.getElementById('newContactName').value.trim();
+        const emails = document.getElementById('newContactEmails').value.trim();
+        
+        if (!name || !emails) {
+            showAlert('Please fill in all fields!');
+            return;
         }
-
-        function renderMemos() {
-            const list = document.getElementById('memoList');
-            const count = document.getElementById('memoCount');
-            list.innerHTML = '';
-
-            if (memos.length === 0) {
-                const empty = document.createElement('div');
-                empty.className = 'memo-item empty';
-                empty.textContent = t('emptyState');
-                list.appendChild(empty);
-                count.textContent = '';
-            } else {
-                memos.forEach(memo => {
-                    const item = document.createElement('div');
-                    item.className = 'memo-item';
-                    const preview = memo.text.split('\n')[0];
-                    const time = formatDateTime(memo.time);
-                    item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
-                    item.onclick = () => showMemoDetail(memo.id);
-                    list.appendChild(item);
-                });
-                count.textContent = t('memoCount').replace('{count}', memos.length);
-            }
+        
+        const recipients = emails.split(',').map(email => email.trim()).filter(email => email);
+        const invalidEmails = recipients.filter(email => !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/));
+        if (invalidEmails.length > 0) {
+            showAlert('Invalid email format!');
+            return;
         }
-
-        function showConfirm(message, callback) {
-            document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('confirmPopup').classList.add('active');
-            
-            document.getElementById('confirmYesBtn').onclick = () => {
-                document.getElementById('confirmPopup').classList.remove('active');
-                callback();
-            };
+        
+        if (editingContactIndex !== null) {
+            contacts[editingContactIndex] = { name, emails };
+            editingContactIndex = null;
+        } else {
+            contacts.push({ name, emails });
         }
+        
+        saveContacts();
+        renderContactsList();
+        loadContactsSelect();
+        document.getElementById('newContactName').value = '';
+        document.getElementById('newContactEmails').value = '';
+        document.getElementById('addContactBtn').textContent = 'Add Contact';
+        showAlert('Contact saved!');
+    }
 
-        function showAlert(message) {
-            document.getElementById('alertMessage').textContent = message;
-            document.getElementById('alertPopup').classList.add('active');
+    // ========== UI FUNCTIONS ==========
+    function updateUI() {
+        document.getElementById('subtitle').textContent = t('subtitle');
+        document.getElementById('memoInput').placeholder = t('placeholder');
+        document.getElementById('addBtn').textContent = t('addBtn');
+        document.getElementById('clearBtn').textContent = t('clearBtn');
+        document.getElementById('editBtn').textContent = t('editBtn');
+        document.getElementById('saveBtn').textContent = t('saveBtn');
+        document.getElementById('deleteBtn').textContent = t('deleteBtn');
+        document.getElementById('sendBtn').textContent = t('sendBtn');
+        document.getElementById('addFilesBtn').textContent = t('addFilesBtn');
+        document.getElementById('backBtn').textContent = t('backBtn');
+        document.getElementById('myMemosTab').innerHTML = t('myMemosTab');
+        document.getElementById('inboxTab').innerHTML = t('inboxTab') + '<span class="unread-badge" id="unreadBadge" style="display: none;">0</span>';
+    }
+
+    function renderMemos() {
+        const list = document.getElementById('memoList');
+        const count = document.getElementById('memoCount');
+        list.innerHTML = '';
+
+        if (memos.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'memo-item empty';
+            empty.textContent = t('emptyState');
+            list.appendChild(empty);
+            count.textContent = '';
+        } else {
+            memos.forEach(memo => {
+                const item = document.createElement('div');
+                item.className = 'memo-item';
+                const preview = memo.text.split('\n')[0];
+                const time = formatDateTime(memo.time);
+                item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
+                item.onclick = () => showMemoDetail(memo.id);
+                list.appendChild(item);
+            });
+            count.textContent = t('memoCount').replace('{count}', memos.length);
         }
-/*
+    }
+
+    function showConfirm(message, callback) {
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmPopup').classList.add('active');
+        
+        document.getElementById('confirmYesBtn').onclick = () => {
+            document.getElementById('confirmPopup').classList.remove('active');
+            callback();
+        };
+    }
+
+    function showAlert(message) {
+        document.getElementById('alertMessage').textContent = message;
+        document.getElementById('alertPopup').classList.add('active');
+    }/*
         function saveTimeZone() {
             const input = document.getElementById('utcOffsetInput').value.trim();
-            const errorLabel = document.getElementById('timezoneError');
-            
-            // 입력 검증: 숫자, -12 ~ +14 사이
-            const offset = parseFloat(input);
-            if (isNaN(offset) || offset < -12 || offset > 14) {
-                errorLabel.textContent = 'Enter a valid UTC offset (-12 to +14)!';
-                return;
-            }
-            
-            utcOffset = input;
-            localStorage.setItem('seednote_utc_offset', utcOffset);
-            document.getElementById('timezonePopup').classList.remove('active');
-            showAlert('Time zone saved!');
-            
-            // Inbox와 대화창 즉시 새로고침
-            renderInbox();
-            renderMemos();
-            if (currentChatUserId && currentChatUsername) {
-                loadConversation(currentChatUserId, currentChatUsername);
-            }
+            const errorLabel = document.getElementById('timezoneError');        // 입력 검증: 숫자, -12 ~ +14 사이
+        const offset = parseFloat(input);
+        if (isNaN(offset) || offset < -12 || offset > 14) {
+            errorLabel.textContent = 'Enter a valid UTC offset (-12 to +14)!';
+            return;
         }
-*/
+        
+        utcOffset = input;
+        localStorage.setItem('seednote_utc_offset', utcOffset);
+        document.getElementById('timezonePopup').classList.remove('active');
+        showAlert('Time zone saved!');
+        
+        // Inbox와 대화창 즉시 새로고침
+        renderInbox();
+        renderMemos();
+        if (currentChatUserId && currentChatUsername) {
+            loadConversation(currentChatUserId, currentChatUsername);
+        }
+    }*/
         // ========== MENU FUNCTIONS ==========
         function showMenuPopup() {
             document.getElementById('menuPopup').classList.add('active');
-        }
+        }    document.getElementById('closeMenuBtn').onclick = () => {
+        document.getElementById('menuPopup').classList.remove('active');
+    };
 
-        document.getElementById('closeMenuBtn').onclick = () => {
-            document.getElementById('menuPopup').classList.remove('active');
-        };
+    document.getElementById('passwordMenuItem').onclick = () => {
+        document.getElementById('menuPopup').classList.remove('active');
+        showPasswordPopup();
+    };
 
-        document.getElementById('passwordMenuItem').onclick = () => {
-            document.getElementById('menuPopup').classList.remove('active');
-            showPasswordPopup();
-        };
+    document.getElementById('backupMenuItem').onclick = async () => {
+        document.getElementById('menuPopup').classList.remove('active');
+        await backupData();
+    };
 
-        document.getElementById('backupMenuItem').onclick = async () => {
-            document.getElementById('menuPopup').classList.remove('active');
-            await backupData();
-        };
+    document.getElementById('recoverMenuItem').onclick = () => {
+        document.getElementById('menuPopup').classList.remove('active');
+        showRecoverPopup();
+    };
 
-        document.getElementById('recoverMenuItem').onclick = () => {
-            document.getElementById('menuPopup').classList.remove('active');
-            showRecoverPopup();
-        };
+    document.getElementById('resetMenuItem').onclick = () => {
+        document.getElementById('menuPopup').classList.remove('active');
+        confirmReset();
+    };
 
-        document.getElementById('resetMenuItem').onclick = () => {
-            document.getElementById('menuPopup').classList.remove('active');
-            confirmReset();
-        };
+    // ========== PASSWORD FUNCTIONS ==========
+    async function hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
-        // ========== PASSWORD FUNCTIONS ==========
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        async function checkPassword() {
-            return new Promise((resolve) => {
-                const popup = document.getElementById('passwordPopup');
-                const title = document.getElementById('passwordPopupTitle');
-                const label = document.getElementById('passwordLabel');
-                const input = document.getElementById('passwordInput');
-                const confirmLabel = document.getElementById('confirmPasswordLabel');
-                const confirmInput = document.getElementById('confirmPasswordInput');
-                const errorLabel = document.getElementById('passwordError');
-                const saveBtn = document.getElementById('savePasswordBtn');
-
-                title.textContent = 'Enter Password';
-                label.textContent = 'Password:';
-                input.value = '';
-                confirmLabel.style.display = 'none';
-                confirmInput.style.display = 'none';
-                confirmInput.value = '';
-                errorLabel.textContent = '';
-                saveBtn.textContent = 'Unlock';
-
-                popup.classList.add('active');
-
-                const unlockHandler = async () => {
-                    const password = input.value.trim();
-                    if (!password) {
-                        errorLabel.textContent = 'Please enter the password!';
-                        return;
-                    }
-
-                    const hash = await hashPassword(password);
-
-                    if (hash === passwordHash) {
-                        popup.classList.remove('active');
-                        saveBtn.onclick = null;
-                        input.onkeydown = null;
-                        resolve(true);
-                    } else {
-                        errorLabel.textContent = 'Incorrect password! Please try again.';
-                        input.value = '';
-                    }
-                };
-
-                saveBtn.onclick = unlockHandler;
-                input.onkeydown = (e) => {
-                    if (e.key === 'Enter') unlockHandler();
-                };
-
-                document.getElementById('cancelPasswordBtn').onclick = () => {
-                    errorLabel.textContent = 'Password is required to access the app!';
-                };
-            });
-        }
-
-        function showPasswordPopup() {
+    async function checkPassword() {
+        return new Promise((resolve) => {
             const popup = document.getElementById('passwordPopup');
             const title = document.getElementById('passwordPopupTitle');
             const label = document.getElementById('passwordLabel');
@@ -2466,368 +2380,419 @@ if (files && files.length > 0) {
             const errorLabel = document.getElementById('passwordError');
             const saveBtn = document.getElementById('savePasswordBtn');
 
+            title.textContent = 'Enter Password';
+            label.textContent = 'Password:';
             input.value = '';
+            confirmLabel.style.display = 'none';
+            confirmInput.style.display = 'none';
             confirmInput.value = '';
+            errorLabel.textContent = '';
+            saveBtn.textContent = 'Unlock';
+
+            popup.classList.add('active');
+
+            const unlockHandler = async () => {
+                const password = input.value.trim();
+                if (!password) {
+                    errorLabel.textContent = 'Please enter the password!';
+                    return;
+                }
+
+                const hash = await hashPassword(password);
+
+                if (hash === passwordHash) {
+                    popup.classList.remove('active');
+                    saveBtn.onclick = null;
+                    input.onkeydown = null;
+                    resolve(true);
+                } else {
+                    errorLabel.textContent = 'Incorrect password! Please try again.';
+                    input.value = '';
+                }
+            };
+
+            saveBtn.onclick = unlockHandler;
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') unlockHandler();
+            };
+
+            document.getElementById('cancelPasswordBtn').onclick = () => {
+                errorLabel.textContent = 'Password is required to access the app!';
+            };
+        });
+    }
+
+    function showPasswordPopup() {
+        const popup = document.getElementById('passwordPopup');
+        const title = document.getElementById('passwordPopupTitle');
+        const label = document.getElementById('passwordLabel');
+        const input = document.getElementById('passwordInput');
+        const confirmLabel = document.getElementById('confirmPasswordLabel');
+        const confirmInput = document.getElementById('confirmPasswordInput');
+        const errorLabel = document.getElementById('passwordError');
+        const saveBtn = document.getElementById('savePasswordBtn');
+
+        input.value = '';
+        confirmInput.value = '';
+        errorLabel.textContent = '';
+
+        if (passwordHash) {
+            // Remove password
+            title.textContent = 'Remove Password';
+            label.textContent = 'Current Password:';
+            confirmLabel.style.display = 'none';
+            confirmInput.style.display = 'none';
+            saveBtn.textContent = 'Remove';
+        } else {
+            // Set password
+            title.textContent = 'Set Password';
+            label.textContent = 'New Password:';
+            confirmLabel.style.display = 'block';
+            confirmInput.style.display = 'block';
+            saveBtn.textContent = 'Save';
+        }
+
+        popup.classList.add('active');
+
+        // Remove any existing event listeners to prevent duplication
+        saveBtn.onclick = null;
+
+        saveBtn.onclick = async () => {
+            const password = input.value.trim();
             errorLabel.textContent = '';
 
             if (passwordHash) {
                 // Remove password
-                title.textContent = 'Remove Password';
-                label.textContent = 'Current Password:';
-                confirmLabel.style.display = 'none';
-                confirmInput.style.display = 'none';
-                saveBtn.textContent = 'Remove';
-            } else {
-                // Set password
-                title.textContent = 'Set Password';
-                label.textContent = 'New Password:';
-                confirmLabel.style.display = 'block';
-                confirmInput.style.display = 'block';
-                saveBtn.textContent = 'Save';
-            }
-
-            popup.classList.add('active');
-
-            // Remove any existing event listeners to prevent duplication
-            saveBtn.onclick = null;
-
-            saveBtn.onclick = async () => {
-                const password = input.value.trim();
-                errorLabel.textContent = '';
-
-                if (passwordHash) {
-                    // Remove password
-                    if (!password) {
-                        errorLabel.textContent = 'Please enter the current password!';
-                        return;
-                    }
-
-                    const hash = await hashPassword(password);
-
-                    if (hash !== passwordHash) {
-                        errorLabel.textContent = 'Incorrect password! Please try again.';
-                        input.value = '';
-                        return;
-                    }
-
-                    passwordHash = null;
-                    localStorage.removeItem('seednote_password');
-                    popup.classList.remove('active');
-                    showAlert('Password removed successfully!');
-                } else {
-                    // Set password
-                    const confirmPassword = confirmInput.value.trim();
-
-                    if (!password) {
-                        errorLabel.textContent = 'Please enter a password!';
-                        return;
-                    }
-
-                    if (password.length < 4) {
-                        errorLabel.textContent = 'Password must be at least 4 characters!';
-                        return;
-                    }
-
-                    if (password !== confirmPassword) {
-                        errorLabel.textContent = 'Passwords do not match!';
-                        return;
-                    }
-
-                    passwordHash = await hashPassword(password);
-                    localStorage.setItem('seednote_password', passwordHash);
-                    popup.classList.remove('active');
-                    showAlert('Password set successfully!');
-                }
-            };
-        }
-
-        document.getElementById('cancelPasswordBtn').onclick = () => {
-            document.getElementById('passwordPopup').classList.remove('active');
-        };
-
-        // ========== BACKUP FUNCTIONS ==========
-        async function backupData() {
-            try {
-                showAlert('Creating backup...');
-
-                // Get all memos with files
-                const { data: memosData, error: memosError } = await supabase
-                    .from('memos')
-                    .select('*')
-                    .eq('user_id', telegramUser.id);
-
-                if (memosError) throw memosError;
-
-                const { data: filesData, error: filesError } = await supabase
-                    .from('files')
-                    .select('*');
-
-                if (filesError) throw filesError;
-
-                // Get all inbox messages
-                const { data: inboxData, error: inboxError } = await supabase
-                    .from('shares')
-                    .select('*')
-                    .or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
-
-                if (inboxError) throw inboxError;
-
-                // Create backup object
-                const backup = {
-                    version: '1.0',
-                    timestamp: new Date().toISOString(),
-                    user: {
-                        telegram_id: telegramUser.id,
-                        username: telegramUser.username,
-                        first_name: telegramUser.first_name
-                    },
-                    memos: memosData || [],
-                    files: filesData || [],
-                    inbox: inboxData || [],
-                    emailjs: emailjsConfig,
-                    contacts: contacts,
-                    pinnedChats: pinnedChats
-                };
-
-                // Download as JSON file
-                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `seednote_backup_${new Date().toISOString().split('T')[0]}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-
-                showAlert('Backup created successfully!');
-            } catch (error) {
-                console.error('Backup error:', error);
-                showAlert('Backup failed: ' + error.message);
-            }
-        }
-
-        // ========== RECOVER FUNCTIONS ==========
-        function showRecoverPopup() {
-            document.getElementById('recoverFileInput').value = '';
-            document.getElementById('recoverError').textContent = '';
-            document.getElementById('recoverPopup').classList.add('active');
-        }
-
-        document.getElementById('recoverBtn').onclick = async () => {
-            const fileInput = document.getElementById('recoverFileInput');
-            const errorLabel = document.getElementById('recoverError');
-
-            if (!fileInput.files || fileInput.files.length === 0) {
-                errorLabel.textContent = 'Please select a backup file!';
-                return;
-            }
-
-            const file = fileInput.files[0];
-
-            try {
-                const text = await file.text();
-                const backup = JSON.parse(text);
-
-                if (!backup.version || !backup.user || !backup.memos) {
-                    errorLabel.textContent = 'Invalid backup file format!';
+                if (!password) {
+                    errorLabel.textContent = 'Please enter the current password!';
                     return;
                 }
 
-                showConfirm('This will overwrite all current data. Continue?', async () => {
-                    try {
-                        showAlert('Recovering data...');
+                const hash = await hashPassword(password);
 
-                        // Delete existing data
-                        await supabase.from('memos').delete().eq('user_id', telegramUser.id);
-                        await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+                if (hash !== passwordHash) {
+                    errorLabel.textContent = 'Incorrect password! Please try again.';
+                    input.value = '';
+                    return;
+                }
 
-                        // Restore memos
-                        if (backup.memos && backup.memos.length > 0) {
-                            const { error: memosError } = await supabase
-                                .from('memos')
-                                .insert(backup.memos.map(m => ({
-                                    user_id: telegramUser.id,
-                                    text: m.text,
-                                    time: m.time
-                                })));
+                passwordHash = null;
+                localStorage.removeItem('seednote_password');
+                popup.classList.remove('active');
+                showAlert('Password removed successfully!');
+            } else {
+                // Set password
+                const confirmPassword = confirmInput.value.trim();
 
-                            if (memosError) throw memosError;
-                        }
+                if (!password) {
+                    errorLabel.textContent = 'Please enter a password!';
+                    return;
+                }
 
-                        // Restore inbox
-                        if (backup.inbox && backup.inbox.length > 0) {
-                            const { error: inboxError } = await supabase
-                                .from('shares')
-                                .insert(backup.inbox);
+                if (password.length < 4) {
+                    errorLabel.textContent = 'Password must be at least 4 characters!';
+                    return;
+                }
 
-                            if (inboxError) throw inboxError;
-                        }
+                if (password !== confirmPassword) {
+                    errorLabel.textContent = 'Passwords do not match!';
+                    return;
+                }
 
-                        // Restore localStorage data
-                        if (backup.emailjs) {
-                            emailjsConfig = backup.emailjs;
-                            localStorage.setItem('seednote_emailjs', JSON.stringify(emailjsConfig));
-                        }
-
-                        if (backup.contacts) {
-                            contacts = backup.contacts;
-                            localStorage.setItem('seednote_contacts', JSON.stringify(contacts));
-                        }
-
-                        if (backup.pinnedChats) {
-                            pinnedChats = backup.pinnedChats;
-                            localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
-                        }
-
-                        document.getElementById('recoverPopup').classList.remove('active');
-                        showAlert('Data recovered successfully! Reloading...');
-
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } catch (error) {
-                        console.error('Recover error:', error);
-                        showAlert('Recovery failed: ' + error.message);
-                    }
-                });
-            } catch (error) {
-                errorLabel.textContent = 'Failed to read backup file!';
-                console.error('File read error:', error);
+                passwordHash = await hashPassword(password);
+                localStorage.setItem('seednote_password', passwordHash);
+                popup.classList.remove('active');
+                showAlert('Password set successfully!');
             }
         };
+    }
 
-        document.getElementById('cancelRecoverBtn').onclick = () => {
-            document.getElementById('recoverPopup').classList.remove('active');
-        };
+    document.getElementById('cancelPasswordBtn').onclick = () => {
+        document.getElementById('passwordPopup').classList.remove('active');
+    };
 
-        // ========== RESET FUNCTIONS ==========
-        function confirmReset() {
-            showConfirm('⚠️ WARNING: This will delete ALL data permanently!\n\nAre you absolutely sure?', async () => {
-                showConfirm('This action cannot be undone! Delete everything?', async () => {
-                    try {
-                        showAlert('Deleting all data...');
+    // ========== BACKUP FUNCTIONS ==========
+    async function backupData() {
+        try {
+            showAlert('Creating backup...');
 
-                        // Delete from Supabase
-                        await supabase.from('memos').delete().eq('user_id', telegramUser.id);
-                        await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+            // Get all memos with files
+            const { data: memosData, error: memosError } = await supabase
+                .from('memos')
+                .select('*')
+                .eq('user_id', telegramUser.id);
 
-                        // Delete from localStorage
-                        localStorage.removeItem('seednote_emailjs');
-                        localStorage.removeItem('seednote_contacts');
-                        localStorage.removeItem('seednote_pinned');
-                        localStorage.removeItem('seednote_password');
+            if (memosError) throw memosError;
 
-                        showAlert('All data deleted! Reloading...');
+            const { data: filesData, error: filesError } = await supabase
+                .from('files')
+                .select('*');
 
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } catch (error) {
-                        console.error('Reset error:', error);
-                        showAlert('Reset failed: ' + error.message);
-                    }
-                });
-            });
+            if (filesError) throw filesError;
+
+            // Get all inbox messages
+            const { data: inboxData, error: inboxError } = await supabase
+                .from('shares')
+                .select('*')
+                .or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+
+            if (inboxError) throw inboxError;
+
+            // Create backup object
+            const backup = {
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+                user: {
+                    telegram_id: telegramUser.id,
+                    username: telegramUser.username,
+                    first_name: telegramUser.first_name
+                },
+                memos: memosData || [],
+                files: filesData || [],
+                inbox: inboxData || [],
+                emailjs: emailjsConfig,
+                contacts: contacts,
+                pinnedChats: pinnedChats
+            };
+
+            // Download as JSON file
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `seednote_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showAlert('Backup created successfully!');
+        } catch (error) {
+            console.error('Backup error:', error);
+            showAlert('Backup failed: ' + error.message);
+        }
+    }
+
+    // ========== RECOVER FUNCTIONS ==========
+    function showRecoverPopup() {
+        document.getElementById('recoverFileInput').value = '';
+        document.getElementById('recoverError').textContent = '';
+        document.getElementById('recoverPopup').classList.add('active');
+    }
+
+    document.getElementById('recoverBtn').onclick = async () => {
+        const fileInput = document.getElementById('recoverFileInput');
+        const errorLabel = document.getElementById('recoverError');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            errorLabel.textContent = 'Please select a backup file!';
+            return;
         }
 
-        // ========== EVENT LISTENERS ==========
-        document.getElementById('addBtn').onclick = addMemo;
-        document.getElementById('clearBtn').onclick = clearAllMemos;
-        document.getElementById('backBtn').onclick = goBack;
-        document.getElementById('editBtn').onclick = editMemo;
-        document.getElementById('saveBtn').onclick = saveMemo;
-        document.getElementById('deleteBtn').onclick = deleteCurrentMemo;
-        document.getElementById('sendBtn').onclick = showSendMethodPopup;
-        document.getElementById('addFilesBtn').onclick = toggleFileInput;
-        document.getElementById('cancelReplyBtn').onclick = cancelReplyMode;
-        document.getElementById('menuBtn').onclick = showMenuPopup;
-        /*
-        document.getElementById('timezoneMenuItem').onclick = () => {
-            document.getElementById('menuPopup').classList.remove('active');
-            document.getElementById('utcOffsetInput').value = utcOffset;
-            document.getElementById('timezoneError').textContent = '';
-            document.getElementById('timezonePopup').classList.add('active');
-        };
+        const file = fileInput.files[0];
 
-        document.getElementById('autoDetectBtn').onclick = () => {
-            const autoOffset = -new Date().getTimezoneOffset() / 60;
-            document.getElementById('utcOffsetInput').value = autoOffset > 0 ? `+${autoOffset}` : autoOffset.toString();
-            document.getElementById('timezoneError').textContent = `Detected: UTC${autoOffset > 0 ? '+' : ''}${autoOffset}`;
-        };
+        try {
+            const text = await file.text();
+            const backup = JSON.parse(text);
 
-        document.getElementById('saveTimezoneBtn').onclick = saveTimeZone;
-
-        document.getElementById('cancelTimezoneBtn').onclick = () => {
-            document.getElementById('timezonePopup').classList.remove('active');
-        };
-		*/
-
-        document.getElementById('sendTelegramBtn').onclick = sendViaTelegram;
-        document.getElementById('cancelTelegramBtn').onclick = () => {
-            document.getElementById('telegramPopup').classList.remove('active');
-        };
-
-        document.getElementById('sendEmailBtn').onclick = sendViaEmail;
-        document.getElementById('manageContactsBtn').onclick = () => {
-            document.getElementById('emailPopup').classList.remove('active');
-            showContactsPopup();
-        };
-        document.getElementById('cancelEmailBtn').onclick = () => {
-            document.getElementById('emailPopup').classList.remove('active');
-        };
-        document.getElementById('changeSenderLink').onclick = () => {
-            document.getElementById('emailPopup').classList.remove('active');
-            showSenderPopup();
-        };
-
-        document.getElementById('saveSenderBtn').onclick = () => {
-            emailjsConfig.publicKey = document.getElementById('emailjsPublicKey').value.trim();
-            emailjsConfig.serviceId = document.getElementById('emailjsServiceId').value.trim();
-            emailjsConfig.templateId = document.getElementById('emailjsTemplateId').value.trim();
-            saveEmailJSConfig();
-            document.getElementById('senderPopup').classList.remove('active');
-            showEmailPopup();
-        };
-        document.getElementById('cancelSenderBtn').onclick = () => {
-            document.getElementById('senderPopup').classList.remove('active');
-        };
-
-        document.getElementById('addContactBtn').onclick = addOrUpdateContact;
-        document.getElementById('closeContactsBtn').onclick = () => {
-            document.getElementById('contactsPopup').classList.remove('active');
-        };
-
-        document.getElementById('confirmNoBtn').onclick = () => {
-            document.getElementById('confirmPopup').classList.remove('active');
-        };
-
-        document.getElementById('alertOkBtn').onclick = () => {
-            document.getElementById('alertPopup').classList.remove('active');
-        };
-
-        document.getElementById('memoInput').onkeydown = (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                addMemo();
+            if (!backup.version || !backup.user || !backup.memos) {
+                errorLabel.textContent = 'Invalid backup file format!';
+                return;
             }
-        };
 
-        // Context menu events
-        document.getElementById('pinMenuItem').onclick = () => {
-            if (!document.getElementById('pinMenuItem').classList.contains('disabled')) {
-                togglePin(contextMenuTarget);
-            }
-        };
+            showConfirm('This will overwrite all current data. Continue?', async () => {
+                try {
+                    showAlert('Recovering data...');
 
-        document.getElementById('unpinMenuItem').onclick = () => {
+                    // Delete existing data
+                    await supabase.from('memos').delete().eq('user_id', telegramUser.id);
+                    await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+
+                    // Restore memos
+                    if (backup.memos && backup.memos.length > 0) {
+                        const { error: memosError } = await supabase
+                            .from('memos')
+                            .insert(backup.memos.map(m => ({
+                                user_id: telegramUser.id,
+                                text: m.text,
+                                time: m.time
+                            })));
+
+                        if (memosError) throw memosError;
+                    }
+
+                    // Restore inbox
+                    if (backup.inbox && backup.inbox.length > 0) {
+                        const { error: inboxError } = await supabase
+                            .from('shares')
+                            .insert(backup.inbox);
+
+                        if (inboxError) throw inboxError;
+                    }
+
+                    // Restore localStorage data
+                    if (backup.emailjs) {
+                        emailjsConfig = backup.emailjs;
+                        localStorage.setItem('seednote_emailjs', JSON.stringify(emailjsConfig));
+                    }
+
+                    if (backup.contacts) {
+                        contacts = backup.contacts;
+                        localStorage.setItem('seednote_contacts', JSON.stringify(contacts));
+                    }
+
+                    if (backup.pinnedChats) {
+                        pinnedChats = backup.pinnedChats;
+                        localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
+                    }
+
+                    document.getElementById('recoverPopup').classList.remove('active');
+                    showAlert('Data recovered successfully! Reloading...');
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } catch (error) {
+                    console.error('Recover error:', error);
+                    showAlert('Recovery failed: ' + error.message);
+                }
+            });
+        } catch (error) {
+            errorLabel.textContent = 'Failed to read backup file!';
+            console.error('File read error:', error);
+        }
+    };
+
+    document.getElementById('cancelRecoverBtn').onclick = () => {
+        document.getElementById('recoverPopup').classList.remove('active');
+    };
+
+    // ========== RESET FUNCTIONS ==========
+    function confirmReset() {
+        showConfirm(' WARNING: This will delete ALL data permanently!\n\nAre you absolutely sure?', async () => {
+            showConfirm('This action cannot be undone! Delete everything?', async () => {
+                try {
+                    showAlert('Deleting all data...');
+
+                    // Delete from Supabase
+                    await supabase.from('memos').delete().eq('user_id', telegramUser.id);
+                    await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+
+                    // Delete from localStorage
+                    localStorage.removeItem('seednote_emailjs');
+                    localStorage.removeItem('seednote_contacts');
+                    localStorage.removeItem('seednote_pinned');
+                    localStorage.removeItem('seednote_password');
+
+                    showAlert('All data deleted! Reloading...');
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } catch (error) {
+                    console.error('Reset error:', error);
+                    showAlert('Reset failed: ' + error.message);
+                }
+            });
+        });
+    }
+
+    // ========== EVENT LISTENERS ==========
+    document.getElementById('addBtn').onclick = addMemo;
+    document.getElementById('clearBtn').onclick = clearAllMemos;
+    document.getElementById('backBtn').onclick = goBack;
+    document.getElementById('editBtn').onclick = editMemo;
+    document.getElementById('saveBtn').onclick = saveMemo;
+    document.getElementById('deleteBtn').onclick = deleteCurrentMemo;
+    document.getElementById('sendBtn').onclick = showSendMethodPopup;
+    document.getElementById('addFilesBtn').onclick = toggleFileInput;
+    document.getElementById('cancelReplyBtn').onclick = cancelReplyMode;
+    document.getElementById('menuBtn').onclick = showMenuPopup;
+    /*
+    document.getElementById('timezoneMenuItem').onclick = () => {
+        document.getElementById('menuPopup').classList.remove('active');
+        document.getElementById('utcOffsetInput').value = utcOffset;
+        document.getElementById('timezoneError').textContent = '';
+        document.getElementById('timezonePopup').classList.add('active');
+    };
+
+    document.getElementById('autoDetectBtn').onclick = () => {
+        const autoOffset = -new Date().getTimezoneOffset() / 60;
+        document.getElementById('utcOffsetInput').value = autoOffset > 0 ? `+${autoOffset}` : autoOffset.toString();
+        document.getElementById('timezoneError').textContent = `Detected: UTC${autoOffset > 0 ? '+' : ''}${autoOffset}`;
+    };
+
+    document.getElementById('saveTimezoneBtn').onclick = saveTimeZone;
+
+    document.getElementById('cancelTimezoneBtn').onclick = () => {
+        document.getElementById('timezonePopup').classList.remove('active');
+    };
+    */
+
+    document.getElementById('sendTelegramBtn').onclick = sendViaTelegram;
+    document.getElementById('cancelTelegramBtn').onclick = () => {
+        document.getElementById('telegramPopup').classList.remove('active');
+    };
+
+    document.getElementById('sendEmailBtn').onclick = sendViaEmail;
+    document.getElementById('manageContactsBtn').onclick = () => {
+        document.getElementById('emailPopup').classList.remove('active');
+        showContactsPopup();
+    };
+    document.getElementById('cancelEmailBtn').onclick = () => {
+        document.getElementById('emailPopup').classList.remove('active');
+    };
+    document.getElementById('changeSenderLink').onclick = () => {
+        document.getElementById('emailPopup').classList.remove('active');
+        showSenderPopup();
+    };
+
+    document.getElementById('saveSenderBtn').onclick = () => {
+        emailjsConfig.publicKey = document.getElementById('emailjsPublicKey').value.trim();
+        emailjsConfig.serviceId = document.getElementById('emailjsServiceId').value.trim();
+        emailjsConfig.templateId = document.getElementById('emailjsTemplateId').value.trim();
+        saveEmailJSConfig();
+        document.getElementById('senderPopup').classList.remove('active');
+        showEmailPopup();
+    };
+    document.getElementById('cancelSenderBtn').onclick = () => {
+        document.getElementById('senderPopup').classList.remove('active');
+    };
+
+    document.getElementById('addContactBtn').onclick = addOrUpdateContact;
+    document.getElementById('closeContactsBtn').onclick = () => {
+        document.getElementById('contactsPopup').classList.remove('active');
+    };
+
+    document.getElementById('confirmNoBtn').onclick = () => {
+        document.getElementById('confirmPopup').classList.remove('active');
+    };
+
+    document.getElementById('alertOkBtn').onclick = () => {
+        document.getElementById('alertPopup').classList.remove('active');
+    };
+
+    document.getElementById('memoInput').onkeydown = (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+            addMemo();
+        }
+    };
+
+    // Context menu events
+    document.getElementById('pinMenuItem').onclick = () => {
+        if (!document.getElementById('pinMenuItem').classList.contains('disabled')) {
             togglePin(contextMenuTarget);
-        };
+        }
+    };
 
-        // Hide context menu on click outside
-        document.addEventListener('click', hideContextMenu);
-        document.addEventListener('touchstart', hideContextMenu);
+    document.getElementById('unpinMenuItem').onclick = () => {
+        togglePin(contextMenuTarget);
+    };
 
-        // ========== START ==========
-        init();
-    </script>
-</body>
+    // Hide context menu on click outside
+    document.addEventListener('click', hideContextMenu);
+    document.addEventListener('touchstart', hideContextMenu);
+
+    // ========== START ==========
+    init();
+</script></body>
 </html>
 
