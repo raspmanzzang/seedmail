@@ -1390,58 +1390,72 @@ function toLocalTime(utcTimeString) {
 
     async function loadConversation(userId, username) {
     const list = document.getElementById('inboxList');
-    
-    const received = inboxMessages.filter(m => m.from_user_id == userId);
-    
+    list.innerHTML = ''; // 초기화
+
+    // 받은 메시지
+    const received = inboxMessages.filter(m => String(m.from_user_id) === String(userId));
+
+    // 보낸 메시지
     const { data: sent, error } = await supabase
         .from('shares')
         .select('*')
-        .eq('from_user_id', telegramUser.id.toString())
-        .eq('to_user_id', userId.toString())
+        .eq('from_user_id', String(telegramUser.id))
+        .eq('to_user_id', String(userId))
         .order('sent_at', { ascending: true });
-    
+
     if (error) {
         console.error('Load sent messages error:', error);
+        showAlert('Failed to load conversation!');
+        return;
     }
-    
+
     const allMessages = [...received, ...(sent || [])].sort((a, b) => 
         new Date(a.sent_at) - new Date(b.sent_at)
     );
-    
+
+    // 디버깅 로그
+    console.log('telegramUser.id:', telegramUser.id, 'type:', typeof telegramUser.id);
+    console.log('userId:', userId, 'type:', typeof userId);
+    console.log('Messages:', allMessages.map(m => ({
+        id: m.id,
+        from_user_id: m.from_user_id,
+        type: typeof m.from_user_id,
+        isSent: String(m.from_user_id) === String(telegramUser.id)
+    })));
+
     const chatContainer = document.createElement('div');
     chatContainer.className = 'chat-container';
-    
+
     allMessages.forEach(msg => {
-        const isSent = msg.from_user_id.toString() === telegramUser.id.toString();
-        
+        const isSent = String(msg.from_user_id) === String(telegramUser.id);
+
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
-        
+
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
         if (!isSent && !msg.is_read) {
             bubble.classList.add('unread');
         }
-        
+
         const text = document.createElement('div');
         text.className = 'chat-text';
         text.textContent = msg.memo_text;
-        
+
         const time = document.createElement('div');
         time.className = 'chat-time';
         time.textContent = formatTime(msg.sent_at);
-        
+
         bubble.appendChild(text);
         bubble.appendChild(time);
         messageDiv.appendChild(bubble);
-        
+
         if (!isSent && !msg.is_read) {
             bubble.onclick = async () => {
                 const { error } = await supabase
                     .from('shares')
                     .update({ is_read: true, read_at: new Date().toISOString() })
                     .eq('id', msg.id);
-                
                 if (!error) {
                     msg.is_read = true;
                     bubble.classList.remove('unread');
@@ -1450,12 +1464,11 @@ function toLocalTime(utcTimeString) {
                 }
             };
         }
-        
+
         chatContainer.appendChild(messageDiv);
     });
-    
-    list.innerHTML = '';
-    
+
+    // Back 버튼
     const backBtn = document.createElement('button');
     backBtn.textContent = '← Back to Inbox';
     backBtn.style.width = '100%';
@@ -1467,16 +1480,21 @@ function toLocalTime(utcTimeString) {
         document.getElementById('backBtn').style.display = 'none';
     };
     list.appendChild(backBtn);
+
     list.appendChild(chatContainer);
-    
+
+    // Reply 버튼
     const replyBtn = document.createElement('button');
-    replyBtn.textContent = ' Reply to @' + username;
+    replyBtn.textContent = '↩️ Reply to @' + username;
     replyBtn.style.width = '100%';
     replyBtn.style.marginTop = '10px';
     replyBtn.onclick = () => startReplyMode(username);
     list.appendChild(replyBtn);
-    
-    list.scrollTop = list.scrollHeight;
+
+    // 최신 메시지로 스크롤
+    setTimeout(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 100);
 }
     
     function updateUnreadBadge() {
