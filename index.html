@@ -1965,85 +1965,83 @@ const { error } = await supabase
     }
 
     async function sendViaTelegram() {
-        const username = document.getElementById('recipientUsername').value.trim().replace('@', '');
-        const errorLabel = document.getElementById('telegramError');
+    const username = document.getElementById('recipientUsername').value.trim().replace('@', '');
+    const errorLabel = document.getElementById('telegramError');
 
-        if (!username) {
-            errorLabel.textContent = 'Please enter a valid username!';
+    if (!username) {
+        errorLabel.textContent = 'Please enter a valid username!';
+        return;
+    }
+
+    const memo = memos.find(m => m.id === currentMemoId);
+    if (!memo) return;
+
+    const { data: users, error: userError } = await supabase
+        .from('users')
+        .select('telegram_id')
+        .eq('username', username)
+        .limit(1);
+
+    if (userError || !users || users.length === 0) {
+        errorLabel.textContent = 'User not found or hasn\'t started the bot!';
+        return;
+    }
+
+    const recipientId = users[0].telegram_id;
+
+    try {
+        let messageText = ` New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n ${formatDateTime(memo.time)}`;
+        
+        const response = await fetch('/api/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: recipientId,
+                text: messageText
+            })
+        });
+
+        const result = await response.json();
+        
+        if (!result.ok) {
+            errorLabel.textContent = 'Failed to send message!';
             return;
         }
 
-        const memo = memos.find(m => m.id === currentMemoId);
-        if (!memo) return;
-
-        const { data: users, error: userError } = await supabase
-            .from('users')
-            .select('telegram_id')
-            .eq('username', username)
-            .limit(1);
-
-        if (userError || !users || users.length === 0) {
-            errorLabel.textContent = 'User not found or hasn\'t started the bot!';
-            return;
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const fileUrl = `https://seedmail-phi.vercel.app/api/download/${encodeURIComponent(file.storage_path)}?initData=${encodeURIComponent(tg.initData)}`;
+                
+                await fetch('/api/telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: recipientId,
+                        text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${fileUrl}\n\n🔒 Secure link - only accessible via Telegram`,
+                        disable_web_page_preview: true
+                    })
+                });
+            }
         }
 
-        const recipientId = users[0].telegram_id;
-
-        const { data: files } = await supabase
-            .from('files')
-            .select('*')
-            .eq('memo_id', currentMemoId);
-
-        try {
-            let messageText = ` New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n ${formatDateTime(memo.time)}`;
-            
-            const response = await fetch('/api/telegram', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: recipientId,
-                    text: messageText
-                })
+        await supabase
+            .from('shares')
+            .insert({
+                from_user_id: telegramUser.id,
+                to_user_id: recipientId,
+                to_username: username,
+                memo_text: memo.text,
+                memo_time: memo.time
             });
 
-            const result = await response.json();
-            
-            if (!result.ok) {
-                errorLabel.textContent = 'Failed to send message!';
-                return;
-            }
-
-           if (files && files.length > 0) {
-                for (const file of files) {
-                    // Vercel 프록시 URL 생성 (initData는 백엔드에서 처리)
-                    const fileUrl = `https://seedmail-phi.vercel.app/api/download/${file.storage_path}`;
-                    
-                    await fetch('/api/telegram', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: recipientId,
-                            text: ` ${file.file_name} (${formatFileSize(file.file_size)})\n ${fileUrl}\n\n Secure link - only accessible via Telegram`,
-                            disable_web_page_preview: false
-                        })
-                    });
-                }
-            }
-await supabase
-    .from('shares')
-    .insert({
-        from_user_id: telegramUser.id,
-        to_user_id: recipientId,
-        to_username: username,
-        memo_text: memo.text,
-        memo_time: memo.time
-    });document.getElementById('telegramPopup').classList.remove('active');
-showAlert('Sent successfully!');			
-            } catch (error) {
-                errorLabel.textContent = 'Failed to send!';
-                console.error('Send error:', error);
-            }
-        }    // ========== EMAIL FUNCTIONS ==========
+        document.getElementById('telegramPopup').classList.remove('active');
+        showAlert('Sent successfully!');
+    } catch (error) {
+        errorLabel.textContent = 'Failed to send!';
+        console.error('Send error:', error);
+    }
+}
+    // ========== EMAIL FUNCTIONS ==========
     function showSenderPopup() {
         document.getElementById('emailjsPublicKey').value = emailjsConfig.publicKey || '';
         document.getElementById('emailjsServiceId').value = emailjsConfig.serviceId || '';
