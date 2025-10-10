@@ -1394,11 +1394,11 @@ function toLocalTime(utcTimeString) {
         const received = inboxMessages.filter(m => m.from_user_id == userId);
         
         const { data: sent, error } = await supabase
-            .from('shares')
-            .select('*')
-            .eq('from_user_id', telegramUser.id)
-            .eq('to_user_id', userId)
-            .order('sent_at', { ascending: true });
+    .from('shares')
+    .select('*')
+    .eq('from_user_id', telegramUser.id.toString())
+    .eq('to_user_id', userId.toString())
+    .order('sent_at', { ascending: true });
         
         if (error) {
             console.error('Load sent messages error:', error);
@@ -1412,16 +1412,16 @@ function toLocalTime(utcTimeString) {
         chatContainer.className = 'chat-container';
         
         allMessages.forEach(msg => {
-            const isSent = parseInt(msg.from_user_id) === parseInt(telegramUser.id);
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
-            if (!isSent && !msg.is_read) {
-                bubble.classList.add('unread');
-            }
+            const isSent = msg.from_user_id.toString() === telegramUser.id.toString();
+
+const messageDiv = document.createElement('div');
+messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+
+const bubble = document.createElement('div');
+bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+if (!isSent && !msg.is_read) {
+    bubble.classList.add('unread');
+}
             
             const text = document.createElement('div');
             text.className = 'chat-text';
