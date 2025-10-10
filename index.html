@@ -2071,7 +2071,7 @@ const { error } = await supabase
                 from_user_id: telegramUser.id,
                 to_user_id: recipientId,
                 to_username: username,
-                memo_id: currentMemoId,
+                memo_id: currentMemoId.toString(), // UUID로 명시적 변환
                 memo_text: memo.text,
                 memo_time: memo.time,
                 sent_at: new Date().toISOString()
@@ -2079,17 +2079,17 @@ const { error } = await supabase
 
         if (shareError) {
             errorLabel.textContent = 'Failed to save share record!';
-            console.error('Share insert error:', shareError);
+            console.error('Share insert error:', shareError.message, shareError.details);
             return;
         }
 
-            document.getElementById('telegramPopup').classList.remove('active');
-            showAlert('Sent successfully!');
-        } catch (error) {
-               errorLabel.textContent = 'Failed to send!';
-               console.error('Send error:', error);
-        }
-    }   
+        document.getElementById('telegramPopup').classList.remove('active');
+        showAlert('Sent successfully!');
+    } catch (error) {
+        errorLabel.textContent = 'Failed to send!';
+        console.error('Send error:', error.message);
+    }
+}  
     // ========== EMAIL FUNCTIONS ==========
     function showSenderPopup() {
         document.getElementById('emailjsPublicKey').value = emailjsConfig.publicKey || '';
