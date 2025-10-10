@@ -1393,6 +1393,7 @@ function toLocalTime(utcTimeString) {
     }
 
     async function loadConversation(userId, username) {
+    console.log('loadConversation called with userId:', userId, 'username:', username); // 추가
     const list = document.getElementById('inboxList');
     list.innerHTML = ''; // 초기화
 
