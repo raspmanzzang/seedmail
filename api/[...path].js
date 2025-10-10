@@ -59,7 +59,7 @@ async function checkFileAccess(supabase, userId, filePath) {
             shares!inner(to_user_id)
         `)
         .eq('storage_path', filePath)
-        .eq('shares.to_user_id', userId);
+        .eq('shares.to_user_id', userId.toString());
     
     if (error) {
         console.error('Access check error:', error.message);
@@ -85,7 +85,7 @@ export default async function handler(req, res) {
     
     try {
         const pathArray = req.query.path || [];
-        const filePath = pathArray.join('/'); // decodeURIComponent 제거
+        const filePath = decodeURIComponent(pathArray.join('/')); // decodeURIComponent 추가
         console.log('Raw path:', req.query.path, 'Parsed filePath:', filePath);
         
         if (!filePath || !filePath.includes('/')) {
