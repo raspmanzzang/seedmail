@@ -1375,9 +1375,7 @@ function toLocalTime(utcTimeString) {
     
     const list = document.getElementById('inboxList');
     list.innerHTML = '';
-    list.style.display = 'flex';
-    list.style.flexDirection = 'column';
-    list.style.height = '100%';
+    list.style.display = 'block';
     
     const backBtn = document.createElement('button');
     backBtn.textContent = '← Back to Inbox';
@@ -1385,12 +1383,10 @@ function toLocalTime(utcTimeString) {
     backBtn.style.marginBottom = '10px';
     backBtn.style.flexShrink = '0';
     backBtn.onclick = () => {
-        currentChatUsername = null;
-        currentChatUserId = null;
-        list.style.display = '';
-        list.style.flexDirection = '';
-        list.style.height = '';
-        renderInbox();
+    currentChatUsername = null;
+    currentChatUserId = null;
+    list.style.display = 'block';
+    renderInbox();
         document.getElementById('backBtn').style.display = 'none';
     };
     list.appendChild(backBtn);
