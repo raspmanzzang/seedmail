@@ -100,15 +100,17 @@ export default async function handler(req, res) {
         const pathArray = req.query.path || [];
         console.log('Raw pathArray:', pathArray);
         
-        // "download"를 제거하고 실제 파일 경로만 추출
-        const actualPath = pathArray.filter(p => p !== 'download');
-        const filePath = decodeURIComponent(actualPath.join('/'));
+        // pathArray는 이미 파일 경로만 포함 (예: ['6938072320', '1760083679850_unnamed.png'])
+        const filePath = decodeURIComponent(pathArray.join('/'));
         
-        console.log('Raw path:', req.query.path, 'Parsed filePath:', filePath);
+        console.log('Parsed filePath:', filePath);
         
         if (!filePath || !filePath.includes('/')) {
             console.error('Invalid file path:', filePath);
-            return res.status(400).json({ error: 'Invalid file path' });
+            return res.status(400).json({ 
+                error: 'Invalid file path', 
+                debug: { pathArray, filePath } 
+            });
         }
         
         const initData = req.headers['x-telegram-init-data'];
@@ -151,7 +153,10 @@ export default async function handler(req, res) {
         
         if (fileError || !fileExists) {
             console.error('File not found in files table:', filePath, fileError?.message);
-            return res.status(404).json({ error: 'File not found in database', details: fileError?.message });
+            return res.status(404).json({ 
+                error: 'File not found in database', 
+                details: fileError?.message 
+            });
         }
         
         const hasAccess = await checkFileAccess(supabase, telegramUser.id, filePath);
