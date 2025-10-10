@@ -124,6 +124,18 @@ export default async function handler(req, res) {
             process.env.SUPABASE_SERVICE_KEY
         );
         
+        // 파일 존재 여부 확인
+        const { data: fileExists } = await supabase
+            .from('files')
+            .select('storage_path')
+            .eq('storage_path', filePath)
+            .single();
+        
+        if (!fileExists) {
+            console.error('File not found in files table:', filePath);
+            return res.status(404).json({ error: 'File not found in database' });
+        }
+        
         const hasAccess = await checkFileAccess(supabase, telegramUser.id, filePath);
         if (!hasAccess) {
             return res.status(403).json({ 
@@ -139,7 +151,7 @@ export default async function handler(req, res) {
         if (error) {
             console.error('Download error:', error.message);
             return res.status(404).json({ 
-                error: 'File not found',
+                error: 'File not found in storage',
                 details: error.message 
             });
         }
