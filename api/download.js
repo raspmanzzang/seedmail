@@ -81,7 +81,7 @@ export default async function handler(req, res) {
     } else {
       // URL 경로에서 추출: /api/file/ 이후 부분
       const urlPath = req.url.split('?')[0]; // 쿼리 스트링 제거
-      const match = urlPath.match(/\/api\/download\/(.+)/);
+      const match = urlPath.match(/\/api\/file\/(.+)/);
       if (match) {
         filePath = decodeURIComponent(match[1]);
       }
