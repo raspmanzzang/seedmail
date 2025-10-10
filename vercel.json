@@ -1,5 +1,15 @@
 {
-  "github": {
-    "silent": true
-  }
+    "github": {
+        "silent": true
+    },
+    "routes": [
+        {
+            "src": "/api/download/(.*)",
+            "dest": "/api/[...path].js"
+        },
+        {
+            "src": "/api/telegram",
+            "dest": "/api/telegram.js"
+        }
+    ]
 }
