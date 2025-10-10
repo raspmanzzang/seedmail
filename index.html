@@ -2068,10 +2068,10 @@ const { error } = await supabase
         const { error: shareError } = await supabase
             .from('shares')
             .insert({
-                from_user_id: telegramUser.id,
-                to_user_id: recipientId,
+                from_user_id: telegramUser.id.toString(),
+                to_user_id: recipientId.toString(),
                 to_username: username,
-                memo_id: currentMemoId.toString(), // UUID로 명시적 변환
+                memo_id: currentMemoId, // UUID 유지
                 memo_text: memo.text,
                 memo_time: memo.time,
                 sent_at: new Date().toISOString()
