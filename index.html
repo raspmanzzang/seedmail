@@ -607,7 +607,9 @@
     }
 
     .chat-container {
-    display: block;  /* flex → block */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     padding: 10px;
     max-height: calc(100vh - 340px);
     overflow-y: auto;
@@ -1373,18 +1375,15 @@ function toLocalTime(utcTimeString) {
     
     const list = document.getElementById('inboxList');
     list.innerHTML = '';
-    list.style.display = 'block';
     
     const backBtn = document.createElement('button');
     backBtn.textContent = '← Back to Inbox';
     backBtn.style.width = '100%';
     backBtn.style.marginBottom = '10px';
-    backBtn.style.flexShrink = '0';
     backBtn.onclick = () => {
-    currentChatUsername = null;
-    currentChatUserId = null;
-    list.style.display = 'block';
-    renderInbox();
+        currentChatUsername = null;
+        currentChatUserId = null;
+        renderInbox();
         document.getElementById('backBtn').style.display = 'none';
     };
     list.appendChild(backBtn);
@@ -1414,9 +1413,7 @@ function toLocalTime(utcTimeString) {
         
         const chatContainer = document.createElement('div');
         chatContainer.className = 'chat-container';
-        chatContainer.style.flex = '1';
-        chatContainer.style.overflowY = 'auto';
-        
+                
         allMessages.forEach(msg => {
             const isSent = msg.from_user_id === telegramUser.id;
             
