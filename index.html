@@ -220,10 +220,9 @@
         background: #0d0d0d;
         border: 2px solid #00ff41;
         padding: 10px;
+        flex: 1;
         overflow-y: auto;
         margin-bottom: 10px;
-        max-height: calc(100vh - 280px);
-        min-height: 200px;
     }
 
     .memo-item {
@@ -607,9 +606,10 @@
     }
 
     .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
         padding: 10px;
-        max-height: calc(100vh - 380px);
-        overflow-y: auto;
     }
 
     .chat-message {
@@ -1367,26 +1367,27 @@ function toLocalTime(utcTimeString) {
     }
 
     function showInboxSender(senderId, senderUsername) {
-    currentChatUsername = senderUsername;
-    currentChatUserId = senderId;
-    
-    const list = document.getElementById('inboxList');
-    list.innerHTML = '';
+        currentChatUsername = senderUsername;
+        currentChatUserId = senderId;
         
-    const backBtn = document.createElement('button');
-    backBtn.textContent = '← Back to Inbox';
-    backBtn.style.width = '100%';
-    backBtn.style.marginBottom = '10px';
-    backBtn.onclick = () => {
-        currentChatUsername = null;
-        currentChatUserId = null;
-        renderInbox();
-        document.getElementById('backBtn').style.display = 'none';
-    };
-    list.appendChild(backBtn);
-    
-    loadConversation(senderId, senderUsername);
-}
+        const list = document.getElementById('inboxList');
+        list.innerHTML = '';
+        
+        const backBtn = document.createElement('button');
+        backBtn.textContent = '← Back to Inbox';
+        backBtn.style.width = '100%';
+        backBtn.style.marginBottom = '10px';
+        backBtn.onclick = () => {
+            currentChatUsername = null;
+            currentChatUserId = null;
+            renderInbox();
+            document.getElementById('backBtn').style.display = 'none';
+        };
+        list.appendChild(backBtn);
+        
+        // Load conversation (both sent and received)
+        loadConversation(senderId, senderUsername);
+    }
 
     async function loadConversation(userId, username) {
         const list = document.getElementById('inboxList');
@@ -1410,7 +1411,7 @@ function toLocalTime(utcTimeString) {
         
         const chatContainer = document.createElement('div');
         chatContainer.className = 'chat-container';
-                        
+        
         allMessages.forEach(msg => {
             const isSent = msg.from_user_id === telegramUser.id;
             
@@ -1456,20 +1457,16 @@ function toLocalTime(utcTimeString) {
         
         list.appendChild(chatContainer);
         
-        // Scroll to bottom after render
-setTimeout(() => {
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}, 0);
-
-const replyBtn = document.createElement('button');
-replyBtn.textContent = ' Reply to @' + username;
-replyBtn.style.width = '100%';
-replyBtn.style.marginTop = '10px';
-replyBtn.style.flexShrink = '0';
-replyBtn.onclick = () => startReplyMode(username);
-list.appendChild(replyBtn);
+        list.scrollTop = list.scrollHeight;
+        
+        const replyBtn = document.createElement('button');
+        replyBtn.textContent = ' Reply to @' + username;
+        replyBtn.style.width = '100%';
+        replyBtn.style.marginTop = '10px';
+        replyBtn.onclick = () => startReplyMode(username);
+        list.appendChild(replyBtn);
     }
-    
+
     function updateUnreadBadge() {
         const unreadCount = inboxMessages.filter(m => !m.is_read).length;
         const badge = document.getElementById('unreadBadge');
@@ -2861,4 +2858,3 @@ const { error } = await supabase
     init();
 </script></body>
 </html>
-
