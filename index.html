@@ -1673,36 +1673,22 @@ await loadMemos();}
 
     async function downloadFile(file) {
     try {
-        const response = await fetch(`/api/getfile?path=${encodeURIComponent(file.storage_path)}&userId=${telegramUser.id}`, {
-            headers: {
-                'X-Telegram-Init-Data': tg.initData
-            }
-        });
-
-    if (!response.ok) {
-        if (response.status === 401) {
-            showAlert('Authentication failed. Please reopen from Telegram.');
-        } else if (response.status === 403) {
-            showAlert('You do not have permission to access this file.');
-        } else {
-            showAlert('Download failed: ' + response.statusText);
+        const { data, error } = await supabase.storage
+            .from('memo-files')
+            .createSignedUrl(file.storage_path, 7776000);
+        
+        if (error) {
+            showAlert('Download failed: ' + error.message);
+            return;
         }
-        return;
+        
+        window.open(data.signedUrl, '_blank');
+    } catch (error) {
+        showAlert('Download failed: ' + error.message);
     }
+}
 
-    // 파일 다운로드
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.file_name;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-} catch (error) {
-    console.error('Download error:', error);
-    showAlert('Download failed: ' + error.message);
-}}    function goBack() {
+function goBack() {
         if (document.getElementById('detailView').classList.contains('active')) {
             document.getElementById('myMemosView').classList.add('active');
             document.getElementById('detailView').classList.remove('active');
@@ -2040,8 +2026,14 @@ const { error } = await supabase
         // 파일 링크 전송
         if (files && files.length > 0) {
             for (const file of files) {
-                const fileUrl = `https://seedmail-phi.vercel.app/api/getfile?path=${encodeURIComponent(file.storage_path)}&userId=${recipientId}`;
-                console.log('Sending file link:', fileUrl);
+                const { data: signedData, error: signedError } = await supabase.storage
+                    .from('memo-files')
+                    .createSignedUrl(file.storage_path, 7776000);
+                
+                if (signedError) {
+                    console.error('Signed URL error:', signedError);
+                    continue;
+                }
                 
                 const fileResponse = await fetch('/api/telegram', {
                     method: 'POST',
@@ -2051,7 +2043,7 @@ const { error } = await supabase
                     },
                     body: JSON.stringify({
                         chat_id: recipientId,
-                        text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${fileUrl}\n\n🔒 Secure link - only accessible via Telegram`,
+                        text: `📎 ${file.file_name} (${formatFileSize(file.file_size)})\n🔗 ${signedData.signedUrl}\n\n🔒 Expires in 90 days`,
                         disable_web_page_preview: true
                     })
                 });
@@ -2171,21 +2163,27 @@ const { error } = await supabase
             .eq('memo_id', currentMemoId);
 
         let filesHtml = '';
-if (files && files.length > 0) {
-    filesHtml = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #00ff41;">';
-    filesHtml += '<div style="color: #33ff66; font-size: 14px; margin-bottom: 10px;">📎 Attached Files:</div>';
-    
-    for (const file of files) {
-        // 이메일용: 보내는 사람 ID로 링크 생성 (본인 파일이므로 접근 가능)
-        const fileUrl = `https://seedmail-phi.vercel.app/api/getfile?path=${encodeURIComponent(file.storage_path)}&userId=${telegramUser.id}`;
-        
-        filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
-        filesHtml += `<div style="color: #00ff41;">📄 ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
-        filesHtml += `<a href="${fileUrl}" style="color: #33ff66; text-decoration: underline; font-size: 12px; display: inline-block; margin-top: 5px;" target="_blank">⬇️ Download</a>`;
-        filesHtml += `</div>`;
-    }
-    filesHtml += '</div>';
-}
+        if (files && files.length > 0) {
+            filesHtml = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #00ff41;">';
+            filesHtml += '<div style="color: #33ff66; font-size: 14px; margin-bottom: 10px;">📎 Attached Files:</div>';
+            
+            for (const file of files) {
+                const { data: signedData, error: signedError } = await supabase.storage
+                    .from('memo-files')
+                    .createSignedUrl(file.storage_path, 7776000);
+                
+                if (signedError) {
+                    console.error('Signed URL error:', signedError);
+                    continue;
+                }
+                
+                filesHtml += `<div style="margin: 8px 0; padding: 8px; background: #0d0d0d; border: 1px solid #00ff41; border-radius: 3px;">`;
+                filesHtml += `<div style="color: #00ff41;">📄 ${file.file_name} <span style="color: #888888;">(${formatFileSize(file.file_size)})</span></div>`;
+                filesHtml += `<a href="${signedData.signedUrl}" style="color: #33ff66; text-decoration: underline; font-size: 12px; display: inline-block; margin-top: 5px;" target="_blank">⬇️ Download</a>`;
+                filesHtml += `</div>`;
+            }
+            filesHtml += '</div>';
+        }
     
         emailjs.init(emailjsConfig.publicKey);
         
