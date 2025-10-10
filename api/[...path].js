@@ -125,19 +125,20 @@ export default async function handler(req, res) {
         );
         
         // 파일 존재 여부 확인
-        const { data: fileExists } = await supabase
+        const { data: fileExists, error: fileError } = await supabase
             .from('files')
-            .select('storage_path')
+            .select('storage_path, memo_id')
             .eq('storage_path', filePath)
             .single();
         
-        if (!fileExists) {
-            console.error('File not found in files table:', filePath);
-            return res.status(404).json({ error: 'File not found in database' });
+        if (fileError || !fileExists) {
+            console.error('File not found in files table:', filePath, fileError?.message);
+            return res.status(404).json({ error: 'File not found in database', details: fileError?.message });
         }
         
         const hasAccess = await checkFileAccess(supabase, telegramUser.id, filePath);
         if (!hasAccess) {
+            console.error('Access denied for user:', telegramUser.id, 'file:', filePath);
             return res.status(403).json({ 
                 error: 'Forbidden',
                 message: 'You do not have permission to access this file'
