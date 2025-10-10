@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+  import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';// Telegram WebApp initData 검증 함수
 function verifyTelegramWebAppData(initData, botToken) {
   if (!initData) return null;  try {
