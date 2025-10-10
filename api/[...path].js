@@ -47,27 +47,40 @@ function verifyTelegramWebAppData(initData, botToken) {
 async function checkFileAccess(supabase, userId, filePath) {
     console.log('Checking access for user:', userId, 'file:', filePath);
     
+    // 1. 본인이 업로드한 파일
     if (filePath.startsWith(`${userId}/`)) {
         console.log('Access granted: File belongs to user');
         return true;
     }
     
-    const { data, error } = await supabase
+    // 2. 파일의 memo_id 조회
+    const { data: fileData, error: fileError } = await supabase
         .from('files')
-        .select(`
-            memo_id,
-            shares!inner(to_user_id)
-        `)
+        .select('memo_id')
         .eq('storage_path', filePath)
-        .eq('shares.to_user_id', userId.toString());
+        .single();
     
-    if (error) {
-        console.error('Access check error:', error.message);
+    if (fileError || !fileData) {
+        console.error('File not found in files table:', fileError?.message);
         return false;
     }
     
-    console.log('Access check result:', data);
-    return data && data.length > 0;
+    console.log('File memo_id:', fileData.memo_id);
+    
+    // 3. shares 테이블에서 권한 확인
+    const { data: shareData, error: shareError } = await supabase
+        .from('shares')
+        .select('id')
+        .eq('memo_id', fileData.memo_id)
+        .eq('to_user_id', userId.toString());
+    
+    if (shareError) {
+        console.error('Share check error:', shareError.message);
+        return false;
+    }
+    
+    console.log('Share check result:', shareData);
+    return shareData && shareData.length > 0;
 }
 
 export default async function handler(req, res) {
