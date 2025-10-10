@@ -1412,7 +1412,7 @@ function toLocalTime(utcTimeString) {
         chatContainer.className = 'chat-container';
         
         allMessages.forEach(msg => {
-            const isSent = msg.from_user_id === telegramUser.id;
+            const isSent = parseInt(msg.from_user_id) === parseInt(telegramUser.id);
             
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
