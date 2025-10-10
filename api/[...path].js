@@ -98,7 +98,12 @@ export default async function handler(req, res) {
     
     try {
         const pathArray = req.query.path || [];
-        const filePath = decodeURIComponent(pathArray.join('/'));
+        console.log('Raw pathArray:', pathArray);
+        
+        // "download"를 제거하고 실제 파일 경로만 추출
+        const actualPath = pathArray.filter(p => p !== 'download');
+        const filePath = decodeURIComponent(actualPath.join('/'));
+        
         console.log('Raw path:', req.query.path, 'Parsed filePath:', filePath);
         
         if (!filePath || !filePath.includes('/')) {
