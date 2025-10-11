@@ -1169,7 +1169,7 @@ function toLocalTime(utcTimeString) {
         const { data, error } = await supabase
             .from('users')
             .upsert({
-                telegram_id: telegramUser.id,
+                telegram_id: String(telegramUser.id),  
                 username: telegramUser.username || '',
                 first_name: telegramUser.first_name || ''
             }, { onConflict: 'telegram_id' });
@@ -1214,7 +1214,7 @@ function toLocalTime(utcTimeString) {
         const { data, error } = await supabase
             .from('shares')
             .select('*, from_user:users!shares_from_user_id_fkey(username, first_name)')
-            .eq('to_user_id', telegramUser.id)
+            .eq('to_user_id', String(telegramUser.id))  
             .order('sent_at', { ascending: false });
         
         if (error) {
@@ -1375,12 +1375,9 @@ function toLocalTime(utcTimeString) {
     }
 
     function showInboxSender(senderId, senderUsername) {
-        console.log('🔍 showInboxSender called:', senderId, senderUsername); // 디버깅 추가
-        
+        console.log('🔍 showInboxSender called:', senderId, senderUsername);        
         currentChatUsername = senderUsername;
-        currentChatUserId = senderId;
-                     
-        // Load conversation (both sent and received)
+        currentChatUserId = String(senderId);                      
         loadConversation(senderId, senderUsername);
     }
 
@@ -1388,17 +1385,23 @@ function toLocalTime(utcTimeString) {
     console.log('loadConversation called with userId:', userId, 'username:', username);
     const list = document.getElementById('inboxList');
     list.innerHTML = '';
+        
+    // 모든 ID를 문자열로 명확하게 통일
+    const myUserId = String(telegramUser.id);
+    const otherUserId = String(userId);
+
+    console.log('My user ID (string):', myUserId, 'Other user ID (string):', otherUserId);
 
     // 받은 메시지
     const received = inboxMessages.filter(m => String(m.from_user_id) === String(userId));
-    console.log('received messages:', received); // 추가
+    console.log('received messages:', received); 
 
     // 보낸 메시지
     const { data: sent, error } = await supabase
         .from('shares')
         .select('*')
-        .eq('from_user_id', String(telegramUser.id))
-        .eq('to_user_id', String(userId))
+        .eq('from_user_id', myUserId) 
+        .eq('to_user_id', otherUserId)  
         .order('sent_at', { ascending: true });
 
     if (error) {
@@ -1425,7 +1428,7 @@ function toLocalTime(utcTimeString) {
     chatContainer.className = 'chat-container';
 
     allMessages.forEach(msg => {
-        const isSent = String(msg.from_user_id) === String(telegramUser.id);
+        const isSent = String(msg.from_user_id) === myUserId;  
 
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
@@ -1509,7 +1512,7 @@ function toLocalTime(utcTimeString) {
         const { data, error } = await supabase
             .from('memos')
             .select('*')
-            .eq('user_id', telegramUser.id)
+            .eq('user_id', String(telegramUser.id))  
             .order('created_at', { ascending: false });
         
         if (error) throw error;
@@ -1534,7 +1537,7 @@ if (replyMode && replyToUsername) {
 const { data, error } = await supabase
     .from('memos')
     .insert({
-        user_id: telegramUser.id,
+        user_id: String(telegramUser.id),  
         text: text
         // time 컬럼 삭제! timestamptz는 자동으로 현재 시간 입력
     })
@@ -1611,7 +1614,7 @@ await loadMemos();}
             const { error } = await supabase
                 .from('memos')
                 .delete()
-                .eq('user_id', telegramUser.id);
+                .eq('user_id', String(telegramUser.id));  
             
             if (error) {
                 showAlert('Error: ' + error.message);
@@ -2098,8 +2101,8 @@ const { error } = await supabase
         const { error: shareError } = await supabase
     .from('shares')
     .insert({
-        from_user_id: telegramUser.id.toString(),
-        to_user_id: recipientId.toString(),
+        from_user_id: String(telegramUser.id),  
+        to_user_id: String(recipientId),  
         to_username: username,
         memo_id: currentMemoId,
         memo_text: memo.text,
@@ -2610,7 +2613,7 @@ const { error } = await supabase
             const { data: memosData, error: memosError } = await supabase
                 .from('memos')
                 .select('*')
-                .eq('user_id', telegramUser.id);
+                .eq('user_id', String(telegramUser.id)); 
 
             if (memosError) throw memosError;
 
@@ -2693,15 +2696,15 @@ const { error } = await supabase
                     showAlert('Recovering data...');
 
                     // Delete existing data
-                    await supabase.from('memos').delete().eq('user_id', telegramUser.id);
-                    await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+                    await supabase.from('memos').delete().eq('user_id', String(telegramUser.id));  
+                    await supabase.from('shares').delete().or(`from_user_id.eq.${String(telegramUser.id)},to_user_id.eq.${String(telegramUser.id)}`); 
 
                     // Restore memos
                     if (backup.memos && backup.memos.length > 0) {
                         const { error: memosError } = await supabase
                             .from('memos')
                             .insert(backup.memos.map(m => ({
-                                user_id: telegramUser.id,
+                                user_id: String(telegramUser.id),
                                 text: m.text,
                                 time: m.time
                             })));
@@ -2763,8 +2766,8 @@ const { error } = await supabase
                     showAlert('Deleting all data...');
 
                     // Delete from Supabase
-                    await supabase.from('memos').delete().eq('user_id', telegramUser.id);
-                    await supabase.from('shares').delete().or(`from_user_id.eq.${telegramUser.id},to_user_id.eq.${telegramUser.id}`);
+                    await supabase.from('memos').delete().eq('user_id', String(telegramUser.id));  
+                    await supabase.from('shares').delete().or(`from_user_id.eq.${String(telegramUser.id)},to_user_id.eq.${String(telegramUser.id)}`);  
 
                     // Delete from localStorage
                     localStorage.removeItem('seednote_emailjs');
