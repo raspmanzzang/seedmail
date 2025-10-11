@@ -1375,24 +1375,11 @@ function toLocalTime(utcTimeString) {
     }
 
     function showInboxSender(senderId, senderUsername) {
+        console.log('🔍 showInboxSender called:', senderId, senderUsername); // 디버깅 추가
+        
         currentChatUsername = senderUsername;
         currentChatUserId = senderId;
-        
-        const list = document.getElementById('inboxList');
-        list.innerHTML = '';
-        
-        const backBtn = document.createElement('button');
-        backBtn.textContent = '← Back to Inbox';
-        backBtn.style.width = '100%';
-        backBtn.style.marginBottom = '10px';
-        backBtn.onclick = () => {
-            currentChatUsername = null;
-            currentChatUserId = null;
-            renderInbox();
-            document.getElementById('backBtn').style.display = 'none';
-        };
-        list.appendChild(backBtn);
-        
+                     
         // Load conversation (both sent and received)
         loadConversation(senderId, senderUsername);
     }
