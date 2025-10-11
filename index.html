@@ -1398,7 +1398,7 @@ function toLocalTime(utcTimeString) {
 }
 
     async function loadConversation(userId, username) {
-    console.log('loadConversation called with userId:', userId, 'username:', username);
+    console.log('🔍 loadConversation START - userId:', userId, 'username:', username);
     const list = document.getElementById('inboxList');
     list.innerHTML = '';
 
@@ -1406,7 +1406,7 @@ function toLocalTime(utcTimeString) {
     const myUserId = String(telegramUser.id);
     const otherUserId = String(userId);
 
-    console.log('My user ID (string):', myUserId, 'Other user ID (string):', otherUserId);
+    console.log('👤 My ID:', myUserId, '| Other ID:', otherUserId);
 
     // 받은 메시지와 보낸 메시지 합치기
     const { data: allShares, error } = await supabase
@@ -1416,32 +1416,51 @@ function toLocalTime(utcTimeString) {
         .order('sent_at', { ascending: true });
 
     if (error) {
-        console.error('Load conversation error:', error);
+        console.error('❌ Load conversation error:', error);
         showAlert('Failed to load conversation!');
         return;
     }
 
-    console.log('All messages:', allShares);
-    console.log('Messages with isSent check:', allShares.map(m => ({
-        id: m.id,
-        from: m.from_user_id,
-        to: m.to_user_id,
-        isSent: String(m.from_user_id) === myUserId
-    })));
+    console.log('📨 Total messages:', allShares ? allShares.length : 0);
+
+    if (!allShares || allShares.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.textContent = 'No messages yet';
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.color = '#888888';
+        emptyMsg.style.padding = '20px';
+        list.appendChild(emptyMsg);
+        return;
+    }
 
     const chatContainer = document.createElement('div');
     chatContainer.className = 'chat-container';
 
-    allShares.forEach(msg => {
+    allShares.forEach((msg, index) => {
         const isSent = String(msg.from_user_id) === myUserId;
-        console.log('Message:', msg.id, 'from:', msg.from_user_id, 'isSent:', isSent);
+        
+        console.log(`💬 Message ${index + 1}:`, {
+            id: msg.id,
+            from: msg.from_user_id,
+            to: msg.to_user_id,
+            isSent: isSent,
+            text: msg.memo_text.substring(0, 20) + '...'
+        });
 
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+        
+        // 디버깅용 스타일 직접 적용
+        if (isSent) {
+            messageDiv.style.justifyContent = 'flex-end';
+        } else {
+            messageDiv.style.justifyContent = 'flex-start';
+        }
 
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
-        // 받은 메시지만 unread 표시 (내가 받은 것 && 안 읽음)
+        
+        // 받은 메시지만 unread 표시
         if (!isSent && !msg.is_read) {
             bubble.classList.add('unread');
         }
@@ -1501,6 +1520,8 @@ function toLocalTime(utcTimeString) {
     setTimeout(() => {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }, 100);
+    
+    console.log('✅ loadConversation COMPLETE');
 }
     
     function updateUnreadBadge() {
