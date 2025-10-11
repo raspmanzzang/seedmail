@@ -1166,20 +1166,20 @@ function toLocalTime(utcTimeString) {
     };
 
     async function createOrUpdateUser() {
-        const { data, error } = await supabase
-            .from('users')
-            .upsert({
-                telegram_id: String(telegramUser.id),  
-                username: telegramUser.username || '',
-                first_name: telegramUser.first_name || ''
-            }, { onConflict: 'telegram_id' });
-        
-        if (error) throw error;
-        
-        const displayName = telegramUser.first_name || telegramUser.username || 'User';
-        document.getElementById('userInfo').textContent = 
-            t('userInfo').replace('{name}', displayName);
-    }
+    const { data, error } = await supabase
+        .from('users')
+        .upsert({
+            telegram_id: String(telegramUser.id),
+            username: telegramUser.username || '',
+            first_name: telegramUser.first_name || ''
+        }, { onConflict: 'telegram_id' });
+    
+    if (error) throw error;
+    
+    const displayName = telegramUser.first_name || telegramUser.username || 'User';
+    document.getElementById('userInfo').textContent = 
+        t('userInfo').replace('{name}', displayName);
+}
 
     // ========== TAB SWITCHING ==========
     document.getElementById('myMemosTab').onclick = () => switchTab('myMemos');
@@ -1211,27 +1211,28 @@ function toLocalTime(utcTimeString) {
 
     // ========== INBOX FUNCTIONS ==========
     async function loadInbox() {
-        const { data, error } = await supabase
-            .from('shares')
-            .select('*, from_user:users!shares_from_user_id_fkey(username, first_name)')
-            .eq('to_user_id', String(telegramUser.id))  
-            .order('sent_at', { ascending: false });
-        
-        if (error) {
-            console.error('Load inbox error:', error);
-            return;
-        }
-        
-        inboxMessages = data || [];
-        renderInbox();
+    const { data, error } = await supabase
+        .from('shares')
+        .select('*, from_user:users!shares_from_user_id_fkey(username, first_name)')
+        .eq('to_user_id', String(telegramUser.id))
+        .order('sent_at', { ascending: false });
+    
+    if (error) {
+        console.error('Load inbox error:', error);
+        return;
     }
+    
+    inboxMessages = data || [];
+    renderInbox();
+}
 
     function renderInbox() {
     const list = document.getElementById('inboxList');
     const count = document.getElementById('inboxCount');
     list.innerHTML = '';
 
-    console.log('renderInbox called, inboxMessages:', inboxMessages); // 추가
+    console.log('renderInbox called, inboxMessages:', inboxMessages);
+    console.log('My telegram ID:', String(telegramUser.id));
 
     if (inboxMessages.length === 0) {
         const empty = document.createElement('div');
@@ -1243,29 +1244,36 @@ function toLocalTime(utcTimeString) {
     }
 
     const grouped = {};
+    const myUserId = String(telegramUser.id);
+    
     inboxMessages.forEach(msg => {
-        const senderId = msg.from_user_id;
-        const senderUsername = msg.from_user?.username || msg.to_username || 'Unknown';
+        // 상대방 ID 찾기: 내가 받은 메시지면 from_user_id, 내가 보낸 메시지면 to_user_id
+        const isReceived = String(msg.to_user_id) === myUserId;
+        const otherId = isReceived ? msg.from_user_id : msg.to_user_id;
+        const otherUsername = isReceived ? (msg.from_user?.username || msg.to_username) : msg.to_username;
         
-        if (!grouped[senderId]) {
-            grouped[senderId] = {
-                username: senderUsername,
+        if (!grouped[otherId]) {
+            grouped[otherId] = {
+                username: otherUsername || 'Unknown',
                 messages: []
             };
         }
-        grouped[senderId].messages.push(msg);
+        grouped[otherId].messages.push(msg);
     });
 
     const senderIds = Object.keys(grouped);
-    const pinnedIds = senderIds.filter(id => pinnedChats.includes(parseInt(id)));
-    const unpinnedIds = senderIds.filter(id => !pinnedChats.includes(parseInt(id)));
+    // pinnedChats도 문자열로 변환해서 비교
+    const pinnedIdsStr = pinnedChats.map(id => String(id));
+    const pinnedIds = senderIds.filter(id => pinnedIdsStr.includes(id));
+    const unpinnedIds = senderIds.filter(id => !pinnedIdsStr.includes(id));
 
     [...pinnedIds, ...unpinnedIds].forEach(senderId => {
         const group = grouped[senderId];
         const messages = group.messages;
-        const unreadCount = messages.filter(m => !m.is_read).length;
+        // 내가 받은 메시지 중 읽지 않은 것만 카운트
+        const unreadCount = messages.filter(m => String(m.to_user_id) === myUserId && !m.is_read).length;
         const lastMsg = messages[0];
-        const isPinned = pinnedChats.includes(parseInt(senderId));
+        const isPinned = pinnedIdsStr.includes(senderId);
         
         const item = document.createElement('div');
         item.className = 'memo-item';
@@ -1291,7 +1299,7 @@ function toLocalTime(utcTimeString) {
         item.appendChild(time);
         
         item.onclick = () => {
-            console.log('Clicked senderId:', senderId, 'username:', group.username); // 추가
+            console.log('Clicked senderId:', senderId, 'username:', group.username);
             showInboxSender(senderId, group.username);
         };
         
@@ -1317,34 +1325,34 @@ function toLocalTime(utcTimeString) {
 }
 
     function showContextMenu(x, y, senderId, isPinned) {
-        const menu = document.getElementById('contextMenu');
-        const pinItem = document.getElementById('pinMenuItem');
-        const unpinItem = document.getElementById('unpinMenuItem');
+    const menu = document.getElementById('contextMenu');
+    const pinItem = document.getElementById('pinMenuItem');
+    const unpinItem = document.getElementById('unpinMenuItem');
+    
+    contextMenuTarget = String(senderId);
+    
+    // Show/hide appropriate option
+    if (isPinned) {
+        pinItem.style.display = 'none';
+        unpinItem.style.display = 'block';
+    } else {
+        pinItem.style.display = 'block';
+        unpinItem.style.display = 'none';
         
-        contextMenuTarget = parseInt(senderId);
-        
-        // Show/hide appropriate option
-        if (isPinned) {
-            pinItem.style.display = 'none';
-            unpinItem.style.display = 'block';
+        // Check if already 5 pinned
+        if (pinnedChats.length >= 5) {
+            pinItem.classList.add('disabled');
+            pinItem.textContent = ' Pin to Top (Max 5)';
         } else {
-            pinItem.style.display = 'block';
-            unpinItem.style.display = 'none';
-            
-            // Check if already 5 pinned
-            if (pinnedChats.length >= 5) {
-                pinItem.classList.add('disabled');
-                pinItem.textContent = ' Pin to Top (Max 5)';
-            } else {
-                pinItem.classList.remove('disabled');
-                pinItem.textContent = ' Pin to Top';
-            }
+            pinItem.classList.remove('disabled');
+            pinItem.textContent = ' Pin to Top';
         }
-        
-        menu.style.left = x + 'px';
-        menu.style.top = y + 'px';
-        menu.classList.add('active');
     }
+    
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    menu.classList.add('active');
+}
 
     function hideContextMenu() {
         document.getElementById('contextMenu').classList.remove('active');
@@ -1352,89 +1360,84 @@ function toLocalTime(utcTimeString) {
     }
 
     function togglePin(senderId) {
-        const index = pinnedChats.indexOf(senderId);
-        
-        if (index > -1) {
-            // Unpin
-            pinnedChats.splice(index, 1);
-        } else {
-            // Pin (check limit)
-            if (pinnedChats.length >= 5) {
-                showAlert('Maximum 5 chats can be pinned!');
-                return;
-            }
-            pinnedChats.push(senderId);
+    const senderIdStr = String(senderId);
+    const index = pinnedChats.findIndex(id => String(id) === senderIdStr);
+    
+    if (index > -1) {
+        // Unpin
+        pinnedChats.splice(index, 1);
+    } else {
+        // Pin (check limit)
+        if (pinnedChats.length >= 5) {
+            showAlert('Maximum 5 chats can be pinned!');
+            return;
         }
-        
-        // Save to localStorage
-        localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
-        
-        // Re-render
-        renderInbox();
-        hideContextMenu();
+        pinnedChats.push(senderIdStr);
     }
+    
+    // Save to localStorage
+    localStorage.setItem('seednote_pinned', JSON.stringify(pinnedChats));
+    
+    // Re-render
+    renderInbox();
+    hideContextMenu();
+}
 
     function showInboxSender(senderId, senderUsername) {
-        console.log('🔍 showInboxSender called:', senderId, senderUsername);        
-        currentChatUsername = senderUsername;
-        currentChatUserId = String(senderId);                      
-        loadConversation(senderId, senderUsername);
-    }
+    console.log('🔍 showInboxSender called:', senderId, senderUsername);
+    
+    currentChatUsername = senderUsername;
+    currentChatUserId = String(senderId);
+                 
+    // Load conversation (both sent and received)
+    loadConversation(String(senderId), senderUsername);
+}
 
     async function loadConversation(userId, username) {
     console.log('loadConversation called with userId:', userId, 'username:', username);
     const list = document.getElementById('inboxList');
     list.innerHTML = '';
-        
+
     // 모든 ID를 문자열로 명확하게 통일
     const myUserId = String(telegramUser.id);
     const otherUserId = String(userId);
 
     console.log('My user ID (string):', myUserId, 'Other user ID (string):', otherUserId);
 
-    // 받은 메시지
-    const received = inboxMessages.filter(m => String(m.from_user_id) === String(userId));
-    console.log('received messages:', received); 
-
-    // 보낸 메시지
-    const { data: sent, error } = await supabase
+    // 받은 메시지와 보낸 메시지 합치기
+    const { data: allShares, error } = await supabase
         .from('shares')
         .select('*')
-        .eq('from_user_id', myUserId) 
-        .eq('to_user_id', otherUserId)  
+        .or(`and(from_user_id.eq.${myUserId},to_user_id.eq.${otherUserId}),and(from_user_id.eq.${otherUserId},to_user_id.eq.${myUserId})`)
         .order('sent_at', { ascending: true });
 
     if (error) {
-        console.error('Load sent messages error:', error);
+        console.error('Load conversation error:', error);
         showAlert('Failed to load conversation!');
         return;
     }
-    console.log('sent messages:', sent); // 추가
 
-    const allMessages = [...received, ...(sent || [])].sort((a, b) => 
-        new Date(a.sent_at) - new Date(b.sent_at)
-    );
-
-    console.log('telegramUser.id:', telegramUser.id, 'type:', typeof telegramUser.id);
-    console.log('userId:', userId, 'type:', typeof userId);
-    console.log('Messages:', allMessages.map(m => ({
+    console.log('All messages:', allShares);
+    console.log('Messages with isSent check:', allShares.map(m => ({
         id: m.id,
-        from_user_id: m.from_user_id,
-        type: typeof m.from_user_id,
-        isSent: String(m.from_user_id) === String(telegramUser.id)
+        from: m.from_user_id,
+        to: m.to_user_id,
+        isSent: String(m.from_user_id) === myUserId
     })));
 
     const chatContainer = document.createElement('div');
     chatContainer.className = 'chat-container';
 
-    allMessages.forEach(msg => {
-        const isSent = String(msg.from_user_id) === myUserId;  
+    allShares.forEach(msg => {
+        const isSent = String(msg.from_user_id) === myUserId;
+        console.log('Message:', msg.id, 'from:', msg.from_user_id, 'isSent:', isSent);
 
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
 
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+        // 받은 메시지만 unread 표시 (내가 받은 것 && 안 읽음)
         if (!isSent && !msg.is_read) {
             bubble.classList.add('unread');
         }
@@ -1451,6 +1454,7 @@ function toLocalTime(utcTimeString) {
         bubble.appendChild(time);
         messageDiv.appendChild(bubble);
 
+        // 받은 메시지이고 안 읽었으면 클릭으로 읽음 처리
         if (!isSent && !msg.is_read) {
             bubble.onclick = async () => {
                 const { error } = await supabase
@@ -1496,29 +1500,31 @@ function toLocalTime(utcTimeString) {
 }
     
     function updateUnreadBadge() {
-        const unreadCount = inboxMessages.filter(m => !m.is_read).length;
-        const badge = document.getElementById('unreadBadge');
-        
-        if (unreadCount > 0) {
-            badge.textContent = unreadCount;
-            badge.style.display = 'block';
-        } else {
-            badge.style.display = 'none';
-        }
+    const myUserId = String(telegramUser.id);
+    // 내가 받은 메시지 중 읽지 않은 것만 카운트
+    const unreadCount = inboxMessages.filter(m => String(m.to_user_id) === myUserId && !m.is_read).length;
+    const badge = document.getElementById('unreadBadge');
+    
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.style.display = 'block';
+    } else {
+        badge.style.display = 'none';
     }
+}
 
     // ========== MEMO FUNCTIONS ==========
     async function loadMemos() {
-        const { data, error } = await supabase
-            .from('memos')
-            .select('*')
-            .eq('user_id', String(telegramUser.id))  
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        memos = data || [];
-        renderMemos();
-    }
+    const { data, error } = await supabase
+        .from('memos')
+        .select('*')
+        .eq('user_id', String(telegramUser.id))
+        .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    memos = data || [];
+    renderMemos();
+}
 
     async function addMemo() {
 const input = document.getElementById('memoInput');
@@ -1580,12 +1586,12 @@ await loadMemos();}
     await supabase
         .from('shares')
         .insert({
-            from_user_id: telegramUser.id,
-            to_user_id: recipientId,
+            from_user_id: String(telegramUser.id),
+            to_user_id: String(recipientId),
             to_username: replyToUsername,
             memo_text: text,
             memo_time: new Date().toISOString(),
-            is_read: true
+            is_read: false
         });
 
     document.getElementById('memoInput').value = '';
@@ -2108,7 +2114,7 @@ const { error } = await supabase
         memo_text: memo.text,
         memo_time: memo.time,
         sent_at: new Date().toISOString(),
-        is_read: true
+        is_read: false
     });
         if (shareError) {
             errorLabel.textContent = 'Failed to save share record!';
