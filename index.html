@@ -1645,7 +1645,7 @@ await loadMemos();}
         document.getElementById('detailView').classList.add('active');
         document.getElementById('backBtn').style.display = 'block';
 
-        const time = formatDateTime(memo.time);
+        const time = formatDateTime(memo.created_at);
         document.getElementById('detailTime').textContent = time;
         document.getElementById('detailContent').textContent = memo.text;
         document.getElementById('detailEdit').value = memo.text;
@@ -1780,7 +1780,7 @@ const { error } = await supabase
         await loadMemos();
         const memo = memos.find(m => m.id === currentMemoId);
         if (memo) {
-            const time = formatDateTime(memo.time);
+            const time = formatDateTime(memo.created_at);
             document.getElementById('detailTime').textContent = time;
             document.getElementById('detailContent').textContent = text;
             document.getElementById('detailContent').style.display = 'block';
@@ -2023,7 +2023,7 @@ const { error } = await supabase
 
     try {
         // 메모 텍스트 전송
-        let messageText = `New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n${formatDateTime(memo.time)}`;
+        let messageText = `New memo from @${telegramUser.username || telegramUser.first_name}:\n\n${memo.text}\n\n${formatDateTime(memo.created_at)}`;
         
         console.log('Sending memo text to:', recipientId, 'with initData:', !!tg.initData);
         const response = await fetch('/api/telegram', {
@@ -2105,7 +2105,7 @@ const { error } = await supabase
             to_username: username,
             memo_id: currentMemoId,
             memo_text: memo.text,
-            memo_time: memo.time,
+            memo_time: memo.created_at,
             sent_at: new Date().toISOString()
         });
         const { error: shareError } = await supabase
@@ -2392,7 +2392,7 @@ const { error } = await supabase
                 const item = document.createElement('div');
                 item.className = 'memo-item';
                 const preview = memo.text.split('\n')[0];
-                const time = formatDateTime(memo.time);
+                const time = formatDateTime(memo.created_at);
                 item.textContent = `${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''} (${time})`;
                 item.onclick = () => showMemoDetail(memo.id);
                 list.appendChild(item);
@@ -2716,7 +2716,7 @@ const { error } = await supabase
                             .insert(backup.memos.map(m => ({
                                 user_id: String(telegramUser.id),
                                 text: m.text,
-                                time: m.time
+                                created_at: m.created_at
                             })));
 
                         if (memosError) throw memosError;
