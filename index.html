@@ -1211,10 +1211,13 @@ function toLocalTime(utcTimeString) {
 
     // ========== INBOX FUNCTIONS ==========
     async function loadInbox() {
+    const myUserId = String(telegramUser.id);
+    
+    // 받은 메시지와 보낸 메시지 모두 조회
     const { data, error } = await supabase
         .from('shares')
         .select('*, from_user:users!shares_from_user_id_fkey(username, first_name)')
-        .eq('to_user_id', String(telegramUser.id))
+        .or(`to_user_id.eq.${myUserId},from_user_id.eq.${myUserId}`)
         .order('sent_at', { ascending: false });
     
     if (error) {
@@ -1223,6 +1226,7 @@ function toLocalTime(utcTimeString) {
     }
     
     inboxMessages = data || [];
+    console.log('📬 Loaded inbox messages:', inboxMessages.length);
     renderInbox();
 }
 
