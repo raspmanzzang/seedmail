@@ -1231,11 +1231,12 @@ function toLocalTime(utcTimeString) {
 }
 
     function renderInbox() {
+    console.log('📥 renderInbox START');
     const list = document.getElementById('inboxList');
     const count = document.getElementById('inboxCount');
     list.innerHTML = '';
 
-    console.log('renderInbox called, inboxMessages:', inboxMessages);
+    console.log('Total inbox messages:', inboxMessages.length);
     console.log('My telegram ID:', String(telegramUser.id));
 
     if (inboxMessages.length === 0) {
@@ -1244,6 +1245,7 @@ function toLocalTime(utcTimeString) {
         empty.textContent = t('emptyInbox');
         list.appendChild(empty);
         count.textContent = '';
+        console.log('📥 renderInbox END - No messages');
         return;
     }
 
@@ -1251,7 +1253,6 @@ function toLocalTime(utcTimeString) {
     const myUserId = String(telegramUser.id);
     
     inboxMessages.forEach(msg => {
-        // 상대방 ID 찾기: 내가 받은 메시지면 from_user_id, 내가 보낸 메시지면 to_user_id
         const isReceived = String(msg.to_user_id) === myUserId;
         const otherId = isReceived ? msg.from_user_id : msg.to_user_id;
         const otherUsername = isReceived ? (msg.from_user?.username || msg.to_username) : msg.to_username;
@@ -1266,7 +1267,8 @@ function toLocalTime(utcTimeString) {
     });
 
     const senderIds = Object.keys(grouped);
-    // pinnedChats도 문자열로 변환해서 비교
+    console.log('Total senders:', senderIds.length, senderIds);
+    
     const pinnedIdsStr = pinnedChats.map(id => String(id));
     const pinnedIds = senderIds.filter(id => pinnedIdsStr.includes(id));
     const unpinnedIds = senderIds.filter(id => !pinnedIdsStr.includes(id));
@@ -1274,10 +1276,11 @@ function toLocalTime(utcTimeString) {
     [...pinnedIds, ...unpinnedIds].forEach(senderId => {
         const group = grouped[senderId];
         const messages = group.messages;
-        // 내가 받은 메시지 중 읽지 않은 것만 카운트
         const unreadCount = messages.filter(m => String(m.to_user_id) === myUserId && !m.is_read).length;
         const lastMsg = messages[0];
         const isPinned = pinnedIdsStr.includes(senderId);
+        
+        console.log('Creating item for sender:', senderId, group.username);
         
         const item = document.createElement('div');
         item.className = 'memo-item';
@@ -1302,10 +1305,13 @@ function toLocalTime(utcTimeString) {
         item.appendChild(preview);
         item.appendChild(time);
         
-        item.onclick = () => {
-            console.log('Clicked senderId:', senderId, 'username:', group.username);
+        // 클릭 이벤트 - 명확하게 설정
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ CLICKED! senderId:', senderId, 'username:', group.username);
             showInboxSender(senderId, group.username);
-        };
+        });
         
         item.oncontextmenu = (e) => {
             e.preventDefault();
@@ -1326,8 +1332,8 @@ function toLocalTime(utcTimeString) {
     });
 
     count.textContent = t('inboxCount').replace('{count}', senderIds.length);
+    console.log('📥 renderInbox END - Success');
 }
-
     function showContextMenu(x, y, senderId, isPinned) {
     const menu = document.getElementById('contextMenu');
     const pinItem = document.getElementById('pinMenuItem');
